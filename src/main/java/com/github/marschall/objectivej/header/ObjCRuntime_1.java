@@ -12,11 +12,12427 @@ import java.util.stream.*;
 import static java.lang.foreign.ValueLayout.*;
 import static java.lang.foreign.MemoryLayout.PathElement.*;
 
-public class ObjCRuntime_1 extends ObjCRuntime_2 {
+public class ObjCRuntime_1 {
 
     ObjCRuntime_1() {
         // Should not be called directly
     }
+
+    static final Arena LIBRARY_ARENA = Arena.ofAuto();
+    static final boolean TRACE_DOWNCALLS = Boolean.getBoolean("jextract.trace.downcalls");
+
+    static void traceDowncall(String name, Object... args) {
+         String traceArgs = Arrays.stream(args)
+                       .map(Object::toString)
+                       .collect(Collectors.joining(", "));
+         System.out.printf("%s(%s)\n", name, traceArgs);
+    }
+
+    static MemorySegment findOrThrow(String symbol) {
+        return SYMBOL_LOOKUP.find(symbol)
+            .orElseThrow(() -> new UnsatisfiedLinkError("unresolved symbol: " + symbol));
+    }
+
+    static MethodHandle upcallHandle(Class<?> fi, String name, FunctionDescriptor fdesc) {
+        try {
+            return MethodHandles.lookup().findVirtual(fi, name, fdesc.toMethodType());
+        } catch (ReflectiveOperationException ex) {
+            throw new AssertionError(ex);
+        }
+    }
+
+    static MemoryLayout align(MemoryLayout layout, long align) {
+        return switch (layout) {
+            case PaddingLayout p -> p;
+            case ValueLayout v -> v.withByteAlignment(align);
+            case GroupLayout g -> {
+                MemoryLayout[] alignedMembers = g.memberLayouts().stream()
+                        .map(m -> align(m, align)).toArray(MemoryLayout[]::new);
+                yield g instanceof StructLayout ?
+                        MemoryLayout.structLayout(alignedMembers) : MemoryLayout.unionLayout(alignedMembers);
+            }
+            case SequenceLayout s -> MemoryLayout.sequenceLayout(s.elementCount(), align(s.elementLayout(), align));
+        };
+    }
+
+    static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.libraryLookup(System.mapLibraryName("objc"), LIBRARY_ARENA)
+            .or(SymbolLookup.loaderLookup())
+            .or(Linker.nativeLinker().defaultLookup());
+
+    public static final ValueLayout.OfBoolean C_BOOL = ValueLayout.JAVA_BOOLEAN;
+    public static final ValueLayout.OfByte C_CHAR = ValueLayout.JAVA_BYTE;
+    public static final ValueLayout.OfShort C_SHORT = ValueLayout.JAVA_SHORT;
+    public static final ValueLayout.OfInt C_INT = ValueLayout.JAVA_INT;
+    public static final ValueLayout.OfLong C_LONG_LONG = ValueLayout.JAVA_LONG;
+    public static final ValueLayout.OfFloat C_FLOAT = ValueLayout.JAVA_FLOAT;
+    public static final ValueLayout.OfDouble C_DOUBLE = ValueLayout.JAVA_DOUBLE;
+    public static final AddressLayout C_POINTER = ValueLayout.ADDRESS
+            .withTargetLayout(MemoryLayout.sequenceLayout(java.lang.Long.MAX_VALUE, JAVA_BYTE));
+    public static final ValueLayout.OfLong C_LONG = ValueLayout.JAVA_LONG;
+    private static final int __has_safe_buffers = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define __has_safe_buffers 0
+     * }
+     */
+    public static int __has_safe_buffers() {
+        return __has_safe_buffers;
+    }
+    private static final int __DARWIN_ONLY_64_BIT_INO_T = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_ONLY_64_BIT_INO_T 1
+     * }
+     */
+    public static int __DARWIN_ONLY_64_BIT_INO_T() {
+        return __DARWIN_ONLY_64_BIT_INO_T;
+    }
+    private static final int __DARWIN_ONLY_UNIX_CONFORMANCE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_ONLY_UNIX_CONFORMANCE 1
+     * }
+     */
+    public static int __DARWIN_ONLY_UNIX_CONFORMANCE() {
+        return __DARWIN_ONLY_UNIX_CONFORMANCE;
+    }
+    private static final int __DARWIN_ONLY_VERS_1050 = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_ONLY_VERS_1050 1
+     * }
+     */
+    public static int __DARWIN_ONLY_VERS_1050() {
+        return __DARWIN_ONLY_VERS_1050;
+    }
+    private static final int __DARWIN_UNIX03 = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_UNIX03 1
+     * }
+     */
+    public static int __DARWIN_UNIX03() {
+        return __DARWIN_UNIX03;
+    }
+    private static final int __DARWIN_64_BIT_INO_T = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_64_BIT_INO_T 1
+     * }
+     */
+    public static int __DARWIN_64_BIT_INO_T() {
+        return __DARWIN_64_BIT_INO_T;
+    }
+    private static final int __DARWIN_VERS_1050 = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_VERS_1050 1
+     * }
+     */
+    public static int __DARWIN_VERS_1050() {
+        return __DARWIN_VERS_1050;
+    }
+    private static final int __DARWIN_NON_CANCELABLE = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_NON_CANCELABLE 0
+     * }
+     */
+    public static int __DARWIN_NON_CANCELABLE() {
+        return __DARWIN_NON_CANCELABLE;
+    }
+    private static final int __STDC_WANT_LIB_EXT1__ = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __STDC_WANT_LIB_EXT1__ 1
+     * }
+     */
+    public static int __STDC_WANT_LIB_EXT1__() {
+        return __STDC_WANT_LIB_EXT1__;
+    }
+    private static final int __DARWIN_NO_LONG_LONG = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_NO_LONG_LONG 0
+     * }
+     */
+    public static int __DARWIN_NO_LONG_LONG() {
+        return __DARWIN_NO_LONG_LONG;
+    }
+    private static final int _DARWIN_FEATURE_64_BIT_INODE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define _DARWIN_FEATURE_64_BIT_INODE 1
+     * }
+     */
+    public static int _DARWIN_FEATURE_64_BIT_INODE() {
+        return _DARWIN_FEATURE_64_BIT_INODE;
+    }
+    private static final int _DARWIN_FEATURE_ONLY_64_BIT_INODE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define _DARWIN_FEATURE_ONLY_64_BIT_INODE 1
+     * }
+     */
+    public static int _DARWIN_FEATURE_ONLY_64_BIT_INODE() {
+        return _DARWIN_FEATURE_ONLY_64_BIT_INODE;
+    }
+    private static final int _DARWIN_FEATURE_ONLY_VERS_1050 = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define _DARWIN_FEATURE_ONLY_VERS_1050 1
+     * }
+     */
+    public static int _DARWIN_FEATURE_ONLY_VERS_1050() {
+        return _DARWIN_FEATURE_ONLY_VERS_1050;
+    }
+    private static final int _DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define _DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE 1
+     * }
+     */
+    public static int _DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE() {
+        return _DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE;
+    }
+    private static final int _DARWIN_FEATURE_UNIX_CONFORMANCE = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define _DARWIN_FEATURE_UNIX_CONFORMANCE 3
+     * }
+     */
+    public static int _DARWIN_FEATURE_UNIX_CONFORMANCE() {
+        return _DARWIN_FEATURE_UNIX_CONFORMANCE;
+    }
+    private static final int __has_ptrcheck = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define __has_ptrcheck 0
+     * }
+     */
+    public static int __has_ptrcheck() {
+        return __has_ptrcheck;
+    }
+    private static final int USE_CLANG_TYPES = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define USE_CLANG_TYPES 0
+     * }
+     */
+    public static int USE_CLANG_TYPES() {
+        return USE_CLANG_TYPES;
+    }
+    private static final int __PTHREAD_SIZE__ = (int)8176L;
+    /**
+     * {@snippet lang=c :
+     * #define __PTHREAD_SIZE__ 8176
+     * }
+     */
+    public static int __PTHREAD_SIZE__() {
+        return __PTHREAD_SIZE__;
+    }
+    private static final int __PTHREAD_ATTR_SIZE__ = (int)56L;
+    /**
+     * {@snippet lang=c :
+     * #define __PTHREAD_ATTR_SIZE__ 56
+     * }
+     */
+    public static int __PTHREAD_ATTR_SIZE__() {
+        return __PTHREAD_ATTR_SIZE__;
+    }
+    private static final int __PTHREAD_MUTEXATTR_SIZE__ = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define __PTHREAD_MUTEXATTR_SIZE__ 8
+     * }
+     */
+    public static int __PTHREAD_MUTEXATTR_SIZE__() {
+        return __PTHREAD_MUTEXATTR_SIZE__;
+    }
+    private static final int __PTHREAD_MUTEX_SIZE__ = (int)56L;
+    /**
+     * {@snippet lang=c :
+     * #define __PTHREAD_MUTEX_SIZE__ 56
+     * }
+     */
+    public static int __PTHREAD_MUTEX_SIZE__() {
+        return __PTHREAD_MUTEX_SIZE__;
+    }
+    private static final int __PTHREAD_CONDATTR_SIZE__ = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define __PTHREAD_CONDATTR_SIZE__ 8
+     * }
+     */
+    public static int __PTHREAD_CONDATTR_SIZE__() {
+        return __PTHREAD_CONDATTR_SIZE__;
+    }
+    private static final int __PTHREAD_COND_SIZE__ = (int)40L;
+    /**
+     * {@snippet lang=c :
+     * #define __PTHREAD_COND_SIZE__ 40
+     * }
+     */
+    public static int __PTHREAD_COND_SIZE__() {
+        return __PTHREAD_COND_SIZE__;
+    }
+    private static final int __PTHREAD_ONCE_SIZE__ = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define __PTHREAD_ONCE_SIZE__ 8
+     * }
+     */
+    public static int __PTHREAD_ONCE_SIZE__() {
+        return __PTHREAD_ONCE_SIZE__;
+    }
+    private static final int __PTHREAD_RWLOCK_SIZE__ = (int)192L;
+    /**
+     * {@snippet lang=c :
+     * #define __PTHREAD_RWLOCK_SIZE__ 192
+     * }
+     */
+    public static int __PTHREAD_RWLOCK_SIZE__() {
+        return __PTHREAD_RWLOCK_SIZE__;
+    }
+    private static final int __PTHREAD_RWLOCKATTR_SIZE__ = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define __PTHREAD_RWLOCKATTR_SIZE__ 16
+     * }
+     */
+    public static int __PTHREAD_RWLOCKATTR_SIZE__() {
+        return __PTHREAD_RWLOCKATTR_SIZE__;
+    }
+    private static final int __DARWIN_NSIG = (int)32L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_NSIG 32
+     * }
+     */
+    public static int __DARWIN_NSIG() {
+        return __DARWIN_NSIG;
+    }
+    private static final int SIGHUP = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGHUP 1
+     * }
+     */
+    public static int SIGHUP() {
+        return SIGHUP;
+    }
+    private static final int SIGINT = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGINT 2
+     * }
+     */
+    public static int SIGINT() {
+        return SIGINT;
+    }
+    private static final int SIGQUIT = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGQUIT 3
+     * }
+     */
+    public static int SIGQUIT() {
+        return SIGQUIT;
+    }
+    private static final int SIGILL = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGILL 4
+     * }
+     */
+    public static int SIGILL() {
+        return SIGILL;
+    }
+    private static final int SIGTRAP = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGTRAP 5
+     * }
+     */
+    public static int SIGTRAP() {
+        return SIGTRAP;
+    }
+    private static final int SIGABRT = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGABRT 6
+     * }
+     */
+    public static int SIGABRT() {
+        return SIGABRT;
+    }
+    private static final int SIGEMT = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGEMT 7
+     * }
+     */
+    public static int SIGEMT() {
+        return SIGEMT;
+    }
+    private static final int SIGFPE = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGFPE 8
+     * }
+     */
+    public static int SIGFPE() {
+        return SIGFPE;
+    }
+    private static final int SIGKILL = (int)9L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGKILL 9
+     * }
+     */
+    public static int SIGKILL() {
+        return SIGKILL;
+    }
+    private static final int SIGBUS = (int)10L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGBUS 10
+     * }
+     */
+    public static int SIGBUS() {
+        return SIGBUS;
+    }
+    private static final int SIGSEGV = (int)11L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGSEGV 11
+     * }
+     */
+    public static int SIGSEGV() {
+        return SIGSEGV;
+    }
+    private static final int SIGSYS = (int)12L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGSYS 12
+     * }
+     */
+    public static int SIGSYS() {
+        return SIGSYS;
+    }
+    private static final int SIGPIPE = (int)13L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGPIPE 13
+     * }
+     */
+    public static int SIGPIPE() {
+        return SIGPIPE;
+    }
+    private static final int SIGALRM = (int)14L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGALRM 14
+     * }
+     */
+    public static int SIGALRM() {
+        return SIGALRM;
+    }
+    private static final int SIGTERM = (int)15L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGTERM 15
+     * }
+     */
+    public static int SIGTERM() {
+        return SIGTERM;
+    }
+    private static final int SIGURG = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGURG 16
+     * }
+     */
+    public static int SIGURG() {
+        return SIGURG;
+    }
+    private static final int SIGSTOP = (int)17L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGSTOP 17
+     * }
+     */
+    public static int SIGSTOP() {
+        return SIGSTOP;
+    }
+    private static final int SIGTSTP = (int)18L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGTSTP 18
+     * }
+     */
+    public static int SIGTSTP() {
+        return SIGTSTP;
+    }
+    private static final int SIGCONT = (int)19L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGCONT 19
+     * }
+     */
+    public static int SIGCONT() {
+        return SIGCONT;
+    }
+    private static final int SIGCHLD = (int)20L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGCHLD 20
+     * }
+     */
+    public static int SIGCHLD() {
+        return SIGCHLD;
+    }
+    private static final int SIGTTIN = (int)21L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGTTIN 21
+     * }
+     */
+    public static int SIGTTIN() {
+        return SIGTTIN;
+    }
+    private static final int SIGTTOU = (int)22L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGTTOU 22
+     * }
+     */
+    public static int SIGTTOU() {
+        return SIGTTOU;
+    }
+    private static final int SIGIO = (int)23L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGIO 23
+     * }
+     */
+    public static int SIGIO() {
+        return SIGIO;
+    }
+    private static final int SIGXCPU = (int)24L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGXCPU 24
+     * }
+     */
+    public static int SIGXCPU() {
+        return SIGXCPU;
+    }
+    private static final int SIGXFSZ = (int)25L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGXFSZ 25
+     * }
+     */
+    public static int SIGXFSZ() {
+        return SIGXFSZ;
+    }
+    private static final int SIGVTALRM = (int)26L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGVTALRM 26
+     * }
+     */
+    public static int SIGVTALRM() {
+        return SIGVTALRM;
+    }
+    private static final int SIGPROF = (int)27L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGPROF 27
+     * }
+     */
+    public static int SIGPROF() {
+        return SIGPROF;
+    }
+    private static final int SIGWINCH = (int)28L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGWINCH 28
+     * }
+     */
+    public static int SIGWINCH() {
+        return SIGWINCH;
+    }
+    private static final int SIGINFO = (int)29L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGINFO 29
+     * }
+     */
+    public static int SIGINFO() {
+        return SIGINFO;
+    }
+    private static final int SIGUSR1 = (int)30L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGUSR1 30
+     * }
+     */
+    public static int SIGUSR1() {
+        return SIGUSR1;
+    }
+    private static final int SIGUSR2 = (int)31L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGUSR2 31
+     * }
+     */
+    public static int SIGUSR2() {
+        return SIGUSR2;
+    }
+    private static final int USE_CLANG_STDDEF = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define USE_CLANG_STDDEF 0
+     * }
+     */
+    public static int USE_CLANG_STDDEF() {
+        return USE_CLANG_STDDEF;
+    }
+    private static final int SIGEV_NONE = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGEV_NONE 0
+     * }
+     */
+    public static int SIGEV_NONE() {
+        return SIGEV_NONE;
+    }
+    private static final int SIGEV_SIGNAL = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGEV_SIGNAL 1
+     * }
+     */
+    public static int SIGEV_SIGNAL() {
+        return SIGEV_SIGNAL;
+    }
+    private static final int SIGEV_THREAD = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGEV_THREAD 3
+     * }
+     */
+    public static int SIGEV_THREAD() {
+        return SIGEV_THREAD;
+    }
+    private static final int ILL_NOOP = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define ILL_NOOP 0
+     * }
+     */
+    public static int ILL_NOOP() {
+        return ILL_NOOP;
+    }
+    private static final int ILL_ILLOPC = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define ILL_ILLOPC 1
+     * }
+     */
+    public static int ILL_ILLOPC() {
+        return ILL_ILLOPC;
+    }
+    private static final int ILL_ILLTRP = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define ILL_ILLTRP 2
+     * }
+     */
+    public static int ILL_ILLTRP() {
+        return ILL_ILLTRP;
+    }
+    private static final int ILL_PRVOPC = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define ILL_PRVOPC 3
+     * }
+     */
+    public static int ILL_PRVOPC() {
+        return ILL_PRVOPC;
+    }
+    private static final int ILL_ILLOPN = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define ILL_ILLOPN 4
+     * }
+     */
+    public static int ILL_ILLOPN() {
+        return ILL_ILLOPN;
+    }
+    private static final int ILL_ILLADR = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define ILL_ILLADR 5
+     * }
+     */
+    public static int ILL_ILLADR() {
+        return ILL_ILLADR;
+    }
+    private static final int ILL_PRVREG = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define ILL_PRVREG 6
+     * }
+     */
+    public static int ILL_PRVREG() {
+        return ILL_PRVREG;
+    }
+    private static final int ILL_COPROC = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define ILL_COPROC 7
+     * }
+     */
+    public static int ILL_COPROC() {
+        return ILL_COPROC;
+    }
+    private static final int ILL_BADSTK = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define ILL_BADSTK 8
+     * }
+     */
+    public static int ILL_BADSTK() {
+        return ILL_BADSTK;
+    }
+    private static final int FPE_NOOP = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define FPE_NOOP 0
+     * }
+     */
+    public static int FPE_NOOP() {
+        return FPE_NOOP;
+    }
+    private static final int FPE_FLTDIV = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define FPE_FLTDIV 1
+     * }
+     */
+    public static int FPE_FLTDIV() {
+        return FPE_FLTDIV;
+    }
+    private static final int FPE_FLTOVF = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define FPE_FLTOVF 2
+     * }
+     */
+    public static int FPE_FLTOVF() {
+        return FPE_FLTOVF;
+    }
+    private static final int FPE_FLTUND = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define FPE_FLTUND 3
+     * }
+     */
+    public static int FPE_FLTUND() {
+        return FPE_FLTUND;
+    }
+    private static final int FPE_FLTRES = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define FPE_FLTRES 4
+     * }
+     */
+    public static int FPE_FLTRES() {
+        return FPE_FLTRES;
+    }
+    private static final int FPE_FLTINV = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define FPE_FLTINV 5
+     * }
+     */
+    public static int FPE_FLTINV() {
+        return FPE_FLTINV;
+    }
+    private static final int FPE_FLTSUB = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define FPE_FLTSUB 6
+     * }
+     */
+    public static int FPE_FLTSUB() {
+        return FPE_FLTSUB;
+    }
+    private static final int FPE_INTDIV = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define FPE_INTDIV 7
+     * }
+     */
+    public static int FPE_INTDIV() {
+        return FPE_INTDIV;
+    }
+    private static final int FPE_INTOVF = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define FPE_INTOVF 8
+     * }
+     */
+    public static int FPE_INTOVF() {
+        return FPE_INTOVF;
+    }
+    private static final int SEGV_NOOP = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define SEGV_NOOP 0
+     * }
+     */
+    public static int SEGV_NOOP() {
+        return SEGV_NOOP;
+    }
+    private static final int SEGV_MAPERR = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define SEGV_MAPERR 1
+     * }
+     */
+    public static int SEGV_MAPERR() {
+        return SEGV_MAPERR;
+    }
+    private static final int SEGV_ACCERR = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define SEGV_ACCERR 2
+     * }
+     */
+    public static int SEGV_ACCERR() {
+        return SEGV_ACCERR;
+    }
+    private static final int BUS_NOOP = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define BUS_NOOP 0
+     * }
+     */
+    public static int BUS_NOOP() {
+        return BUS_NOOP;
+    }
+    private static final int BUS_ADRALN = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define BUS_ADRALN 1
+     * }
+     */
+    public static int BUS_ADRALN() {
+        return BUS_ADRALN;
+    }
+    private static final int BUS_ADRERR = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define BUS_ADRERR 2
+     * }
+     */
+    public static int BUS_ADRERR() {
+        return BUS_ADRERR;
+    }
+    private static final int BUS_OBJERR = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define BUS_OBJERR 3
+     * }
+     */
+    public static int BUS_OBJERR() {
+        return BUS_OBJERR;
+    }
+    private static final int TRAP_BRKPT = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define TRAP_BRKPT 1
+     * }
+     */
+    public static int TRAP_BRKPT() {
+        return TRAP_BRKPT;
+    }
+    private static final int TRAP_TRACE = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define TRAP_TRACE 2
+     * }
+     */
+    public static int TRAP_TRACE() {
+        return TRAP_TRACE;
+    }
+    private static final int CLD_NOOP = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define CLD_NOOP 0
+     * }
+     */
+    public static int CLD_NOOP() {
+        return CLD_NOOP;
+    }
+    private static final int CLD_EXITED = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define CLD_EXITED 1
+     * }
+     */
+    public static int CLD_EXITED() {
+        return CLD_EXITED;
+    }
+    private static final int CLD_KILLED = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define CLD_KILLED 2
+     * }
+     */
+    public static int CLD_KILLED() {
+        return CLD_KILLED;
+    }
+    private static final int CLD_DUMPED = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define CLD_DUMPED 3
+     * }
+     */
+    public static int CLD_DUMPED() {
+        return CLD_DUMPED;
+    }
+    private static final int CLD_TRAPPED = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define CLD_TRAPPED 4
+     * }
+     */
+    public static int CLD_TRAPPED() {
+        return CLD_TRAPPED;
+    }
+    private static final int CLD_STOPPED = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define CLD_STOPPED 5
+     * }
+     */
+    public static int CLD_STOPPED() {
+        return CLD_STOPPED;
+    }
+    private static final int CLD_CONTINUED = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define CLD_CONTINUED 6
+     * }
+     */
+    public static int CLD_CONTINUED() {
+        return CLD_CONTINUED;
+    }
+    private static final int POLL_IN = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define POLL_IN 1
+     * }
+     */
+    public static int POLL_IN() {
+        return POLL_IN;
+    }
+    private static final int POLL_OUT = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define POLL_OUT 2
+     * }
+     */
+    public static int POLL_OUT() {
+        return POLL_OUT;
+    }
+    private static final int POLL_MSG = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define POLL_MSG 3
+     * }
+     */
+    public static int POLL_MSG() {
+        return POLL_MSG;
+    }
+    private static final int POLL_ERR = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define POLL_ERR 4
+     * }
+     */
+    public static int POLL_ERR() {
+        return POLL_ERR;
+    }
+    private static final int POLL_PRI = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define POLL_PRI 5
+     * }
+     */
+    public static int POLL_PRI() {
+        return POLL_PRI;
+    }
+    private static final int POLL_HUP = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define POLL_HUP 6
+     * }
+     */
+    public static int POLL_HUP() {
+        return POLL_HUP;
+    }
+    private static final int SA_ONSTACK = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define SA_ONSTACK 1
+     * }
+     */
+    public static int SA_ONSTACK() {
+        return SA_ONSTACK;
+    }
+    private static final int SA_RESTART = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define SA_RESTART 2
+     * }
+     */
+    public static int SA_RESTART() {
+        return SA_RESTART;
+    }
+    private static final int SA_RESETHAND = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define SA_RESETHAND 4
+     * }
+     */
+    public static int SA_RESETHAND() {
+        return SA_RESETHAND;
+    }
+    private static final int SA_NOCLDSTOP = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define SA_NOCLDSTOP 8
+     * }
+     */
+    public static int SA_NOCLDSTOP() {
+        return SA_NOCLDSTOP;
+    }
+    private static final int SA_NODEFER = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define SA_NODEFER 16
+     * }
+     */
+    public static int SA_NODEFER() {
+        return SA_NODEFER;
+    }
+    private static final int SA_NOCLDWAIT = (int)32L;
+    /**
+     * {@snippet lang=c :
+     * #define SA_NOCLDWAIT 32
+     * }
+     */
+    public static int SA_NOCLDWAIT() {
+        return SA_NOCLDWAIT;
+    }
+    private static final int SA_SIGINFO = (int)64L;
+    /**
+     * {@snippet lang=c :
+     * #define SA_SIGINFO 64
+     * }
+     */
+    public static int SA_SIGINFO() {
+        return SA_SIGINFO;
+    }
+    private static final int SA_USERTRAMP = (int)256L;
+    /**
+     * {@snippet lang=c :
+     * #define SA_USERTRAMP 256
+     * }
+     */
+    public static int SA_USERTRAMP() {
+        return SA_USERTRAMP;
+    }
+    private static final int SA_64REGSET = (int)512L;
+    /**
+     * {@snippet lang=c :
+     * #define SA_64REGSET 512
+     * }
+     */
+    public static int SA_64REGSET() {
+        return SA_64REGSET;
+    }
+    private static final int SIG_BLOCK = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define SIG_BLOCK 1
+     * }
+     */
+    public static int SIG_BLOCK() {
+        return SIG_BLOCK;
+    }
+    private static final int SIG_UNBLOCK = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define SIG_UNBLOCK 2
+     * }
+     */
+    public static int SIG_UNBLOCK() {
+        return SIG_UNBLOCK;
+    }
+    private static final int SIG_SETMASK = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define SIG_SETMASK 3
+     * }
+     */
+    public static int SIG_SETMASK() {
+        return SIG_SETMASK;
+    }
+    private static final int SI_USER = (int)65537L;
+    /**
+     * {@snippet lang=c :
+     * #define SI_USER 65537
+     * }
+     */
+    public static int SI_USER() {
+        return SI_USER;
+    }
+    private static final int SI_QUEUE = (int)65538L;
+    /**
+     * {@snippet lang=c :
+     * #define SI_QUEUE 65538
+     * }
+     */
+    public static int SI_QUEUE() {
+        return SI_QUEUE;
+    }
+    private static final int SI_TIMER = (int)65539L;
+    /**
+     * {@snippet lang=c :
+     * #define SI_TIMER 65539
+     * }
+     */
+    public static int SI_TIMER() {
+        return SI_TIMER;
+    }
+    private static final int SI_ASYNCIO = (int)65540L;
+    /**
+     * {@snippet lang=c :
+     * #define SI_ASYNCIO 65540
+     * }
+     */
+    public static int SI_ASYNCIO() {
+        return SI_ASYNCIO;
+    }
+    private static final int SI_MESGQ = (int)65541L;
+    /**
+     * {@snippet lang=c :
+     * #define SI_MESGQ 65541
+     * }
+     */
+    public static int SI_MESGQ() {
+        return SI_MESGQ;
+    }
+    private static final int SS_ONSTACK = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define SS_ONSTACK 1
+     * }
+     */
+    public static int SS_ONSTACK() {
+        return SS_ONSTACK;
+    }
+    private static final int SS_DISABLE = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define SS_DISABLE 4
+     * }
+     */
+    public static int SS_DISABLE() {
+        return SS_DISABLE;
+    }
+    private static final int MINSIGSTKSZ = (int)32768L;
+    /**
+     * {@snippet lang=c :
+     * #define MINSIGSTKSZ 32768
+     * }
+     */
+    public static int MINSIGSTKSZ() {
+        return MINSIGSTKSZ;
+    }
+    private static final int SIGSTKSZ = (int)131072L;
+    /**
+     * {@snippet lang=c :
+     * #define SIGSTKSZ 131072
+     * }
+     */
+    public static int SIGSTKSZ() {
+        return SIGSTKSZ;
+    }
+    private static final int __WORDSIZE = (int)64L;
+    /**
+     * {@snippet lang=c :
+     * #define __WORDSIZE 64
+     * }
+     */
+    public static int __WORDSIZE() {
+        return __WORDSIZE;
+    }
+    private static final int INT8_MAX = (int)127L;
+    /**
+     * {@snippet lang=c :
+     * #define INT8_MAX 127
+     * }
+     */
+    public static int INT8_MAX() {
+        return INT8_MAX;
+    }
+    private static final int INT16_MAX = (int)32767L;
+    /**
+     * {@snippet lang=c :
+     * #define INT16_MAX 32767
+     * }
+     */
+    public static int INT16_MAX() {
+        return INT16_MAX;
+    }
+    private static final int INT32_MAX = (int)2147483647L;
+    /**
+     * {@snippet lang=c :
+     * #define INT32_MAX 2147483647
+     * }
+     */
+    public static int INT32_MAX() {
+        return INT32_MAX;
+    }
+    private static final int UINT8_MAX = (int)255L;
+    /**
+     * {@snippet lang=c :
+     * #define UINT8_MAX 255
+     * }
+     */
+    public static int UINT8_MAX() {
+        return UINT8_MAX;
+    }
+    private static final int UINT16_MAX = (int)65535L;
+    /**
+     * {@snippet lang=c :
+     * #define UINT16_MAX 65535
+     * }
+     */
+    public static int UINT16_MAX() {
+        return UINT16_MAX;
+    }
+    private static final int PRIO_PROCESS = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define PRIO_PROCESS 0
+     * }
+     */
+    public static int PRIO_PROCESS() {
+        return PRIO_PROCESS;
+    }
+    private static final int PRIO_PGRP = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define PRIO_PGRP 1
+     * }
+     */
+    public static int PRIO_PGRP() {
+        return PRIO_PGRP;
+    }
+    private static final int PRIO_USER = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define PRIO_USER 2
+     * }
+     */
+    public static int PRIO_USER() {
+        return PRIO_USER;
+    }
+    private static final int PRIO_DARWIN_THREAD = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define PRIO_DARWIN_THREAD 3
+     * }
+     */
+    public static int PRIO_DARWIN_THREAD() {
+        return PRIO_DARWIN_THREAD;
+    }
+    private static final int PRIO_DARWIN_PROCESS = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define PRIO_DARWIN_PROCESS 4
+     * }
+     */
+    public static int PRIO_DARWIN_PROCESS() {
+        return PRIO_DARWIN_PROCESS;
+    }
+    private static final int PRIO_MAX = (int)20L;
+    /**
+     * {@snippet lang=c :
+     * #define PRIO_MAX 20
+     * }
+     */
+    public static int PRIO_MAX() {
+        return PRIO_MAX;
+    }
+    private static final int PRIO_DARWIN_BG = (int)4096L;
+    /**
+     * {@snippet lang=c :
+     * #define PRIO_DARWIN_BG 4096
+     * }
+     */
+    public static int PRIO_DARWIN_BG() {
+        return PRIO_DARWIN_BG;
+    }
+    private static final int PRIO_DARWIN_NONUI = (int)4097L;
+    /**
+     * {@snippet lang=c :
+     * #define PRIO_DARWIN_NONUI 4097
+     * }
+     */
+    public static int PRIO_DARWIN_NONUI() {
+        return PRIO_DARWIN_NONUI;
+    }
+    private static final int RUSAGE_SELF = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define RUSAGE_SELF 0
+     * }
+     */
+    public static int RUSAGE_SELF() {
+        return RUSAGE_SELF;
+    }
+    private static final int RUSAGE_INFO_V0 = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define RUSAGE_INFO_V0 0
+     * }
+     */
+    public static int RUSAGE_INFO_V0() {
+        return RUSAGE_INFO_V0;
+    }
+    private static final int RUSAGE_INFO_V1 = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define RUSAGE_INFO_V1 1
+     * }
+     */
+    public static int RUSAGE_INFO_V1() {
+        return RUSAGE_INFO_V1;
+    }
+    private static final int RUSAGE_INFO_V2 = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define RUSAGE_INFO_V2 2
+     * }
+     */
+    public static int RUSAGE_INFO_V2() {
+        return RUSAGE_INFO_V2;
+    }
+    private static final int RUSAGE_INFO_V3 = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define RUSAGE_INFO_V3 3
+     * }
+     */
+    public static int RUSAGE_INFO_V3() {
+        return RUSAGE_INFO_V3;
+    }
+    private static final int RUSAGE_INFO_V4 = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define RUSAGE_INFO_V4 4
+     * }
+     */
+    public static int RUSAGE_INFO_V4() {
+        return RUSAGE_INFO_V4;
+    }
+    private static final int RUSAGE_INFO_V5 = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define RUSAGE_INFO_V5 5
+     * }
+     */
+    public static int RUSAGE_INFO_V5() {
+        return RUSAGE_INFO_V5;
+    }
+    private static final int RUSAGE_INFO_V6 = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define RUSAGE_INFO_V6 6
+     * }
+     */
+    public static int RUSAGE_INFO_V6() {
+        return RUSAGE_INFO_V6;
+    }
+    private static final int RU_PROC_RUNS_RESLIDE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define RU_PROC_RUNS_RESLIDE 1
+     * }
+     */
+    public static int RU_PROC_RUNS_RESLIDE() {
+        return RU_PROC_RUNS_RESLIDE;
+    }
+    private static final int RLIMIT_CPU = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_CPU 0
+     * }
+     */
+    public static int RLIMIT_CPU() {
+        return RLIMIT_CPU;
+    }
+    private static final int RLIMIT_FSIZE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_FSIZE 1
+     * }
+     */
+    public static int RLIMIT_FSIZE() {
+        return RLIMIT_FSIZE;
+    }
+    private static final int RLIMIT_DATA = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_DATA 2
+     * }
+     */
+    public static int RLIMIT_DATA() {
+        return RLIMIT_DATA;
+    }
+    private static final int RLIMIT_STACK = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_STACK 3
+     * }
+     */
+    public static int RLIMIT_STACK() {
+        return RLIMIT_STACK;
+    }
+    private static final int RLIMIT_CORE = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_CORE 4
+     * }
+     */
+    public static int RLIMIT_CORE() {
+        return RLIMIT_CORE;
+    }
+    private static final int RLIMIT_AS = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_AS 5
+     * }
+     */
+    public static int RLIMIT_AS() {
+        return RLIMIT_AS;
+    }
+    private static final int RLIMIT_MEMLOCK = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_MEMLOCK 6
+     * }
+     */
+    public static int RLIMIT_MEMLOCK() {
+        return RLIMIT_MEMLOCK;
+    }
+    private static final int RLIMIT_NPROC = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_NPROC 7
+     * }
+     */
+    public static int RLIMIT_NPROC() {
+        return RLIMIT_NPROC;
+    }
+    private static final int RLIMIT_NOFILE = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_NOFILE 8
+     * }
+     */
+    public static int RLIMIT_NOFILE() {
+        return RLIMIT_NOFILE;
+    }
+    private static final int RLIM_NLIMITS = (int)9L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIM_NLIMITS 9
+     * }
+     */
+    public static int RLIM_NLIMITS() {
+        return RLIM_NLIMITS;
+    }
+    private static final int _RLIMIT_POSIX_FLAG = (int)4096L;
+    /**
+     * {@snippet lang=c :
+     * #define _RLIMIT_POSIX_FLAG 4096
+     * }
+     */
+    public static int _RLIMIT_POSIX_FLAG() {
+        return _RLIMIT_POSIX_FLAG;
+    }
+    private static final int RLIMIT_WAKEUPS_MONITOR = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_WAKEUPS_MONITOR 1
+     * }
+     */
+    public static int RLIMIT_WAKEUPS_MONITOR() {
+        return RLIMIT_WAKEUPS_MONITOR;
+    }
+    private static final int RLIMIT_CPU_USAGE_MONITOR = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_CPU_USAGE_MONITOR 2
+     * }
+     */
+    public static int RLIMIT_CPU_USAGE_MONITOR() {
+        return RLIMIT_CPU_USAGE_MONITOR;
+    }
+    private static final int RLIMIT_THREAD_CPULIMITS = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_THREAD_CPULIMITS 3
+     * }
+     */
+    public static int RLIMIT_THREAD_CPULIMITS() {
+        return RLIMIT_THREAD_CPULIMITS;
+    }
+    private static final int RLIMIT_FOOTPRINT_INTERVAL = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define RLIMIT_FOOTPRINT_INTERVAL 4
+     * }
+     */
+    public static int RLIMIT_FOOTPRINT_INTERVAL() {
+        return RLIMIT_FOOTPRINT_INTERVAL;
+    }
+    private static final int WAKEMON_ENABLE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define WAKEMON_ENABLE 1
+     * }
+     */
+    public static int WAKEMON_ENABLE() {
+        return WAKEMON_ENABLE;
+    }
+    private static final int WAKEMON_DISABLE = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define WAKEMON_DISABLE 2
+     * }
+     */
+    public static int WAKEMON_DISABLE() {
+        return WAKEMON_DISABLE;
+    }
+    private static final int WAKEMON_GET_PARAMS = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define WAKEMON_GET_PARAMS 4
+     * }
+     */
+    public static int WAKEMON_GET_PARAMS() {
+        return WAKEMON_GET_PARAMS;
+    }
+    private static final int WAKEMON_SET_DEFAULTS = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define WAKEMON_SET_DEFAULTS 8
+     * }
+     */
+    public static int WAKEMON_SET_DEFAULTS() {
+        return WAKEMON_SET_DEFAULTS;
+    }
+    private static final int WAKEMON_MAKE_FATAL = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define WAKEMON_MAKE_FATAL 16
+     * }
+     */
+    public static int WAKEMON_MAKE_FATAL() {
+        return WAKEMON_MAKE_FATAL;
+    }
+    private static final int CPUMON_MAKE_FATAL = (int)4096L;
+    /**
+     * {@snippet lang=c :
+     * #define CPUMON_MAKE_FATAL 4096
+     * }
+     */
+    public static int CPUMON_MAKE_FATAL() {
+        return CPUMON_MAKE_FATAL;
+    }
+    private static final int FOOTPRINT_INTERVAL_RESET = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define FOOTPRINT_INTERVAL_RESET 1
+     * }
+     */
+    public static int FOOTPRINT_INTERVAL_RESET() {
+        return FOOTPRINT_INTERVAL_RESET;
+    }
+    private static final int IOPOL_TYPE_DISK = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_DISK 0
+     * }
+     */
+    public static int IOPOL_TYPE_DISK() {
+        return IOPOL_TYPE_DISK;
+    }
+    private static final int IOPOL_TYPE_VFS_ATIME_UPDATES = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_VFS_ATIME_UPDATES 2
+     * }
+     */
+    public static int IOPOL_TYPE_VFS_ATIME_UPDATES() {
+        return IOPOL_TYPE_VFS_ATIME_UPDATES;
+    }
+    private static final int IOPOL_TYPE_VFS_MATERIALIZE_DATALESS_FILES = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_VFS_MATERIALIZE_DATALESS_FILES 3
+     * }
+     */
+    public static int IOPOL_TYPE_VFS_MATERIALIZE_DATALESS_FILES() {
+        return IOPOL_TYPE_VFS_MATERIALIZE_DATALESS_FILES;
+    }
+    private static final int IOPOL_TYPE_VFS_STATFS_NO_DATA_VOLUME = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_VFS_STATFS_NO_DATA_VOLUME 4
+     * }
+     */
+    public static int IOPOL_TYPE_VFS_STATFS_NO_DATA_VOLUME() {
+        return IOPOL_TYPE_VFS_STATFS_NO_DATA_VOLUME;
+    }
+    private static final int IOPOL_TYPE_VFS_TRIGGER_RESOLVE = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_VFS_TRIGGER_RESOLVE 5
+     * }
+     */
+    public static int IOPOL_TYPE_VFS_TRIGGER_RESOLVE() {
+        return IOPOL_TYPE_VFS_TRIGGER_RESOLVE;
+    }
+    private static final int IOPOL_TYPE_VFS_IGNORE_CONTENT_PROTECTION = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_VFS_IGNORE_CONTENT_PROTECTION 6
+     * }
+     */
+    public static int IOPOL_TYPE_VFS_IGNORE_CONTENT_PROTECTION() {
+        return IOPOL_TYPE_VFS_IGNORE_CONTENT_PROTECTION;
+    }
+    private static final int IOPOL_TYPE_VFS_IGNORE_PERMISSIONS = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_VFS_IGNORE_PERMISSIONS 7
+     * }
+     */
+    public static int IOPOL_TYPE_VFS_IGNORE_PERMISSIONS() {
+        return IOPOL_TYPE_VFS_IGNORE_PERMISSIONS;
+    }
+    private static final int IOPOL_TYPE_VFS_SKIP_MTIME_UPDATE = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_VFS_SKIP_MTIME_UPDATE 8
+     * }
+     */
+    public static int IOPOL_TYPE_VFS_SKIP_MTIME_UPDATE() {
+        return IOPOL_TYPE_VFS_SKIP_MTIME_UPDATE;
+    }
+    private static final int IOPOL_TYPE_VFS_ALLOW_LOW_SPACE_WRITES = (int)9L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_VFS_ALLOW_LOW_SPACE_WRITES 9
+     * }
+     */
+    public static int IOPOL_TYPE_VFS_ALLOW_LOW_SPACE_WRITES() {
+        return IOPOL_TYPE_VFS_ALLOW_LOW_SPACE_WRITES;
+    }
+    private static final int IOPOL_TYPE_VFS_DISALLOW_RW_FOR_O_EVTONLY = (int)10L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_TYPE_VFS_DISALLOW_RW_FOR_O_EVTONLY 10
+     * }
+     */
+    public static int IOPOL_TYPE_VFS_DISALLOW_RW_FOR_O_EVTONLY() {
+        return IOPOL_TYPE_VFS_DISALLOW_RW_FOR_O_EVTONLY;
+    }
+    private static final int IOPOL_SCOPE_PROCESS = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_SCOPE_PROCESS 0
+     * }
+     */
+    public static int IOPOL_SCOPE_PROCESS() {
+        return IOPOL_SCOPE_PROCESS;
+    }
+    private static final int IOPOL_SCOPE_THREAD = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_SCOPE_THREAD 1
+     * }
+     */
+    public static int IOPOL_SCOPE_THREAD() {
+        return IOPOL_SCOPE_THREAD;
+    }
+    private static final int IOPOL_SCOPE_DARWIN_BG = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_SCOPE_DARWIN_BG 2
+     * }
+     */
+    public static int IOPOL_SCOPE_DARWIN_BG() {
+        return IOPOL_SCOPE_DARWIN_BG;
+    }
+    private static final int IOPOL_DEFAULT = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_DEFAULT 0
+     * }
+     */
+    public static int IOPOL_DEFAULT() {
+        return IOPOL_DEFAULT;
+    }
+    private static final int IOPOL_IMPORTANT = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_IMPORTANT 1
+     * }
+     */
+    public static int IOPOL_IMPORTANT() {
+        return IOPOL_IMPORTANT;
+    }
+    private static final int IOPOL_PASSIVE = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_PASSIVE 2
+     * }
+     */
+    public static int IOPOL_PASSIVE() {
+        return IOPOL_PASSIVE;
+    }
+    private static final int IOPOL_THROTTLE = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_THROTTLE 3
+     * }
+     */
+    public static int IOPOL_THROTTLE() {
+        return IOPOL_THROTTLE;
+    }
+    private static final int IOPOL_UTILITY = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_UTILITY 4
+     * }
+     */
+    public static int IOPOL_UTILITY() {
+        return IOPOL_UTILITY;
+    }
+    private static final int IOPOL_STANDARD = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_STANDARD 5
+     * }
+     */
+    public static int IOPOL_STANDARD() {
+        return IOPOL_STANDARD;
+    }
+    private static final int IOPOL_ATIME_UPDATES_DEFAULT = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_ATIME_UPDATES_DEFAULT 0
+     * }
+     */
+    public static int IOPOL_ATIME_UPDATES_DEFAULT() {
+        return IOPOL_ATIME_UPDATES_DEFAULT;
+    }
+    private static final int IOPOL_ATIME_UPDATES_OFF = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_ATIME_UPDATES_OFF 1
+     * }
+     */
+    public static int IOPOL_ATIME_UPDATES_OFF() {
+        return IOPOL_ATIME_UPDATES_OFF;
+    }
+    private static final int IOPOL_MATERIALIZE_DATALESS_FILES_DEFAULT = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_MATERIALIZE_DATALESS_FILES_DEFAULT 0
+     * }
+     */
+    public static int IOPOL_MATERIALIZE_DATALESS_FILES_DEFAULT() {
+        return IOPOL_MATERIALIZE_DATALESS_FILES_DEFAULT;
+    }
+    private static final int IOPOL_MATERIALIZE_DATALESS_FILES_OFF = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_MATERIALIZE_DATALESS_FILES_OFF 1
+     * }
+     */
+    public static int IOPOL_MATERIALIZE_DATALESS_FILES_OFF() {
+        return IOPOL_MATERIALIZE_DATALESS_FILES_OFF;
+    }
+    private static final int IOPOL_MATERIALIZE_DATALESS_FILES_ON = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_MATERIALIZE_DATALESS_FILES_ON 2
+     * }
+     */
+    public static int IOPOL_MATERIALIZE_DATALESS_FILES_ON() {
+        return IOPOL_MATERIALIZE_DATALESS_FILES_ON;
+    }
+    private static final int IOPOL_VFS_STATFS_NO_DATA_VOLUME_DEFAULT = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_STATFS_NO_DATA_VOLUME_DEFAULT 0
+     * }
+     */
+    public static int IOPOL_VFS_STATFS_NO_DATA_VOLUME_DEFAULT() {
+        return IOPOL_VFS_STATFS_NO_DATA_VOLUME_DEFAULT;
+    }
+    private static final int IOPOL_VFS_STATFS_FORCE_NO_DATA_VOLUME = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_STATFS_FORCE_NO_DATA_VOLUME 1
+     * }
+     */
+    public static int IOPOL_VFS_STATFS_FORCE_NO_DATA_VOLUME() {
+        return IOPOL_VFS_STATFS_FORCE_NO_DATA_VOLUME;
+    }
+    private static final int IOPOL_VFS_TRIGGER_RESOLVE_DEFAULT = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_TRIGGER_RESOLVE_DEFAULT 0
+     * }
+     */
+    public static int IOPOL_VFS_TRIGGER_RESOLVE_DEFAULT() {
+        return IOPOL_VFS_TRIGGER_RESOLVE_DEFAULT;
+    }
+    private static final int IOPOL_VFS_TRIGGER_RESOLVE_OFF = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_TRIGGER_RESOLVE_OFF 1
+     * }
+     */
+    public static int IOPOL_VFS_TRIGGER_RESOLVE_OFF() {
+        return IOPOL_VFS_TRIGGER_RESOLVE_OFF;
+    }
+    private static final int IOPOL_VFS_CONTENT_PROTECTION_DEFAULT = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_CONTENT_PROTECTION_DEFAULT 0
+     * }
+     */
+    public static int IOPOL_VFS_CONTENT_PROTECTION_DEFAULT() {
+        return IOPOL_VFS_CONTENT_PROTECTION_DEFAULT;
+    }
+    private static final int IOPOL_VFS_CONTENT_PROTECTION_IGNORE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_CONTENT_PROTECTION_IGNORE 1
+     * }
+     */
+    public static int IOPOL_VFS_CONTENT_PROTECTION_IGNORE() {
+        return IOPOL_VFS_CONTENT_PROTECTION_IGNORE;
+    }
+    private static final int IOPOL_VFS_IGNORE_PERMISSIONS_OFF = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_IGNORE_PERMISSIONS_OFF 0
+     * }
+     */
+    public static int IOPOL_VFS_IGNORE_PERMISSIONS_OFF() {
+        return IOPOL_VFS_IGNORE_PERMISSIONS_OFF;
+    }
+    private static final int IOPOL_VFS_IGNORE_PERMISSIONS_ON = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_IGNORE_PERMISSIONS_ON 1
+     * }
+     */
+    public static int IOPOL_VFS_IGNORE_PERMISSIONS_ON() {
+        return IOPOL_VFS_IGNORE_PERMISSIONS_ON;
+    }
+    private static final int IOPOL_VFS_SKIP_MTIME_UPDATE_OFF = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_SKIP_MTIME_UPDATE_OFF 0
+     * }
+     */
+    public static int IOPOL_VFS_SKIP_MTIME_UPDATE_OFF() {
+        return IOPOL_VFS_SKIP_MTIME_UPDATE_OFF;
+    }
+    private static final int IOPOL_VFS_SKIP_MTIME_UPDATE_ON = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_SKIP_MTIME_UPDATE_ON 1
+     * }
+     */
+    public static int IOPOL_VFS_SKIP_MTIME_UPDATE_ON() {
+        return IOPOL_VFS_SKIP_MTIME_UPDATE_ON;
+    }
+    private static final int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_OFF = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_OFF 0
+     * }
+     */
+    public static int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_OFF() {
+        return IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_OFF;
+    }
+    private static final int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_ON = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_ON 1
+     * }
+     */
+    public static int IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_ON() {
+        return IOPOL_VFS_ALLOW_LOW_SPACE_WRITES_ON;
+    }
+    private static final int IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_DEFAULT = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_DEFAULT 0
+     * }
+     */
+    public static int IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_DEFAULT() {
+        return IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_DEFAULT;
+    }
+    private static final int IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_ON = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_ON 1
+     * }
+     */
+    public static int IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_ON() {
+        return IOPOL_VFS_DISALLOW_RW_FOR_O_EVTONLY_ON;
+    }
+    private static final int IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_DEFAULT = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_DEFAULT 0
+     * }
+     */
+    public static int IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_DEFAULT() {
+        return IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_DEFAULT;
+    }
+    private static final int IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_ON = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_ON 1
+     * }
+     */
+    public static int IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_ON() {
+        return IOPOL_VFS_NOCACHE_WRITE_FS_BLKSIZE_ON;
+    }
+    private static final int WNOHANG = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define WNOHANG 1
+     * }
+     */
+    public static int WNOHANG() {
+        return WNOHANG;
+    }
+    private static final int WUNTRACED = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define WUNTRACED 2
+     * }
+     */
+    public static int WUNTRACED() {
+        return WUNTRACED;
+    }
+    private static final int WCOREFLAG = (int)128L;
+    /**
+     * {@snippet lang=c :
+     * #define WCOREFLAG 128
+     * }
+     */
+    public static int WCOREFLAG() {
+        return WCOREFLAG;
+    }
+    private static final int _WSTOPPED = (int)127L;
+    /**
+     * {@snippet lang=c :
+     * #define _WSTOPPED 127
+     * }
+     */
+    public static int _WSTOPPED() {
+        return _WSTOPPED;
+    }
+    private static final int WEXITED = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define WEXITED 4
+     * }
+     */
+    public static int WEXITED() {
+        return WEXITED;
+    }
+    private static final int WSTOPPED = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define WSTOPPED 8
+     * }
+     */
+    public static int WSTOPPED() {
+        return WSTOPPED;
+    }
+    private static final int WCONTINUED = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define WCONTINUED 16
+     * }
+     */
+    public static int WCONTINUED() {
+        return WCONTINUED;
+    }
+    private static final int WNOWAIT = (int)32L;
+    /**
+     * {@snippet lang=c :
+     * #define WNOWAIT 32
+     * }
+     */
+    public static int WNOWAIT() {
+        return WNOWAIT;
+    }
+    private static final int WAIT_MYPGRP = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define WAIT_MYPGRP 0
+     * }
+     */
+    public static int WAIT_MYPGRP() {
+        return WAIT_MYPGRP;
+    }
+    private static final int _QUAD_HIGHWORD = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define _QUAD_HIGHWORD 1
+     * }
+     */
+    public static int _QUAD_HIGHWORD() {
+        return _QUAD_HIGHWORD;
+    }
+    private static final int _QUAD_LOWWORD = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define _QUAD_LOWWORD 0
+     * }
+     */
+    public static int _QUAD_LOWWORD() {
+        return _QUAD_LOWWORD;
+    }
+    private static final int __DARWIN_LITTLE_ENDIAN = (int)1234L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_LITTLE_ENDIAN 1234
+     * }
+     */
+    public static int __DARWIN_LITTLE_ENDIAN() {
+        return __DARWIN_LITTLE_ENDIAN;
+    }
+    private static final int __DARWIN_BIG_ENDIAN = (int)4321L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_BIG_ENDIAN 4321
+     * }
+     */
+    public static int __DARWIN_BIG_ENDIAN() {
+        return __DARWIN_BIG_ENDIAN;
+    }
+    private static final int __DARWIN_PDP_ENDIAN = (int)3412L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_PDP_ENDIAN 3412
+     * }
+     */
+    public static int __DARWIN_PDP_ENDIAN() {
+        return __DARWIN_PDP_ENDIAN;
+    }
+    private static final int EXIT_FAILURE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define EXIT_FAILURE 1
+     * }
+     */
+    public static int EXIT_FAILURE() {
+        return EXIT_FAILURE;
+    }
+    private static final int EXIT_SUCCESS = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define EXIT_SUCCESS 0
+     * }
+     */
+    public static int EXIT_SUCCESS() {
+        return EXIT_SUCCESS;
+    }
+    private static final int RAND_MAX = (int)2147483647L;
+    /**
+     * {@snippet lang=c :
+     * #define RAND_MAX 2147483647
+     * }
+     */
+    public static int RAND_MAX() {
+        return RAND_MAX;
+    }
+    private static final int __DARWIN_FD_SETSIZE = (int)1024L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_FD_SETSIZE 1024
+     * }
+     */
+    public static int __DARWIN_FD_SETSIZE() {
+        return __DARWIN_FD_SETSIZE;
+    }
+    private static final int __DARWIN_NBBY = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_NBBY 8
+     * }
+     */
+    public static int __DARWIN_NBBY() {
+        return __DARWIN_NBBY;
+    }
+    private static final int OBJC_API_VERSION = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define OBJC_API_VERSION 0
+     * }
+     */
+    public static int OBJC_API_VERSION() {
+        return OBJC_API_VERSION;
+    }
+    private static final int OBJC_NO_GC = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define OBJC_NO_GC 1
+     * }
+     */
+    public static int OBJC_NO_GC() {
+        return OBJC_NO_GC;
+    }
+    private static final int OBJC_NO_GC_API = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define OBJC_NO_GC_API 1
+     * }
+     */
+    public static int OBJC_NO_GC_API() {
+        return OBJC_NO_GC_API;
+    }
+    private static final int NS_ENFORCE_NSOBJECT_DESIGNATED_INITIALIZER = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define NS_ENFORCE_NSOBJECT_DESIGNATED_INITIALIZER 1
+     * }
+     */
+    public static int NS_ENFORCE_NSOBJECT_DESIGNATED_INITIALIZER() {
+        return NS_ENFORCE_NSOBJECT_DESIGNATED_INITIALIZER;
+    }
+    private static final int OBJC_OLD_DISPATCH_PROTOTYPES = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define OBJC_OLD_DISPATCH_PROTOTYPES 0
+     * }
+     */
+    public static int OBJC_OLD_DISPATCH_PROTOTYPES() {
+        return OBJC_OLD_DISPATCH_PROTOTYPES;
+    }
+    private static final int true_ = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define true 1
+     * }
+     */
+    public static int true_() {
+        return true_;
+    }
+    private static final int false_ = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define false 0
+     * }
+     */
+    public static int false_() {
+        return false_;
+    }
+    private static final int __bool_true_false_are_defined = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __bool_true_false_are_defined 1
+     * }
+     */
+    public static int __bool_true_false_are_defined() {
+        return __bool_true_false_are_defined;
+    }
+    private static final int OBJC_BOOL_IS_BOOL = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define OBJC_BOOL_IS_BOOL 1
+     * }
+     */
+    public static int OBJC_BOOL_IS_BOOL() {
+        return OBJC_BOOL_IS_BOOL;
+    }
+    private static final int __GNUC_VA_LIST = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __GNUC_VA_LIST 1
+     * }
+     */
+    public static int __GNUC_VA_LIST() {
+        return __GNUC_VA_LIST;
+    }
+    private static final int OBJC_GETCLASSHOOK_DEFINED = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define OBJC_GETCLASSHOOK_DEFINED 1
+     * }
+     */
+    public static int OBJC_GETCLASSHOOK_DEFINED() {
+        return OBJC_GETCLASSHOOK_DEFINED;
+    }
+    private static final int OBJC_ADDLOADIMAGEFUNC_DEFINED = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define OBJC_ADDLOADIMAGEFUNC_DEFINED 1
+     * }
+     */
+    public static int OBJC_ADDLOADIMAGEFUNC_DEFINED() {
+        return OBJC_ADDLOADIMAGEFUNC_DEFINED;
+    }
+    private static final int OBJC_SETHOOK_LAZYCLASSNAMER_DEFINED = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define OBJC_SETHOOK_LAZYCLASSNAMER_DEFINED 1
+     * }
+     */
+    public static int OBJC_SETHOOK_LAZYCLASSNAMER_DEFINED() {
+        return OBJC_SETHOOK_LAZYCLASSNAMER_DEFINED;
+    }
+    private static final int OBJC_REALIZECLASSFROMSWIFT_DEFINED = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define OBJC_REALIZECLASSFROMSWIFT_DEFINED 1
+     * }
+     */
+    public static int OBJC_REALIZECLASSFROMSWIFT_DEFINED() {
+        return OBJC_REALIZECLASSFROMSWIFT_DEFINED;
+    }
+    private static final int _USE_FORTIFY_LEVEL = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define _USE_FORTIFY_LEVEL 2
+     * }
+     */
+    public static int _USE_FORTIFY_LEVEL() {
+        return _USE_FORTIFY_LEVEL;
+    }
+    private static final int __HAS_FIXED_CHK_PROTOTYPES = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define __HAS_FIXED_CHK_PROTOTYPES 1
+     * }
+     */
+    public static int __HAS_FIXED_CHK_PROTOTYPES() {
+        return __HAS_FIXED_CHK_PROTOTYPES;
+    }
+    private static final int FALSE = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define FALSE 0
+     * }
+     */
+    public static int FALSE() {
+        return FALSE;
+    }
+    private static final int __DARWIN_CLK_TCK = (int)100L;
+    /**
+     * {@snippet lang=c :
+     * #define __DARWIN_CLK_TCK 100
+     * }
+     */
+    public static int __DARWIN_CLK_TCK() {
+        return __DARWIN_CLK_TCK;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_PRESENT = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_PRESENT 1
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_PRESENT() {
+        return VM_PAGE_QUERY_PAGE_PRESENT;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_FICTITIOUS = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_FICTITIOUS 2
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_FICTITIOUS() {
+        return VM_PAGE_QUERY_PAGE_FICTITIOUS;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_REF = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_REF 4
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_REF() {
+        return VM_PAGE_QUERY_PAGE_REF;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_DIRTY = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_DIRTY 8
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_DIRTY() {
+        return VM_PAGE_QUERY_PAGE_DIRTY;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_PAGED_OUT = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_PAGED_OUT 16
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_PAGED_OUT() {
+        return VM_PAGE_QUERY_PAGE_PAGED_OUT;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_COPIED = (int)32L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_COPIED 32
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_COPIED() {
+        return VM_PAGE_QUERY_PAGE_COPIED;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_SPECULATIVE = (int)64L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_SPECULATIVE 64
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_SPECULATIVE() {
+        return VM_PAGE_QUERY_PAGE_SPECULATIVE;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_EXTERNAL = (int)128L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_EXTERNAL 128
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_EXTERNAL() {
+        return VM_PAGE_QUERY_PAGE_EXTERNAL;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_CS_VALIDATED = (int)256L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_CS_VALIDATED 256
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_CS_VALIDATED() {
+        return VM_PAGE_QUERY_PAGE_CS_VALIDATED;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_CS_TAINTED = (int)512L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_CS_TAINTED 512
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_CS_TAINTED() {
+        return VM_PAGE_QUERY_PAGE_CS_TAINTED;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_CS_NX = (int)1024L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_CS_NX 1024
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_CS_NX() {
+        return VM_PAGE_QUERY_PAGE_CS_NX;
+    }
+    private static final int VM_PAGE_QUERY_PAGE_REUSABLE = (int)2048L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_QUERY_PAGE_REUSABLE 2048
+     * }
+     */
+    public static int VM_PAGE_QUERY_PAGE_REUSABLE() {
+        return VM_PAGE_QUERY_PAGE_REUSABLE;
+    }
+    private static final int VM_FLAGS_FIXED = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_FIXED 0
+     * }
+     */
+    public static int VM_FLAGS_FIXED() {
+        return VM_FLAGS_FIXED;
+    }
+    private static final int VM_FLAGS_ANYWHERE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_ANYWHERE 1
+     * }
+     */
+    public static int VM_FLAGS_ANYWHERE() {
+        return VM_FLAGS_ANYWHERE;
+    }
+    private static final int VM_FLAGS_PURGABLE = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_PURGABLE 2
+     * }
+     */
+    public static int VM_FLAGS_PURGABLE() {
+        return VM_FLAGS_PURGABLE;
+    }
+    private static final int VM_FLAGS_4GB_CHUNK = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_4GB_CHUNK 4
+     * }
+     */
+    public static int VM_FLAGS_4GB_CHUNK() {
+        return VM_FLAGS_4GB_CHUNK;
+    }
+    private static final int VM_FLAGS_RANDOM_ADDR = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_RANDOM_ADDR 8
+     * }
+     */
+    public static int VM_FLAGS_RANDOM_ADDR() {
+        return VM_FLAGS_RANDOM_ADDR;
+    }
+    private static final int VM_FLAGS_NO_CACHE = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_NO_CACHE 16
+     * }
+     */
+    public static int VM_FLAGS_NO_CACHE() {
+        return VM_FLAGS_NO_CACHE;
+    }
+    private static final int VM_FLAGS_RESILIENT_CODESIGN = (int)32L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_RESILIENT_CODESIGN 32
+     * }
+     */
+    public static int VM_FLAGS_RESILIENT_CODESIGN() {
+        return VM_FLAGS_RESILIENT_CODESIGN;
+    }
+    private static final int VM_FLAGS_RESILIENT_MEDIA = (int)64L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_RESILIENT_MEDIA 64
+     * }
+     */
+    public static int VM_FLAGS_RESILIENT_MEDIA() {
+        return VM_FLAGS_RESILIENT_MEDIA;
+    }
+    private static final int VM_FLAGS_PERMANENT = (int)128L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_PERMANENT 128
+     * }
+     */
+    public static int VM_FLAGS_PERMANENT() {
+        return VM_FLAGS_PERMANENT;
+    }
+    private static final int VM_FLAGS_TPRO = (int)4096L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_TPRO 4096
+     * }
+     */
+    public static int VM_FLAGS_TPRO() {
+        return VM_FLAGS_TPRO;
+    }
+    private static final int VM_FLAGS_OVERWRITE = (int)16384L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_OVERWRITE 16384
+     * }
+     */
+    public static int VM_FLAGS_OVERWRITE() {
+        return VM_FLAGS_OVERWRITE;
+    }
+    private static final int VM_FLAGS_SUPERPAGE_MASK = (int)458752L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_SUPERPAGE_MASK 458752
+     * }
+     */
+    public static int VM_FLAGS_SUPERPAGE_MASK() {
+        return VM_FLAGS_SUPERPAGE_MASK;
+    }
+    private static final int VM_FLAGS_RETURN_DATA_ADDR = (int)1048576L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_RETURN_DATA_ADDR 1048576
+     * }
+     */
+    public static int VM_FLAGS_RETURN_DATA_ADDR() {
+        return VM_FLAGS_RETURN_DATA_ADDR;
+    }
+    private static final int VM_FLAGS_RETURN_4K_DATA_ADDR = (int)8388608L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_RETURN_4K_DATA_ADDR 8388608
+     * }
+     */
+    public static int VM_FLAGS_RETURN_4K_DATA_ADDR() {
+        return VM_FLAGS_RETURN_4K_DATA_ADDR;
+    }
+    private static final int VM_FLAGS_SUPERPAGE_SHIFT = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_FLAGS_SUPERPAGE_SHIFT 16
+     * }
+     */
+    public static int VM_FLAGS_SUPERPAGE_SHIFT() {
+        return VM_FLAGS_SUPERPAGE_SHIFT;
+    }
+    private static final int SUPERPAGE_NONE = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define SUPERPAGE_NONE 0
+     * }
+     */
+    public static int SUPERPAGE_NONE() {
+        return SUPERPAGE_NONE;
+    }
+    private static final int SUPERPAGE_SIZE_ANY = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define SUPERPAGE_SIZE_ANY 1
+     * }
+     */
+    public static int SUPERPAGE_SIZE_ANY() {
+        return SUPERPAGE_SIZE_ANY;
+    }
+    private static final int SUPERPAGE_SIZE_2MB = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define SUPERPAGE_SIZE_2MB 2
+     * }
+     */
+    public static int SUPERPAGE_SIZE_2MB() {
+        return SUPERPAGE_SIZE_2MB;
+    }
+    private static final int GUARD_TYPE_VIRT_MEMORY = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define GUARD_TYPE_VIRT_MEMORY 5
+     * }
+     */
+    public static int GUARD_TYPE_VIRT_MEMORY() {
+        return GUARD_TYPE_VIRT_MEMORY;
+    }
+    private static final int __VM_LEDGER_ACCOUNTING_POSTMARK = (int)2019032600L;
+    /**
+     * {@snippet lang=c :
+     * #define __VM_LEDGER_ACCOUNTING_POSTMARK 2019032600
+     * }
+     */
+    public static int __VM_LEDGER_ACCOUNTING_POSTMARK() {
+        return __VM_LEDGER_ACCOUNTING_POSTMARK;
+    }
+    private static final int VM_LEDGER_TAG_NONE = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_LEDGER_TAG_NONE 0
+     * }
+     */
+    public static int VM_LEDGER_TAG_NONE() {
+        return VM_LEDGER_TAG_NONE;
+    }
+    private static final int VM_LEDGER_TAG_DEFAULT = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_LEDGER_TAG_DEFAULT 1
+     * }
+     */
+    public static int VM_LEDGER_TAG_DEFAULT() {
+        return VM_LEDGER_TAG_DEFAULT;
+    }
+    private static final int VM_LEDGER_TAG_NETWORK = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_LEDGER_TAG_NETWORK 2
+     * }
+     */
+    public static int VM_LEDGER_TAG_NETWORK() {
+        return VM_LEDGER_TAG_NETWORK;
+    }
+    private static final int VM_LEDGER_TAG_MEDIA = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_LEDGER_TAG_MEDIA 3
+     * }
+     */
+    public static int VM_LEDGER_TAG_MEDIA() {
+        return VM_LEDGER_TAG_MEDIA;
+    }
+    private static final int VM_LEDGER_TAG_GRAPHICS = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_LEDGER_TAG_GRAPHICS 4
+     * }
+     */
+    public static int VM_LEDGER_TAG_GRAPHICS() {
+        return VM_LEDGER_TAG_GRAPHICS;
+    }
+    private static final int VM_LEDGER_TAG_NEURAL = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_LEDGER_TAG_NEURAL 5
+     * }
+     */
+    public static int VM_LEDGER_TAG_NEURAL() {
+        return VM_LEDGER_TAG_NEURAL;
+    }
+    private static final int VM_LEDGER_TAG_MAX = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_LEDGER_TAG_MAX 5
+     * }
+     */
+    public static int VM_LEDGER_TAG_MAX() {
+        return VM_LEDGER_TAG_MAX;
+    }
+    private static final int VM_MEMORY_MALLOC = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC 1
+     * }
+     */
+    public static int VM_MEMORY_MALLOC() {
+        return VM_MEMORY_MALLOC;
+    }
+    private static final int VM_MEMORY_MALLOC_SMALL = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC_SMALL 2
+     * }
+     */
+    public static int VM_MEMORY_MALLOC_SMALL() {
+        return VM_MEMORY_MALLOC_SMALL;
+    }
+    private static final int VM_MEMORY_MALLOC_LARGE = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC_LARGE 3
+     * }
+     */
+    public static int VM_MEMORY_MALLOC_LARGE() {
+        return VM_MEMORY_MALLOC_LARGE;
+    }
+    private static final int VM_MEMORY_MALLOC_HUGE = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC_HUGE 4
+     * }
+     */
+    public static int VM_MEMORY_MALLOC_HUGE() {
+        return VM_MEMORY_MALLOC_HUGE;
+    }
+    private static final int VM_MEMORY_SBRK = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_SBRK 5
+     * }
+     */
+    public static int VM_MEMORY_SBRK() {
+        return VM_MEMORY_SBRK;
+    }
+    private static final int VM_MEMORY_REALLOC = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_REALLOC 6
+     * }
+     */
+    public static int VM_MEMORY_REALLOC() {
+        return VM_MEMORY_REALLOC;
+    }
+    private static final int VM_MEMORY_MALLOC_TINY = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC_TINY 7
+     * }
+     */
+    public static int VM_MEMORY_MALLOC_TINY() {
+        return VM_MEMORY_MALLOC_TINY;
+    }
+    private static final int VM_MEMORY_MALLOC_LARGE_REUSABLE = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC_LARGE_REUSABLE 8
+     * }
+     */
+    public static int VM_MEMORY_MALLOC_LARGE_REUSABLE() {
+        return VM_MEMORY_MALLOC_LARGE_REUSABLE;
+    }
+    private static final int VM_MEMORY_MALLOC_LARGE_REUSED = (int)9L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC_LARGE_REUSED 9
+     * }
+     */
+    public static int VM_MEMORY_MALLOC_LARGE_REUSED() {
+        return VM_MEMORY_MALLOC_LARGE_REUSED;
+    }
+    private static final int VM_MEMORY_ANALYSIS_TOOL = (int)10L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ANALYSIS_TOOL 10
+     * }
+     */
+    public static int VM_MEMORY_ANALYSIS_TOOL() {
+        return VM_MEMORY_ANALYSIS_TOOL;
+    }
+    private static final int VM_MEMORY_MALLOC_NANO = (int)11L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC_NANO 11
+     * }
+     */
+    public static int VM_MEMORY_MALLOC_NANO() {
+        return VM_MEMORY_MALLOC_NANO;
+    }
+    private static final int VM_MEMORY_MALLOC_MEDIUM = (int)12L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC_MEDIUM 12
+     * }
+     */
+    public static int VM_MEMORY_MALLOC_MEDIUM() {
+        return VM_MEMORY_MALLOC_MEDIUM;
+    }
+    private static final int VM_MEMORY_MALLOC_PROB_GUARD = (int)13L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MALLOC_PROB_GUARD 13
+     * }
+     */
+    public static int VM_MEMORY_MALLOC_PROB_GUARD() {
+        return VM_MEMORY_MALLOC_PROB_GUARD;
+    }
+    private static final int VM_MEMORY_MACH_MSG = (int)20L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_MACH_MSG 20
+     * }
+     */
+    public static int VM_MEMORY_MACH_MSG() {
+        return VM_MEMORY_MACH_MSG;
+    }
+    private static final int VM_MEMORY_IOKIT = (int)21L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_IOKIT 21
+     * }
+     */
+    public static int VM_MEMORY_IOKIT() {
+        return VM_MEMORY_IOKIT;
+    }
+    private static final int VM_MEMORY_STACK = (int)30L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_STACK 30
+     * }
+     */
+    public static int VM_MEMORY_STACK() {
+        return VM_MEMORY_STACK;
+    }
+    private static final int VM_MEMORY_GUARD = (int)31L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_GUARD 31
+     * }
+     */
+    public static int VM_MEMORY_GUARD() {
+        return VM_MEMORY_GUARD;
+    }
+    private static final int VM_MEMORY_SHARED_PMAP = (int)32L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_SHARED_PMAP 32
+     * }
+     */
+    public static int VM_MEMORY_SHARED_PMAP() {
+        return VM_MEMORY_SHARED_PMAP;
+    }
+    private static final int VM_MEMORY_DYLIB = (int)33L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_DYLIB 33
+     * }
+     */
+    public static int VM_MEMORY_DYLIB() {
+        return VM_MEMORY_DYLIB;
+    }
+    private static final int VM_MEMORY_OBJC_DISPATCHERS = (int)34L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_OBJC_DISPATCHERS 34
+     * }
+     */
+    public static int VM_MEMORY_OBJC_DISPATCHERS() {
+        return VM_MEMORY_OBJC_DISPATCHERS;
+    }
+    private static final int VM_MEMORY_UNSHARED_PMAP = (int)35L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_UNSHARED_PMAP 35
+     * }
+     */
+    public static int VM_MEMORY_UNSHARED_PMAP() {
+        return VM_MEMORY_UNSHARED_PMAP;
+    }
+    private static final int VM_MEMORY_APPKIT = (int)40L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_APPKIT 40
+     * }
+     */
+    public static int VM_MEMORY_APPKIT() {
+        return VM_MEMORY_APPKIT;
+    }
+    private static final int VM_MEMORY_FOUNDATION = (int)41L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_FOUNDATION 41
+     * }
+     */
+    public static int VM_MEMORY_FOUNDATION() {
+        return VM_MEMORY_FOUNDATION;
+    }
+    private static final int VM_MEMORY_COREGRAPHICS = (int)42L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREGRAPHICS 42
+     * }
+     */
+    public static int VM_MEMORY_COREGRAPHICS() {
+        return VM_MEMORY_COREGRAPHICS;
+    }
+    private static final int VM_MEMORY_CORESERVICES = (int)43L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CORESERVICES 43
+     * }
+     */
+    public static int VM_MEMORY_CORESERVICES() {
+        return VM_MEMORY_CORESERVICES;
+    }
+    private static final int VM_MEMORY_JAVA = (int)44L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_JAVA 44
+     * }
+     */
+    public static int VM_MEMORY_JAVA() {
+        return VM_MEMORY_JAVA;
+    }
+    private static final int VM_MEMORY_COREDATA = (int)45L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREDATA 45
+     * }
+     */
+    public static int VM_MEMORY_COREDATA() {
+        return VM_MEMORY_COREDATA;
+    }
+    private static final int VM_MEMORY_COREDATA_OBJECTIDS = (int)46L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREDATA_OBJECTIDS 46
+     * }
+     */
+    public static int VM_MEMORY_COREDATA_OBJECTIDS() {
+        return VM_MEMORY_COREDATA_OBJECTIDS;
+    }
+    private static final int VM_MEMORY_ATS = (int)50L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ATS 50
+     * }
+     */
+    public static int VM_MEMORY_ATS() {
+        return VM_MEMORY_ATS;
+    }
+    private static final int VM_MEMORY_LAYERKIT = (int)51L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_LAYERKIT 51
+     * }
+     */
+    public static int VM_MEMORY_LAYERKIT() {
+        return VM_MEMORY_LAYERKIT;
+    }
+    private static final int VM_MEMORY_CGIMAGE = (int)52L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CGIMAGE 52
+     * }
+     */
+    public static int VM_MEMORY_CGIMAGE() {
+        return VM_MEMORY_CGIMAGE;
+    }
+    private static final int VM_MEMORY_TCMALLOC = (int)53L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_TCMALLOC 53
+     * }
+     */
+    public static int VM_MEMORY_TCMALLOC() {
+        return VM_MEMORY_TCMALLOC;
+    }
+    private static final int VM_MEMORY_COREGRAPHICS_DATA = (int)54L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREGRAPHICS_DATA 54
+     * }
+     */
+    public static int VM_MEMORY_COREGRAPHICS_DATA() {
+        return VM_MEMORY_COREGRAPHICS_DATA;
+    }
+    private static final int VM_MEMORY_COREGRAPHICS_SHARED = (int)55L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREGRAPHICS_SHARED 55
+     * }
+     */
+    public static int VM_MEMORY_COREGRAPHICS_SHARED() {
+        return VM_MEMORY_COREGRAPHICS_SHARED;
+    }
+    private static final int VM_MEMORY_COREGRAPHICS_FRAMEBUFFERS = (int)56L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREGRAPHICS_FRAMEBUFFERS 56
+     * }
+     */
+    public static int VM_MEMORY_COREGRAPHICS_FRAMEBUFFERS() {
+        return VM_MEMORY_COREGRAPHICS_FRAMEBUFFERS;
+    }
+    private static final int VM_MEMORY_COREGRAPHICS_BACKINGSTORES = (int)57L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREGRAPHICS_BACKINGSTORES 57
+     * }
+     */
+    public static int VM_MEMORY_COREGRAPHICS_BACKINGSTORES() {
+        return VM_MEMORY_COREGRAPHICS_BACKINGSTORES;
+    }
+    private static final int VM_MEMORY_COREGRAPHICS_XALLOC = (int)58L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREGRAPHICS_XALLOC 58
+     * }
+     */
+    public static int VM_MEMORY_COREGRAPHICS_XALLOC() {
+        return VM_MEMORY_COREGRAPHICS_XALLOC;
+    }
+    private static final int VM_MEMORY_DYLD = (int)60L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_DYLD 60
+     * }
+     */
+    public static int VM_MEMORY_DYLD() {
+        return VM_MEMORY_DYLD;
+    }
+    private static final int VM_MEMORY_DYLD_MALLOC = (int)61L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_DYLD_MALLOC 61
+     * }
+     */
+    public static int VM_MEMORY_DYLD_MALLOC() {
+        return VM_MEMORY_DYLD_MALLOC;
+    }
+    private static final int VM_MEMORY_SQLITE = (int)62L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_SQLITE 62
+     * }
+     */
+    public static int VM_MEMORY_SQLITE() {
+        return VM_MEMORY_SQLITE;
+    }
+    private static final int VM_MEMORY_JAVASCRIPT_CORE = (int)63L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_JAVASCRIPT_CORE 63
+     * }
+     */
+    public static int VM_MEMORY_JAVASCRIPT_CORE() {
+        return VM_MEMORY_JAVASCRIPT_CORE;
+    }
+    private static final int VM_MEMORY_JAVASCRIPT_JIT_EXECUTABLE_ALLOCATOR = (int)64L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_JAVASCRIPT_JIT_EXECUTABLE_ALLOCATOR 64
+     * }
+     */
+    public static int VM_MEMORY_JAVASCRIPT_JIT_EXECUTABLE_ALLOCATOR() {
+        return VM_MEMORY_JAVASCRIPT_JIT_EXECUTABLE_ALLOCATOR;
+    }
+    private static final int VM_MEMORY_JAVASCRIPT_JIT_REGISTER_FILE = (int)65L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_JAVASCRIPT_JIT_REGISTER_FILE 65
+     * }
+     */
+    public static int VM_MEMORY_JAVASCRIPT_JIT_REGISTER_FILE() {
+        return VM_MEMORY_JAVASCRIPT_JIT_REGISTER_FILE;
+    }
+    private static final int VM_MEMORY_GLSL = (int)66L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_GLSL 66
+     * }
+     */
+    public static int VM_MEMORY_GLSL() {
+        return VM_MEMORY_GLSL;
+    }
+    private static final int VM_MEMORY_OPENCL = (int)67L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_OPENCL 67
+     * }
+     */
+    public static int VM_MEMORY_OPENCL() {
+        return VM_MEMORY_OPENCL;
+    }
+    private static final int VM_MEMORY_COREIMAGE = (int)68L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREIMAGE 68
+     * }
+     */
+    public static int VM_MEMORY_COREIMAGE() {
+        return VM_MEMORY_COREIMAGE;
+    }
+    private static final int VM_MEMORY_WEBCORE_PURGEABLE_BUFFERS = (int)69L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_WEBCORE_PURGEABLE_BUFFERS 69
+     * }
+     */
+    public static int VM_MEMORY_WEBCORE_PURGEABLE_BUFFERS() {
+        return VM_MEMORY_WEBCORE_PURGEABLE_BUFFERS;
+    }
+    private static final int VM_MEMORY_IMAGEIO = (int)70L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_IMAGEIO 70
+     * }
+     */
+    public static int VM_MEMORY_IMAGEIO() {
+        return VM_MEMORY_IMAGEIO;
+    }
+    private static final int VM_MEMORY_COREPROFILE = (int)71L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREPROFILE 71
+     * }
+     */
+    public static int VM_MEMORY_COREPROFILE() {
+        return VM_MEMORY_COREPROFILE;
+    }
+    private static final int VM_MEMORY_ASSETSD = (int)72L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ASSETSD 72
+     * }
+     */
+    public static int VM_MEMORY_ASSETSD() {
+        return VM_MEMORY_ASSETSD;
+    }
+    private static final int VM_MEMORY_OS_ALLOC_ONCE = (int)73L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_OS_ALLOC_ONCE 73
+     * }
+     */
+    public static int VM_MEMORY_OS_ALLOC_ONCE() {
+        return VM_MEMORY_OS_ALLOC_ONCE;
+    }
+    private static final int VM_MEMORY_LIBDISPATCH = (int)74L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_LIBDISPATCH 74
+     * }
+     */
+    public static int VM_MEMORY_LIBDISPATCH() {
+        return VM_MEMORY_LIBDISPATCH;
+    }
+    private static final int VM_MEMORY_ACCELERATE = (int)75L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ACCELERATE 75
+     * }
+     */
+    public static int VM_MEMORY_ACCELERATE() {
+        return VM_MEMORY_ACCELERATE;
+    }
+    private static final int VM_MEMORY_COREUI = (int)76L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREUI 76
+     * }
+     */
+    public static int VM_MEMORY_COREUI() {
+        return VM_MEMORY_COREUI;
+    }
+    private static final int VM_MEMORY_COREUIFILE = (int)77L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREUIFILE 77
+     * }
+     */
+    public static int VM_MEMORY_COREUIFILE() {
+        return VM_MEMORY_COREUIFILE;
+    }
+    private static final int VM_MEMORY_GENEALOGY = (int)78L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_GENEALOGY 78
+     * }
+     */
+    public static int VM_MEMORY_GENEALOGY() {
+        return VM_MEMORY_GENEALOGY;
+    }
+    private static final int VM_MEMORY_RAWCAMERA = (int)79L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_RAWCAMERA 79
+     * }
+     */
+    public static int VM_MEMORY_RAWCAMERA() {
+        return VM_MEMORY_RAWCAMERA;
+    }
+    private static final int VM_MEMORY_CORPSEINFO = (int)80L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CORPSEINFO 80
+     * }
+     */
+    public static int VM_MEMORY_CORPSEINFO() {
+        return VM_MEMORY_CORPSEINFO;
+    }
+    private static final int VM_MEMORY_ASL = (int)81L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ASL 81
+     * }
+     */
+    public static int VM_MEMORY_ASL() {
+        return VM_MEMORY_ASL;
+    }
+    private static final int VM_MEMORY_SWIFT_RUNTIME = (int)82L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_SWIFT_RUNTIME 82
+     * }
+     */
+    public static int VM_MEMORY_SWIFT_RUNTIME() {
+        return VM_MEMORY_SWIFT_RUNTIME;
+    }
+    private static final int VM_MEMORY_SWIFT_METADATA = (int)83L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_SWIFT_METADATA 83
+     * }
+     */
+    public static int VM_MEMORY_SWIFT_METADATA() {
+        return VM_MEMORY_SWIFT_METADATA;
+    }
+    private static final int VM_MEMORY_DHMM = (int)84L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_DHMM 84
+     * }
+     */
+    public static int VM_MEMORY_DHMM() {
+        return VM_MEMORY_DHMM;
+    }
+    private static final int VM_MEMORY_SCENEKIT = (int)86L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_SCENEKIT 86
+     * }
+     */
+    public static int VM_MEMORY_SCENEKIT() {
+        return VM_MEMORY_SCENEKIT;
+    }
+    private static final int VM_MEMORY_SKYWALK = (int)87L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_SKYWALK 87
+     * }
+     */
+    public static int VM_MEMORY_SKYWALK() {
+        return VM_MEMORY_SKYWALK;
+    }
+    private static final int VM_MEMORY_IOSURFACE = (int)88L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_IOSURFACE 88
+     * }
+     */
+    public static int VM_MEMORY_IOSURFACE() {
+        return VM_MEMORY_IOSURFACE;
+    }
+    private static final int VM_MEMORY_LIBNETWORK = (int)89L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_LIBNETWORK 89
+     * }
+     */
+    public static int VM_MEMORY_LIBNETWORK() {
+        return VM_MEMORY_LIBNETWORK;
+    }
+    private static final int VM_MEMORY_AUDIO = (int)90L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_AUDIO 90
+     * }
+     */
+    public static int VM_MEMORY_AUDIO() {
+        return VM_MEMORY_AUDIO;
+    }
+    private static final int VM_MEMORY_VIDEOBITSTREAM = (int)91L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_VIDEOBITSTREAM 91
+     * }
+     */
+    public static int VM_MEMORY_VIDEOBITSTREAM() {
+        return VM_MEMORY_VIDEOBITSTREAM;
+    }
+    private static final int VM_MEMORY_CM_XPC = (int)92L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CM_XPC 92
+     * }
+     */
+    public static int VM_MEMORY_CM_XPC() {
+        return VM_MEMORY_CM_XPC;
+    }
+    private static final int VM_MEMORY_CM_RPC = (int)93L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CM_RPC 93
+     * }
+     */
+    public static int VM_MEMORY_CM_RPC() {
+        return VM_MEMORY_CM_RPC;
+    }
+    private static final int VM_MEMORY_CM_MEMORYPOOL = (int)94L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CM_MEMORYPOOL 94
+     * }
+     */
+    public static int VM_MEMORY_CM_MEMORYPOOL() {
+        return VM_MEMORY_CM_MEMORYPOOL;
+    }
+    private static final int VM_MEMORY_CM_READCACHE = (int)95L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CM_READCACHE 95
+     * }
+     */
+    public static int VM_MEMORY_CM_READCACHE() {
+        return VM_MEMORY_CM_READCACHE;
+    }
+    private static final int VM_MEMORY_CM_CRABS = (int)96L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CM_CRABS 96
+     * }
+     */
+    public static int VM_MEMORY_CM_CRABS() {
+        return VM_MEMORY_CM_CRABS;
+    }
+    private static final int VM_MEMORY_QUICKLOOK_THUMBNAILS = (int)97L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_QUICKLOOK_THUMBNAILS 97
+     * }
+     */
+    public static int VM_MEMORY_QUICKLOOK_THUMBNAILS() {
+        return VM_MEMORY_QUICKLOOK_THUMBNAILS;
+    }
+    private static final int VM_MEMORY_ACCOUNTS = (int)98L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ACCOUNTS 98
+     * }
+     */
+    public static int VM_MEMORY_ACCOUNTS() {
+        return VM_MEMORY_ACCOUNTS;
+    }
+    private static final int VM_MEMORY_SANITIZER = (int)99L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_SANITIZER 99
+     * }
+     */
+    public static int VM_MEMORY_SANITIZER() {
+        return VM_MEMORY_SANITIZER;
+    }
+    private static final int VM_MEMORY_IOACCELERATOR = (int)100L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_IOACCELERATOR 100
+     * }
+     */
+    public static int VM_MEMORY_IOACCELERATOR() {
+        return VM_MEMORY_IOACCELERATOR;
+    }
+    private static final int VM_MEMORY_CM_REGWARP = (int)101L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CM_REGWARP 101
+     * }
+     */
+    public static int VM_MEMORY_CM_REGWARP() {
+        return VM_MEMORY_CM_REGWARP;
+    }
+    private static final int VM_MEMORY_EAR_DECODER = (int)102L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_EAR_DECODER 102
+     * }
+     */
+    public static int VM_MEMORY_EAR_DECODER() {
+        return VM_MEMORY_EAR_DECODER;
+    }
+    private static final int VM_MEMORY_COREUI_CACHED_IMAGE_DATA = (int)103L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COREUI_CACHED_IMAGE_DATA 103
+     * }
+     */
+    public static int VM_MEMORY_COREUI_CACHED_IMAGE_DATA() {
+        return VM_MEMORY_COREUI_CACHED_IMAGE_DATA;
+    }
+    private static final int VM_MEMORY_COLORSYNC = (int)104L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COLORSYNC 104
+     * }
+     */
+    public static int VM_MEMORY_COLORSYNC() {
+        return VM_MEMORY_COLORSYNC;
+    }
+    private static final int VM_MEMORY_BTINFO = (int)105L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_BTINFO 105
+     * }
+     */
+    public static int VM_MEMORY_BTINFO() {
+        return VM_MEMORY_BTINFO;
+    }
+    private static final int VM_MEMORY_CM_HLS = (int)106L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_CM_HLS 106
+     * }
+     */
+    public static int VM_MEMORY_CM_HLS() {
+        return VM_MEMORY_CM_HLS;
+    }
+    private static final int VM_MEMORY_ROSETTA = (int)230L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ROSETTA 230
+     * }
+     */
+    public static int VM_MEMORY_ROSETTA() {
+        return VM_MEMORY_ROSETTA;
+    }
+    private static final int VM_MEMORY_ROSETTA_THREAD_CONTEXT = (int)231L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ROSETTA_THREAD_CONTEXT 231
+     * }
+     */
+    public static int VM_MEMORY_ROSETTA_THREAD_CONTEXT() {
+        return VM_MEMORY_ROSETTA_THREAD_CONTEXT;
+    }
+    private static final int VM_MEMORY_ROSETTA_INDIRECT_BRANCH_MAP = (int)232L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ROSETTA_INDIRECT_BRANCH_MAP 232
+     * }
+     */
+    public static int VM_MEMORY_ROSETTA_INDIRECT_BRANCH_MAP() {
+        return VM_MEMORY_ROSETTA_INDIRECT_BRANCH_MAP;
+    }
+    private static final int VM_MEMORY_ROSETTA_RETURN_STACK = (int)233L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ROSETTA_RETURN_STACK 233
+     * }
+     */
+    public static int VM_MEMORY_ROSETTA_RETURN_STACK() {
+        return VM_MEMORY_ROSETTA_RETURN_STACK;
+    }
+    private static final int VM_MEMORY_ROSETTA_EXECUTABLE_HEAP = (int)234L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ROSETTA_EXECUTABLE_HEAP 234
+     * }
+     */
+    public static int VM_MEMORY_ROSETTA_EXECUTABLE_HEAP() {
+        return VM_MEMORY_ROSETTA_EXECUTABLE_HEAP;
+    }
+    private static final int VM_MEMORY_ROSETTA_USER_LDT = (int)235L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ROSETTA_USER_LDT 235
+     * }
+     */
+    public static int VM_MEMORY_ROSETTA_USER_LDT() {
+        return VM_MEMORY_ROSETTA_USER_LDT;
+    }
+    private static final int VM_MEMORY_ROSETTA_ARENA = (int)236L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ROSETTA_ARENA 236
+     * }
+     */
+    public static int VM_MEMORY_ROSETTA_ARENA() {
+        return VM_MEMORY_ROSETTA_ARENA;
+    }
+    private static final int VM_MEMORY_ROSETTA_10 = (int)239L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_ROSETTA_10 239
+     * }
+     */
+    public static int VM_MEMORY_ROSETTA_10() {
+        return VM_MEMORY_ROSETTA_10;
+    }
+    private static final int VM_MEMORY_APPLICATION_SPECIFIC_1 = (int)240L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_APPLICATION_SPECIFIC_1 240
+     * }
+     */
+    public static int VM_MEMORY_APPLICATION_SPECIFIC_1() {
+        return VM_MEMORY_APPLICATION_SPECIFIC_1;
+    }
+    private static final int VM_MEMORY_APPLICATION_SPECIFIC_16 = (int)255L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_APPLICATION_SPECIFIC_16 255
+     * }
+     */
+    public static int VM_MEMORY_APPLICATION_SPECIFIC_16() {
+        return VM_MEMORY_APPLICATION_SPECIFIC_16;
+    }
+    private static final int VM_MEMORY_COUNT = (int)256L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_MEMORY_COUNT 256
+     * }
+     */
+    public static int VM_MEMORY_COUNT() {
+        return VM_MEMORY_COUNT;
+    }
+    private static final int THREAD_STATE_FLAVOR_LIST = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_STATE_FLAVOR_LIST 0
+     * }
+     */
+    public static int THREAD_STATE_FLAVOR_LIST() {
+        return THREAD_STATE_FLAVOR_LIST;
+    }
+    private static final int THREAD_STATE_FLAVOR_LIST_NEW = (int)128L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_STATE_FLAVOR_LIST_NEW 128
+     * }
+     */
+    public static int THREAD_STATE_FLAVOR_LIST_NEW() {
+        return THREAD_STATE_FLAVOR_LIST_NEW;
+    }
+    private static final int THREAD_STATE_FLAVOR_LIST_10_9 = (int)129L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_STATE_FLAVOR_LIST_10_9 129
+     * }
+     */
+    public static int THREAD_STATE_FLAVOR_LIST_10_9() {
+        return THREAD_STATE_FLAVOR_LIST_10_9;
+    }
+    private static final int THREAD_STATE_FLAVOR_LIST_10_13 = (int)130L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_STATE_FLAVOR_LIST_10_13 130
+     * }
+     */
+    public static int THREAD_STATE_FLAVOR_LIST_10_13() {
+        return THREAD_STATE_FLAVOR_LIST_10_13;
+    }
+    private static final int THREAD_STATE_FLAVOR_LIST_10_15 = (int)131L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_STATE_FLAVOR_LIST_10_15 131
+     * }
+     */
+    public static int THREAD_STATE_FLAVOR_LIST_10_15() {
+        return THREAD_STATE_FLAVOR_LIST_10_15;
+    }
+    private static final int THREAD_CONVERT_THREAD_STATE_TO_SELF = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_CONVERT_THREAD_STATE_TO_SELF 1
+     * }
+     */
+    public static int THREAD_CONVERT_THREAD_STATE_TO_SELF() {
+        return THREAD_CONVERT_THREAD_STATE_TO_SELF;
+    }
+    private static final int THREAD_CONVERT_THREAD_STATE_FROM_SELF = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_CONVERT_THREAD_STATE_FROM_SELF 2
+     * }
+     */
+    public static int THREAD_CONVERT_THREAD_STATE_FROM_SELF() {
+        return THREAD_CONVERT_THREAD_STATE_FROM_SELF;
+    }
+    private static final int TASK_CATEGORY_POLICY = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_CATEGORY_POLICY 1
+     * }
+     */
+    public static int TASK_CATEGORY_POLICY() {
+        return TASK_CATEGORY_POLICY;
+    }
+    private static final int TASK_SUPPRESSION_POLICY = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_SUPPRESSION_POLICY 3
+     * }
+     */
+    public static int TASK_SUPPRESSION_POLICY() {
+        return TASK_SUPPRESSION_POLICY;
+    }
+    private static final int TASK_POLICY_STATE = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_POLICY_STATE 4
+     * }
+     */
+    public static int TASK_POLICY_STATE() {
+        return TASK_POLICY_STATE;
+    }
+    private static final int TASK_BASE_QOS_POLICY = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_BASE_QOS_POLICY 8
+     * }
+     */
+    public static int TASK_BASE_QOS_POLICY() {
+        return TASK_BASE_QOS_POLICY;
+    }
+    private static final int TASK_OVERRIDE_QOS_POLICY = (int)9L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_OVERRIDE_QOS_POLICY 9
+     * }
+     */
+    public static int TASK_OVERRIDE_QOS_POLICY() {
+        return TASK_OVERRIDE_QOS_POLICY;
+    }
+    private static final int TASK_BASE_LATENCY_QOS_POLICY = (int)10L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_BASE_LATENCY_QOS_POLICY 10
+     * }
+     */
+    public static int TASK_BASE_LATENCY_QOS_POLICY() {
+        return TASK_BASE_LATENCY_QOS_POLICY;
+    }
+    private static final int TASK_BASE_THROUGHPUT_QOS_POLICY = (int)11L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_BASE_THROUGHPUT_QOS_POLICY 11
+     * }
+     */
+    public static int TASK_BASE_THROUGHPUT_QOS_POLICY() {
+        return TASK_BASE_THROUGHPUT_QOS_POLICY;
+    }
+    private static final int PROC_FLAG_DARWINBG = (int)32768L;
+    /**
+     * {@snippet lang=c :
+     * #define PROC_FLAG_DARWINBG 32768
+     * }
+     */
+    public static int PROC_FLAG_DARWINBG() {
+        return PROC_FLAG_DARWINBG;
+    }
+    private static final int PROC_FLAG_EXT_DARWINBG = (int)65536L;
+    /**
+     * {@snippet lang=c :
+     * #define PROC_FLAG_EXT_DARWINBG 65536
+     * }
+     */
+    public static int PROC_FLAG_EXT_DARWINBG() {
+        return PROC_FLAG_EXT_DARWINBG;
+    }
+    private static final int PROC_FLAG_IOS_APPLEDAEMON = (int)131072L;
+    /**
+     * {@snippet lang=c :
+     * #define PROC_FLAG_IOS_APPLEDAEMON 131072
+     * }
+     */
+    public static int PROC_FLAG_IOS_APPLEDAEMON() {
+        return PROC_FLAG_IOS_APPLEDAEMON;
+    }
+    private static final int PROC_FLAG_IOS_IMPPROMOTION = (int)524288L;
+    /**
+     * {@snippet lang=c :
+     * #define PROC_FLAG_IOS_IMPPROMOTION 524288
+     * }
+     */
+    public static int PROC_FLAG_IOS_IMPPROMOTION() {
+        return PROC_FLAG_IOS_IMPPROMOTION;
+    }
+    private static final int PROC_FLAG_ADAPTIVE = (int)1048576L;
+    /**
+     * {@snippet lang=c :
+     * #define PROC_FLAG_ADAPTIVE 1048576
+     * }
+     */
+    public static int PROC_FLAG_ADAPTIVE() {
+        return PROC_FLAG_ADAPTIVE;
+    }
+    private static final int PROC_FLAG_ADAPTIVE_IMPORTANT = (int)2097152L;
+    /**
+     * {@snippet lang=c :
+     * #define PROC_FLAG_ADAPTIVE_IMPORTANT 2097152
+     * }
+     */
+    public static int PROC_FLAG_ADAPTIVE_IMPORTANT() {
+        return PROC_FLAG_ADAPTIVE_IMPORTANT;
+    }
+    private static final int PROC_FLAG_IMPORTANCE_DONOR = (int)4194304L;
+    /**
+     * {@snippet lang=c :
+     * #define PROC_FLAG_IMPORTANCE_DONOR 4194304
+     * }
+     */
+    public static int PROC_FLAG_IMPORTANCE_DONOR() {
+        return PROC_FLAG_IMPORTANCE_DONOR;
+    }
+    private static final int PROC_FLAG_SUPPRESSED = (int)8388608L;
+    /**
+     * {@snippet lang=c :
+     * #define PROC_FLAG_SUPPRESSED 8388608
+     * }
+     */
+    public static int PROC_FLAG_SUPPRESSED() {
+        return PROC_FLAG_SUPPRESSED;
+    }
+    private static final int PROC_FLAG_APPLICATION = (int)16777216L;
+    /**
+     * {@snippet lang=c :
+     * #define PROC_FLAG_APPLICATION 16777216
+     * }
+     */
+    public static int PROC_FLAG_APPLICATION() {
+        return PROC_FLAG_APPLICATION;
+    }
+    private static final int TASK_KERNEL_PORT = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_KERNEL_PORT 1
+     * }
+     */
+    public static int TASK_KERNEL_PORT() {
+        return TASK_KERNEL_PORT;
+    }
+    private static final int TASK_HOST_PORT = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_HOST_PORT 2
+     * }
+     */
+    public static int TASK_HOST_PORT() {
+        return TASK_HOST_PORT;
+    }
+    private static final int TASK_NAME_PORT = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_NAME_PORT 3
+     * }
+     */
+    public static int TASK_NAME_PORT() {
+        return TASK_NAME_PORT;
+    }
+    private static final int TASK_BOOTSTRAP_PORT = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_BOOTSTRAP_PORT 4
+     * }
+     */
+    public static int TASK_BOOTSTRAP_PORT() {
+        return TASK_BOOTSTRAP_PORT;
+    }
+    private static final int TASK_INSPECT_PORT = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_INSPECT_PORT 5
+     * }
+     */
+    public static int TASK_INSPECT_PORT() {
+        return TASK_INSPECT_PORT;
+    }
+    private static final int TASK_READ_PORT = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_READ_PORT 6
+     * }
+     */
+    public static int TASK_READ_PORT() {
+        return TASK_READ_PORT;
+    }
+    private static final int TASK_ACCESS_PORT = (int)9L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_ACCESS_PORT 9
+     * }
+     */
+    public static int TASK_ACCESS_PORT() {
+        return TASK_ACCESS_PORT;
+    }
+    private static final int TASK_DEBUG_CONTROL_PORT = (int)10L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_DEBUG_CONTROL_PORT 10
+     * }
+     */
+    public static int TASK_DEBUG_CONTROL_PORT() {
+        return TASK_DEBUG_CONTROL_PORT;
+    }
+    private static final int TASK_RESOURCE_NOTIFY_PORT = (int)11L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_RESOURCE_NOTIFY_PORT 11
+     * }
+     */
+    public static int TASK_RESOURCE_NOTIFY_PORT() {
+        return TASK_RESOURCE_NOTIFY_PORT;
+    }
+    private static final int THREAD_BASIC_INFO = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_BASIC_INFO 3
+     * }
+     */
+    public static int THREAD_BASIC_INFO() {
+        return THREAD_BASIC_INFO;
+    }
+    private static final int THREAD_IDENTIFIER_INFO = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_IDENTIFIER_INFO 4
+     * }
+     */
+    public static int THREAD_IDENTIFIER_INFO() {
+        return THREAD_IDENTIFIER_INFO;
+    }
+    private static final int TH_USAGE_SCALE = (int)1000L;
+    /**
+     * {@snippet lang=c :
+     * #define TH_USAGE_SCALE 1000
+     * }
+     */
+    public static int TH_USAGE_SCALE() {
+        return TH_USAGE_SCALE;
+    }
+    private static final int TH_STATE_RUNNING = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define TH_STATE_RUNNING 1
+     * }
+     */
+    public static int TH_STATE_RUNNING() {
+        return TH_STATE_RUNNING;
+    }
+    private static final int TH_STATE_STOPPED = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define TH_STATE_STOPPED 2
+     * }
+     */
+    public static int TH_STATE_STOPPED() {
+        return TH_STATE_STOPPED;
+    }
+    private static final int TH_STATE_WAITING = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define TH_STATE_WAITING 3
+     * }
+     */
+    public static int TH_STATE_WAITING() {
+        return TH_STATE_WAITING;
+    }
+    private static final int TH_STATE_UNINTERRUPTIBLE = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define TH_STATE_UNINTERRUPTIBLE 4
+     * }
+     */
+    public static int TH_STATE_UNINTERRUPTIBLE() {
+        return TH_STATE_UNINTERRUPTIBLE;
+    }
+    private static final int TH_STATE_HALTED = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define TH_STATE_HALTED 5
+     * }
+     */
+    public static int TH_STATE_HALTED() {
+        return TH_STATE_HALTED;
+    }
+    private static final int TH_FLAGS_SWAPPED = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define TH_FLAGS_SWAPPED 1
+     * }
+     */
+    public static int TH_FLAGS_SWAPPED() {
+        return TH_FLAGS_SWAPPED;
+    }
+    private static final int TH_FLAGS_IDLE = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define TH_FLAGS_IDLE 2
+     * }
+     */
+    public static int TH_FLAGS_IDLE() {
+        return TH_FLAGS_IDLE;
+    }
+    private static final int TH_FLAGS_GLOBAL_FORCED_IDLE = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define TH_FLAGS_GLOBAL_FORCED_IDLE 4
+     * }
+     */
+    public static int TH_FLAGS_GLOBAL_FORCED_IDLE() {
+        return TH_FLAGS_GLOBAL_FORCED_IDLE;
+    }
+    private static final int THREAD_EXTENDED_INFO = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_EXTENDED_INFO 5
+     * }
+     */
+    public static int THREAD_EXTENDED_INFO() {
+        return THREAD_EXTENDED_INFO;
+    }
+    private static final int MAXTHREADNAMESIZE = (int)64L;
+    /**
+     * {@snippet lang=c :
+     * #define MAXTHREADNAMESIZE 64
+     * }
+     */
+    public static int MAXTHREADNAMESIZE() {
+        return MAXTHREADNAMESIZE;
+    }
+    private static final int THREAD_DEBUG_INFO_INTERNAL = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_DEBUG_INFO_INTERNAL 6
+     * }
+     */
+    public static int THREAD_DEBUG_INFO_INTERNAL() {
+        return THREAD_DEBUG_INFO_INTERNAL;
+    }
+    private static final int IO_NUM_PRIORITIES = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define IO_NUM_PRIORITIES 4
+     * }
+     */
+    public static int IO_NUM_PRIORITIES() {
+        return IO_NUM_PRIORITIES;
+    }
+    private static final int THREAD_SCHED_TIMESHARE_INFO = (int)10L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_SCHED_TIMESHARE_INFO 10
+     * }
+     */
+    public static int THREAD_SCHED_TIMESHARE_INFO() {
+        return THREAD_SCHED_TIMESHARE_INFO;
+    }
+    private static final int THREAD_SCHED_RR_INFO = (int)11L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_SCHED_RR_INFO 11
+     * }
+     */
+    public static int THREAD_SCHED_RR_INFO() {
+        return THREAD_SCHED_RR_INFO;
+    }
+    private static final int THREAD_SCHED_FIFO_INFO = (int)12L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_SCHED_FIFO_INFO 12
+     * }
+     */
+    public static int THREAD_SCHED_FIFO_INFO() {
+        return THREAD_SCHED_FIFO_INFO;
+    }
+    private static final int THREAD_STANDARD_POLICY = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_STANDARD_POLICY 1
+     * }
+     */
+    public static int THREAD_STANDARD_POLICY() {
+        return THREAD_STANDARD_POLICY;
+    }
+    private static final int THREAD_STANDARD_POLICY_COUNT = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_STANDARD_POLICY_COUNT 0
+     * }
+     */
+    public static int THREAD_STANDARD_POLICY_COUNT() {
+        return THREAD_STANDARD_POLICY_COUNT;
+    }
+    private static final int THREAD_EXTENDED_POLICY = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_EXTENDED_POLICY 1
+     * }
+     */
+    public static int THREAD_EXTENDED_POLICY() {
+        return THREAD_EXTENDED_POLICY;
+    }
+    private static final int THREAD_TIME_CONSTRAINT_POLICY = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_TIME_CONSTRAINT_POLICY 2
+     * }
+     */
+    public static int THREAD_TIME_CONSTRAINT_POLICY() {
+        return THREAD_TIME_CONSTRAINT_POLICY;
+    }
+    private static final int THREAD_PRECEDENCE_POLICY = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_PRECEDENCE_POLICY 3
+     * }
+     */
+    public static int THREAD_PRECEDENCE_POLICY() {
+        return THREAD_PRECEDENCE_POLICY;
+    }
+    private static final int THREAD_AFFINITY_POLICY = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_AFFINITY_POLICY 4
+     * }
+     */
+    public static int THREAD_AFFINITY_POLICY() {
+        return THREAD_AFFINITY_POLICY;
+    }
+    private static final int THREAD_AFFINITY_TAG_NULL = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_AFFINITY_TAG_NULL 0
+     * }
+     */
+    public static int THREAD_AFFINITY_TAG_NULL() {
+        return THREAD_AFFINITY_TAG_NULL;
+    }
+    private static final int THREAD_BACKGROUND_POLICY = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_BACKGROUND_POLICY 5
+     * }
+     */
+    public static int THREAD_BACKGROUND_POLICY() {
+        return THREAD_BACKGROUND_POLICY;
+    }
+    private static final int THREAD_BACKGROUND_POLICY_DARWIN_BG = (int)4096L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_BACKGROUND_POLICY_DARWIN_BG 4096
+     * }
+     */
+    public static int THREAD_BACKGROUND_POLICY_DARWIN_BG() {
+        return THREAD_BACKGROUND_POLICY_DARWIN_BG;
+    }
+    private static final int THREAD_LATENCY_QOS_POLICY = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_LATENCY_QOS_POLICY 7
+     * }
+     */
+    public static int THREAD_LATENCY_QOS_POLICY() {
+        return THREAD_LATENCY_QOS_POLICY;
+    }
+    private static final int THREAD_THROUGHPUT_QOS_POLICY = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_THROUGHPUT_QOS_POLICY 8
+     * }
+     */
+    public static int THREAD_THROUGHPUT_QOS_POLICY() {
+        return THREAD_THROUGHPUT_QOS_POLICY;
+    }
+    private static final int THREAD_KERNEL_PORT = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_KERNEL_PORT 1
+     * }
+     */
+    public static int THREAD_KERNEL_PORT() {
+        return THREAD_KERNEL_PORT;
+    }
+    private static final int THREAD_INSPECT_PORT = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_INSPECT_PORT 2
+     * }
+     */
+    public static int THREAD_INSPECT_PORT() {
+        return THREAD_INSPECT_PORT;
+    }
+    private static final int THREAD_READ_PORT = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_READ_PORT 3
+     * }
+     */
+    public static int THREAD_READ_PORT() {
+        return THREAD_READ_PORT;
+    }
+    private static final int MATTR_CACHE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_CACHE 1
+     * }
+     */
+    public static int MATTR_CACHE() {
+        return MATTR_CACHE;
+    }
+    private static final int MATTR_MIGRATE = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_MIGRATE 2
+     * }
+     */
+    public static int MATTR_MIGRATE() {
+        return MATTR_MIGRATE;
+    }
+    private static final int MATTR_REPLICATE = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_REPLICATE 4
+     * }
+     */
+    public static int MATTR_REPLICATE() {
+        return MATTR_REPLICATE;
+    }
+    private static final int MATTR_VAL_OFF = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_VAL_OFF 0
+     * }
+     */
+    public static int MATTR_VAL_OFF() {
+        return MATTR_VAL_OFF;
+    }
+    private static final int MATTR_VAL_ON = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_VAL_ON 1
+     * }
+     */
+    public static int MATTR_VAL_ON() {
+        return MATTR_VAL_ON;
+    }
+    private static final int MATTR_VAL_GET = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_VAL_GET 2
+     * }
+     */
+    public static int MATTR_VAL_GET() {
+        return MATTR_VAL_GET;
+    }
+    private static final int MATTR_VAL_CACHE_FLUSH = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_VAL_CACHE_FLUSH 6
+     * }
+     */
+    public static int MATTR_VAL_CACHE_FLUSH() {
+        return MATTR_VAL_CACHE_FLUSH;
+    }
+    private static final int MATTR_VAL_DCACHE_FLUSH = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_VAL_DCACHE_FLUSH 7
+     * }
+     */
+    public static int MATTR_VAL_DCACHE_FLUSH() {
+        return MATTR_VAL_DCACHE_FLUSH;
+    }
+    private static final int MATTR_VAL_ICACHE_FLUSH = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_VAL_ICACHE_FLUSH 8
+     * }
+     */
+    public static int MATTR_VAL_ICACHE_FLUSH() {
+        return MATTR_VAL_ICACHE_FLUSH;
+    }
+    private static final int MATTR_VAL_CACHE_SYNC = (int)9L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_VAL_CACHE_SYNC 9
+     * }
+     */
+    public static int MATTR_VAL_CACHE_SYNC() {
+        return MATTR_VAL_CACHE_SYNC;
+    }
+    private static final int MATTR_VAL_GET_INFO = (int)10L;
+    /**
+     * {@snippet lang=c :
+     * #define MATTR_VAL_GET_INFO 10
+     * }
+     */
+    public static int MATTR_VAL_GET_INFO() {
+        return MATTR_VAL_GET_INFO;
+    }
+    private static final int VM_PURGABLE_NO_AGING_SHIFT = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_NO_AGING_SHIFT 16
+     * }
+     */
+    public static int VM_PURGABLE_NO_AGING_SHIFT() {
+        return VM_PURGABLE_NO_AGING_SHIFT;
+    }
+    private static final int VM_PURGABLE_DEBUG_SHIFT = (int)12L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_DEBUG_SHIFT 12
+     * }
+     */
+    public static int VM_PURGABLE_DEBUG_SHIFT() {
+        return VM_PURGABLE_DEBUG_SHIFT;
+    }
+    private static final int VM_VOLATILE_GROUP_SHIFT = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_VOLATILE_GROUP_SHIFT 8
+     * }
+     */
+    public static int VM_VOLATILE_GROUP_SHIFT() {
+        return VM_VOLATILE_GROUP_SHIFT;
+    }
+    private static final int VM_PURGABLE_BEHAVIOR_SHIFT = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_BEHAVIOR_SHIFT 6
+     * }
+     */
+    public static int VM_PURGABLE_BEHAVIOR_SHIFT() {
+        return VM_PURGABLE_BEHAVIOR_SHIFT;
+    }
+    private static final int VM_PURGABLE_ORDERING_SHIFT = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_ORDERING_SHIFT 5
+     * }
+     */
+    public static int VM_PURGABLE_ORDERING_SHIFT() {
+        return VM_PURGABLE_ORDERING_SHIFT;
+    }
+    private static final int VM_VOLATILE_ORDER_SHIFT = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_VOLATILE_ORDER_SHIFT 4
+     * }
+     */
+    public static int VM_VOLATILE_ORDER_SHIFT() {
+        return VM_VOLATILE_ORDER_SHIFT;
+    }
+    private static final int VM_PURGABLE_STATE_MIN = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_STATE_MIN 0
+     * }
+     */
+    public static int VM_PURGABLE_STATE_MIN() {
+        return VM_PURGABLE_STATE_MIN;
+    }
+    private static final int VM_PURGABLE_STATE_MAX = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_STATE_MAX 3
+     * }
+     */
+    public static int VM_PURGABLE_STATE_MAX() {
+        return VM_PURGABLE_STATE_MAX;
+    }
+    private static final int VM_PURGABLE_STATE_MASK = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_STATE_MASK 3
+     * }
+     */
+    public static int VM_PURGABLE_STATE_MASK() {
+        return VM_PURGABLE_STATE_MASK;
+    }
+    private static final int VM_PURGABLE_NONVOLATILE = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_NONVOLATILE 0
+     * }
+     */
+    public static int VM_PURGABLE_NONVOLATILE() {
+        return VM_PURGABLE_NONVOLATILE;
+    }
+    private static final int VM_PURGABLE_VOLATILE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_VOLATILE 1
+     * }
+     */
+    public static int VM_PURGABLE_VOLATILE() {
+        return VM_PURGABLE_VOLATILE;
+    }
+    private static final int VM_PURGABLE_EMPTY = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_EMPTY 2
+     * }
+     */
+    public static int VM_PURGABLE_EMPTY() {
+        return VM_PURGABLE_EMPTY;
+    }
+    private static final int VM_PURGABLE_DENY = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PURGABLE_DENY 3
+     * }
+     */
+    public static int VM_PURGABLE_DENY() {
+        return VM_PURGABLE_DENY;
+    }
+    private static final int VM_REGION_BASIC_INFO_64 = (int)9L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_REGION_BASIC_INFO_64 9
+     * }
+     */
+    public static int VM_REGION_BASIC_INFO_64() {
+        return VM_REGION_BASIC_INFO_64;
+    }
+    private static final int VM_REGION_BASIC_INFO = (int)10L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_REGION_BASIC_INFO 10
+     * }
+     */
+    public static int VM_REGION_BASIC_INFO() {
+        return VM_REGION_BASIC_INFO;
+    }
+    private static final int SM_COW = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define SM_COW 1
+     * }
+     */
+    public static int SM_COW() {
+        return SM_COW;
+    }
+    private static final int SM_PRIVATE = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define SM_PRIVATE 2
+     * }
+     */
+    public static int SM_PRIVATE() {
+        return SM_PRIVATE;
+    }
+    private static final int SM_EMPTY = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define SM_EMPTY 3
+     * }
+     */
+    public static int SM_EMPTY() {
+        return SM_EMPTY;
+    }
+    private static final int SM_SHARED = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define SM_SHARED 4
+     * }
+     */
+    public static int SM_SHARED() {
+        return SM_SHARED;
+    }
+    private static final int SM_TRUESHARED = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define SM_TRUESHARED 5
+     * }
+     */
+    public static int SM_TRUESHARED() {
+        return SM_TRUESHARED;
+    }
+    private static final int SM_PRIVATE_ALIASED = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define SM_PRIVATE_ALIASED 6
+     * }
+     */
+    public static int SM_PRIVATE_ALIASED() {
+        return SM_PRIVATE_ALIASED;
+    }
+    private static final int SM_SHARED_ALIASED = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define SM_SHARED_ALIASED 7
+     * }
+     */
+    public static int SM_SHARED_ALIASED() {
+        return SM_SHARED_ALIASED;
+    }
+    private static final int SM_LARGE_PAGE = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * #define SM_LARGE_PAGE 8
+     * }
+     */
+    public static int SM_LARGE_PAGE() {
+        return SM_LARGE_PAGE;
+    }
+    private static final int VM_REGION_EXTENDED_INFO = (int)13L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_REGION_EXTENDED_INFO 13
+     * }
+     */
+    public static int VM_REGION_EXTENDED_INFO() {
+        return VM_REGION_EXTENDED_INFO;
+    }
+    private static final int VM_REGION_TOP_INFO = (int)12L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_REGION_TOP_INFO 12
+     * }
+     */
+    public static int VM_REGION_TOP_INFO() {
+        return VM_REGION_TOP_INFO;
+    }
+    private static final int VM_PAGE_INFO_BASIC = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define VM_PAGE_INFO_BASIC 1
+     * }
+     */
+    public static int VM_PAGE_INFO_BASIC() {
+        return VM_PAGE_INFO_BASIC;
+    }
+    private static final int API_TO_BE_DEPRECATED = (int)100000L;
+    /**
+     * {@snippet lang=c :
+     * #define API_TO_BE_DEPRECATED 100000
+     * }
+     */
+    public static int API_TO_BE_DEPRECATED() {
+        return API_TO_BE_DEPRECATED;
+    }
+    private static final int API_TO_BE_DEPRECATED_MACOS = (int)100000L;
+    /**
+     * {@snippet lang=c :
+     * #define API_TO_BE_DEPRECATED_MACOS 100000
+     * }
+     */
+    public static int API_TO_BE_DEPRECATED_MACOS() {
+        return API_TO_BE_DEPRECATED_MACOS;
+    }
+    private static final int API_TO_BE_DEPRECATED_IOS = (int)100000L;
+    /**
+     * {@snippet lang=c :
+     * #define API_TO_BE_DEPRECATED_IOS 100000
+     * }
+     */
+    public static int API_TO_BE_DEPRECATED_IOS() {
+        return API_TO_BE_DEPRECATED_IOS;
+    }
+    private static final int API_TO_BE_DEPRECATED_TVOS = (int)100000L;
+    /**
+     * {@snippet lang=c :
+     * #define API_TO_BE_DEPRECATED_TVOS 100000
+     * }
+     */
+    public static int API_TO_BE_DEPRECATED_TVOS() {
+        return API_TO_BE_DEPRECATED_TVOS;
+    }
+    private static final int API_TO_BE_DEPRECATED_WATCHOS = (int)100000L;
+    /**
+     * {@snippet lang=c :
+     * #define API_TO_BE_DEPRECATED_WATCHOS 100000
+     * }
+     */
+    public static int API_TO_BE_DEPRECATED_WATCHOS() {
+        return API_TO_BE_DEPRECATED_WATCHOS;
+    }
+    private static final int API_TO_BE_DEPRECATED_DRIVERKIT = (int)100000L;
+    /**
+     * {@snippet lang=c :
+     * #define API_TO_BE_DEPRECATED_DRIVERKIT 100000
+     * }
+     */
+    public static int API_TO_BE_DEPRECATED_DRIVERKIT() {
+        return API_TO_BE_DEPRECATED_DRIVERKIT;
+    }
+    private static final int API_TO_BE_DEPRECATED_VISIONOS = (int)100000L;
+    /**
+     * {@snippet lang=c :
+     * #define API_TO_BE_DEPRECATED_VISIONOS 100000
+     * }
+     */
+    public static int API_TO_BE_DEPRECATED_VISIONOS() {
+        return API_TO_BE_DEPRECATED_VISIONOS;
+    }
+    private static final int MALLOC_PTR_IN_USE_RANGE_TYPE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define MALLOC_PTR_IN_USE_RANGE_TYPE 1
+     * }
+     */
+    public static int MALLOC_PTR_IN_USE_RANGE_TYPE() {
+        return MALLOC_PTR_IN_USE_RANGE_TYPE;
+    }
+    private static final int MALLOC_PTR_REGION_RANGE_TYPE = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define MALLOC_PTR_REGION_RANGE_TYPE 2
+     * }
+     */
+    public static int MALLOC_PTR_REGION_RANGE_TYPE() {
+        return MALLOC_PTR_REGION_RANGE_TYPE;
+    }
+    private static final int MALLOC_ADMIN_REGION_RANGE_TYPE = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define MALLOC_ADMIN_REGION_RANGE_TYPE 4
+     * }
+     */
+    public static int MALLOC_ADMIN_REGION_RANGE_TYPE() {
+        return MALLOC_ADMIN_REGION_RANGE_TYPE;
+    }
+    private static final int MALLOC_ZONE_SPECIFIC_FLAGS = (int)65280L;
+    /**
+     * {@snippet lang=c :
+     * #define MALLOC_ZONE_SPECIFIC_FLAGS 65280
+     * }
+     */
+    public static int MALLOC_ZONE_SPECIFIC_FLAGS() {
+        return MALLOC_ZONE_SPECIFIC_FLAGS;
+    }
+    private static final int MALLOC_VERBOSE_PRINT_LEVEL = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define MALLOC_VERBOSE_PRINT_LEVEL 2
+     * }
+     */
+    public static int MALLOC_VERBOSE_PRINT_LEVEL() {
+        return MALLOC_VERBOSE_PRINT_LEVEL;
+    }
+    /**
+     * {@snippet lang=c :
+     * typedef __int64_t __darwin_blkcnt_t
+     * }
+     */
+    public static final OfLong __darwin_blkcnt_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef __int32_t __darwin_blksize_t
+     * }
+     */
+    public static final OfInt __darwin_blksize_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __int32_t __darwin_dev_t
+     * }
+     */
+    public static final OfInt __darwin_dev_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned int __darwin_fsblkcnt_t
+     * }
+     */
+    public static final OfInt __darwin_fsblkcnt_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned int __darwin_fsfilcnt_t
+     * }
+     */
+    public static final OfInt __darwin_fsfilcnt_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __uint32_t __darwin_gid_t
+     * }
+     */
+    public static final OfInt __darwin_gid_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __uint32_t __darwin_id_t
+     * }
+     */
+    public static final OfInt __darwin_id_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __uint64_t __darwin_ino64_t
+     * }
+     */
+    public static final OfLong __darwin_ino64_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_ino64_t __darwin_ino_t
+     * }
+     */
+    public static final OfLong __darwin_ino_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_natural_t __darwin_mach_port_name_t
+     * }
+     */
+    public static final OfInt __darwin_mach_port_name_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_mach_port_name_t __darwin_mach_port_t
+     * }
+     */
+    public static final OfInt __darwin_mach_port_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __uint16_t __darwin_mode_t
+     * }
+     */
+    public static final OfShort __darwin_mode_t = ObjCRuntime.C_SHORT;
+    /**
+     * {@snippet lang=c :
+     * typedef __int64_t __darwin_off_t
+     * }
+     */
+    public static final OfLong __darwin_off_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef __int32_t __darwin_pid_t
+     * }
+     */
+    public static final OfInt __darwin_pid_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __uint32_t __darwin_sigset_t
+     * }
+     */
+    public static final OfInt __darwin_sigset_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __int32_t __darwin_suseconds_t
+     * }
+     */
+    public static final OfInt __darwin_suseconds_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __uint32_t __darwin_uid_t
+     * }
+     */
+    public static final OfInt __darwin_uid_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __uint32_t __darwin_useconds_t
+     * }
+     */
+    public static final OfInt __darwin_useconds_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned long __darwin_pthread_key_t
+     * }
+     */
+    public static final OfLong __darwin_pthread_key_t = ObjCRuntime.C_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef struct _opaque_pthread_t {
+     *     long __sig;
+     *     struct __darwin_pthread_handler_rec *__cleanup_stack;
+     *     char __opaque[8176];
+     * } *__darwin_pthread_t
+     * }
+     */
+    public static final AddressLayout __darwin_pthread_t = ObjCRuntime.C_POINTER;
+    private static final int P_ALL = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.P_ALL = 0
+     * }
+     */
+    public static int P_ALL() {
+        return P_ALL;
+    }
+    private static final int P_PID = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.P_PID = 1
+     * }
+     */
+    public static int P_PID() {
+        return P_PID;
+    }
+    private static final int P_PGID = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.P_PGID = 2
+     * }
+     */
+    public static int P_PGID() {
+        return P_PGID;
+    }
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_pid_t pid_t
+     * }
+     */
+    public static final OfInt pid_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_id_t id_t
+     * }
+     */
+    public static final OfInt id_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef signed char int8_t
+     * }
+     */
+    public static final OfByte int8_t = ObjCRuntime.C_CHAR;
+    /**
+     * {@snippet lang=c :
+     * typedef short int16_t
+     * }
+     */
+    public static final OfShort int16_t = ObjCRuntime.C_SHORT;
+    /**
+     * {@snippet lang=c :
+     * typedef int int32_t
+     * }
+     */
+    public static final OfInt int32_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef long long int64_t
+     * }
+     */
+    public static final OfLong int64_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned char u_int8_t
+     * }
+     */
+    public static final OfByte u_int8_t = ObjCRuntime.C_CHAR;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned short u_int16_t
+     * }
+     */
+    public static final OfShort u_int16_t = ObjCRuntime.C_SHORT;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned int u_int32_t
+     * }
+     */
+    public static final OfInt u_int32_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned long long u_int64_t
+     * }
+     */
+    public static final OfLong u_int64_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_intptr_t intptr_t
+     * }
+     */
+    public static final OfLong intptr_t = ObjCRuntime.C_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned long uintptr_t
+     * }
+     */
+    public static final OfLong uintptr_t = ObjCRuntime.C_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_sigset_t sigset_t
+     * }
+     */
+    public static final OfInt sigset_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_size_t size_t
+     * }
+     */
+    public static final OfLong size_t = ObjCRuntime.C_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_uid_t uid_t
+     * }
+     */
+    public static final OfInt uid_t = ObjCRuntime.C_INT;
+
+    private static class signal {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("signal");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void (*signal(int, void (*)(int)))(int)
+     * }
+     */
+    public static FunctionDescriptor signal$descriptor() {
+        return signal.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void (*signal(int, void (*)(int)))(int)
+     * }
+     */
+    public static MethodHandle signal$handle() {
+        return signal.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void (*signal(int, void (*)(int)))(int)
+     * }
+     */
+    public static MemorySegment signal$address() {
+        return signal.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void (*signal(int, void (*)(int)))(int)
+     * }
+     */
+    public static MemorySegment signal(int x0, MemorySegment x1) {
+        var mh$ = signal.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("signal", x0, x1);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned char uint8_t
+     * }
+     */
+    public static final OfByte uint8_t = ObjCRuntime.C_CHAR;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned short uint16_t
+     * }
+     */
+    public static final OfShort uint16_t = ObjCRuntime.C_SHORT;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned int uint32_t
+     * }
+     */
+    public static final OfInt uint32_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned long long uint64_t
+     * }
+     */
+    public static final OfLong uint64_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef int8_t int_least8_t
+     * }
+     */
+    public static final OfByte int_least8_t = ObjCRuntime.C_CHAR;
+    /**
+     * {@snippet lang=c :
+     * typedef int16_t int_least16_t
+     * }
+     */
+    public static final OfShort int_least16_t = ObjCRuntime.C_SHORT;
+    /**
+     * {@snippet lang=c :
+     * typedef int32_t int_least32_t
+     * }
+     */
+    public static final OfInt int_least32_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef int64_t int_least64_t
+     * }
+     */
+    public static final OfLong int_least64_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef uint8_t uint_least8_t
+     * }
+     */
+    public static final OfByte uint_least8_t = ObjCRuntime.C_CHAR;
+    /**
+     * {@snippet lang=c :
+     * typedef uint16_t uint_least16_t
+     * }
+     */
+    public static final OfShort uint_least16_t = ObjCRuntime.C_SHORT;
+    /**
+     * {@snippet lang=c :
+     * typedef uint32_t uint_least32_t
+     * }
+     */
+    public static final OfInt uint_least32_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef uint64_t uint_least64_t
+     * }
+     */
+    public static final OfLong uint_least64_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef int8_t int_fast8_t
+     * }
+     */
+    public static final OfByte int_fast8_t = ObjCRuntime.C_CHAR;
+    /**
+     * {@snippet lang=c :
+     * typedef int16_t int_fast16_t
+     * }
+     */
+    public static final OfShort int_fast16_t = ObjCRuntime.C_SHORT;
+    /**
+     * {@snippet lang=c :
+     * typedef int32_t int_fast32_t
+     * }
+     */
+    public static final OfInt int_fast32_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef int64_t int_fast64_t
+     * }
+     */
+    public static final OfLong int_fast64_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef uint8_t uint_fast8_t
+     * }
+     */
+    public static final OfByte uint_fast8_t = ObjCRuntime.C_CHAR;
+    /**
+     * {@snippet lang=c :
+     * typedef uint16_t uint_fast16_t
+     * }
+     */
+    public static final OfShort uint_fast16_t = ObjCRuntime.C_SHORT;
+    /**
+     * {@snippet lang=c :
+     * typedef uint32_t uint_fast32_t
+     * }
+     */
+    public static final OfInt uint_fast32_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef uint64_t uint_fast64_t
+     * }
+     */
+    public static final OfLong uint_fast64_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef long intmax_t
+     * }
+     */
+    public static final OfLong intmax_t = ObjCRuntime.C_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned long uintmax_t
+     * }
+     */
+    public static final OfLong uintmax_t = ObjCRuntime.C_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef __uint64_t rlim_t
+     * }
+     */
+    public static final OfLong rlim_t = ObjCRuntime.C_LONG_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef void *rusage_info_t
+     * }
+     */
+    public static final AddressLayout rusage_info_t = ObjCRuntime.C_POINTER;
+
+    private static class getpriority {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("getpriority");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int getpriority(int, id_t)
+     * }
+     */
+    public static FunctionDescriptor getpriority$descriptor() {
+        return getpriority.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int getpriority(int, id_t)
+     * }
+     */
+    public static MethodHandle getpriority$handle() {
+        return getpriority.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int getpriority(int, id_t)
+     * }
+     */
+    public static MemorySegment getpriority$address() {
+        return getpriority.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int getpriority(int, id_t)
+     * }
+     */
+    public static int getpriority(int x0, int x1) {
+        var mh$ = getpriority.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("getpriority", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class getiopolicy_np {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("getiopolicy_np");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int getiopolicy_np(int, int)
+     * }
+     */
+    public static FunctionDescriptor getiopolicy_np$descriptor() {
+        return getiopolicy_np.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int getiopolicy_np(int, int)
+     * }
+     */
+    public static MethodHandle getiopolicy_np$handle() {
+        return getiopolicy_np.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int getiopolicy_np(int, int)
+     * }
+     */
+    public static MemorySegment getiopolicy_np$address() {
+        return getiopolicy_np.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int getiopolicy_np(int, int)
+     * }
+     */
+    public static int getiopolicy_np(int x0, int x1) {
+        var mh$ = getiopolicy_np.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("getiopolicy_np", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class getrlimit {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("getrlimit");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int getrlimit(int, struct rlimit *)
+     * }
+     */
+    public static FunctionDescriptor getrlimit$descriptor() {
+        return getrlimit.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int getrlimit(int, struct rlimit *)
+     * }
+     */
+    public static MethodHandle getrlimit$handle() {
+        return getrlimit.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int getrlimit(int, struct rlimit *)
+     * }
+     */
+    public static MemorySegment getrlimit$address() {
+        return getrlimit.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int getrlimit(int, struct rlimit *)
+     * }
+     */
+    public static int getrlimit(int x0, MemorySegment x1) {
+        var mh$ = getrlimit.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("getrlimit", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class getrusage {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("getrusage");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int getrusage(int, struct rusage *)
+     * }
+     */
+    public static FunctionDescriptor getrusage$descriptor() {
+        return getrusage.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int getrusage(int, struct rusage *)
+     * }
+     */
+    public static MethodHandle getrusage$handle() {
+        return getrusage.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int getrusage(int, struct rusage *)
+     * }
+     */
+    public static MemorySegment getrusage$address() {
+        return getrusage.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int getrusage(int, struct rusage *)
+     * }
+     */
+    public static int getrusage(int x0, MemorySegment x1) {
+        var mh$ = getrusage.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("getrusage", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class setpriority {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("setpriority");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int setpriority(int, id_t, int)
+     * }
+     */
+    public static FunctionDescriptor setpriority$descriptor() {
+        return setpriority.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int setpriority(int, id_t, int)
+     * }
+     */
+    public static MethodHandle setpriority$handle() {
+        return setpriority.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int setpriority(int, id_t, int)
+     * }
+     */
+    public static MemorySegment setpriority$address() {
+        return setpriority.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int setpriority(int, id_t, int)
+     * }
+     */
+    public static int setpriority(int x0, int x1, int x2) {
+        var mh$ = setpriority.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("setpriority", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class setiopolicy_np {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("setiopolicy_np");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int setiopolicy_np(int, int, int)
+     * }
+     */
+    public static FunctionDescriptor setiopolicy_np$descriptor() {
+        return setiopolicy_np.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int setiopolicy_np(int, int, int)
+     * }
+     */
+    public static MethodHandle setiopolicy_np$handle() {
+        return setiopolicy_np.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int setiopolicy_np(int, int, int)
+     * }
+     */
+    public static MemorySegment setiopolicy_np$address() {
+        return setiopolicy_np.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int setiopolicy_np(int, int, int)
+     * }
+     */
+    public static int setiopolicy_np(int x0, int x1, int x2) {
+        var mh$ = setiopolicy_np.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("setiopolicy_np", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class setrlimit {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("setrlimit");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int setrlimit(int, const struct rlimit *)
+     * }
+     */
+    public static FunctionDescriptor setrlimit$descriptor() {
+        return setrlimit.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int setrlimit(int, const struct rlimit *)
+     * }
+     */
+    public static MethodHandle setrlimit$handle() {
+        return setrlimit.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int setrlimit(int, const struct rlimit *)
+     * }
+     */
+    public static MemorySegment setrlimit$address() {
+        return setrlimit.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int setrlimit(int, const struct rlimit *)
+     * }
+     */
+    public static int setrlimit(int x0, MemorySegment x1) {
+        var mh$ = setrlimit.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("setrlimit", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class waitpid {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("waitpid");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * pid_t waitpid(pid_t, int *, int)
+     * }
+     */
+    public static FunctionDescriptor waitpid$descriptor() {
+        return waitpid.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * pid_t waitpid(pid_t, int *, int)
+     * }
+     */
+    public static MethodHandle waitpid$handle() {
+        return waitpid.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * pid_t waitpid(pid_t, int *, int)
+     * }
+     */
+    public static MemorySegment waitpid$address() {
+        return waitpid.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * pid_t waitpid(pid_t, int *, int)
+     * }
+     */
+    public static int waitpid(int x0, MemorySegment x1, int x2) {
+        var mh$ = waitpid.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("waitpid", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class waitid {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("waitid");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int waitid(idtype_t, id_t, siginfo_t *, int)
+     * }
+     */
+    public static FunctionDescriptor waitid$descriptor() {
+        return waitid.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int waitid(idtype_t, id_t, siginfo_t *, int)
+     * }
+     */
+    public static MethodHandle waitid$handle() {
+        return waitid.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int waitid(idtype_t, id_t, siginfo_t *, int)
+     * }
+     */
+    public static MemorySegment waitid$address() {
+        return waitid.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int waitid(idtype_t, id_t, siginfo_t *, int)
+     * }
+     */
+    public static int waitid(int x0, int x1, MemorySegment x2, int x3) {
+        var mh$ = waitid.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("waitid", x0, x1, x2, x3);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2, x3);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class wait3 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("wait3");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * pid_t wait3(int *, int, struct rusage *)
+     * }
+     */
+    public static FunctionDescriptor wait3$descriptor() {
+        return wait3.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * pid_t wait3(int *, int, struct rusage *)
+     * }
+     */
+    public static MethodHandle wait3$handle() {
+        return wait3.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * pid_t wait3(int *, int, struct rusage *)
+     * }
+     */
+    public static MemorySegment wait3$address() {
+        return wait3.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * pid_t wait3(int *, int, struct rusage *)
+     * }
+     */
+    public static int wait3(MemorySegment x0, int x1, MemorySegment x2) {
+        var mh$ = wait3.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("wait3", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class wait4 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("wait4");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * pid_t wait4(pid_t, int *, int, struct rusage *)
+     * }
+     */
+    public static FunctionDescriptor wait4$descriptor() {
+        return wait4.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * pid_t wait4(pid_t, int *, int, struct rusage *)
+     * }
+     */
+    public static MethodHandle wait4$handle() {
+        return wait4.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * pid_t wait4(pid_t, int *, int, struct rusage *)
+     * }
+     */
+    public static MemorySegment wait4$address() {
+        return wait4.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * pid_t wait4(pid_t, int *, int, struct rusage *)
+     * }
+     */
+    public static int wait4(int x0, MemorySegment x1, int x2, MemorySegment x3) {
+        var mh$ = wait4.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("wait4", x0, x1, x2, x3);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2, x3);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class alloca {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("alloca");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void *alloca(size_t)
+     * }
+     */
+    public static FunctionDescriptor alloca$descriptor() {
+        return alloca.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void *alloca(size_t)
+     * }
+     */
+    public static MethodHandle alloca$handle() {
+        return alloca.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void *alloca(size_t)
+     * }
+     */
+    public static MemorySegment alloca$address() {
+        return alloca.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void *alloca(size_t)
+     * }
+     */
+    public static MemorySegment alloca(long x0) {
+        var mh$ = alloca.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("alloca", x0);
+            }
+            return (MemorySegment)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_ct_rune_t ct_rune_t
+     * }
+     */
+    public static final OfInt ct_rune_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_rune_t rune_t
+     * }
+     */
+    public static final OfInt rune_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_wchar_t wchar_t
+     * }
+     */
+    public static final OfInt wchar_t = ObjCRuntime.C_INT;
+
+    private static class __mb_cur_max$constants {
+        public static final OfInt LAYOUT = ObjCRuntime.C_INT;
+        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("__mb_cur_max").reinterpret(LAYOUT.byteSize());
+    }
+
+    /**
+     * Layout for variable:
+     * {@snippet lang=c :
+     * extern int __mb_cur_max
+     * }
+     */
+    public static OfInt __mb_cur_max$layout() {
+        return __mb_cur_max$constants.LAYOUT;
+    }
+
+    /**
+     * Segment for variable:
+     * {@snippet lang=c :
+     * extern int __mb_cur_max
+     * }
+     */
+    public static MemorySegment __mb_cur_max$segment() {
+        return __mb_cur_max$constants.SEGMENT;
+    }
+
+    /**
+     * Getter for variable:
+     * {@snippet lang=c :
+     * extern int __mb_cur_max
+     * }
+     */
+    public static int __mb_cur_max() {
+        return __mb_cur_max$constants.SEGMENT.get(__mb_cur_max$constants.LAYOUT, 0L);
+    }
+
+    /**
+     * Setter for variable:
+     * {@snippet lang=c :
+     * extern int __mb_cur_max
+     * }
+     */
+    public static void __mb_cur_max(int varValue) {
+        __mb_cur_max$constants.SEGMENT.set(__mb_cur_max$constants.LAYOUT, 0L, varValue);
+    }
+
+    private static class malloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void *malloc(size_t __size)
+     * }
+     */
+    public static FunctionDescriptor malloc$descriptor() {
+        return malloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void *malloc(size_t __size)
+     * }
+     */
+    public static MethodHandle malloc$handle() {
+        return malloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void *malloc(size_t __size)
+     * }
+     */
+    public static MemorySegment malloc$address() {
+        return malloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void *malloc(size_t __size)
+     * }
+     */
+    public static MemorySegment malloc(long __size) {
+        var mh$ = malloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc", __size);
+            }
+            return (MemorySegment)mh$.invokeExact(__size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class calloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("calloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void *calloc(size_t __count, size_t __size)
+     * }
+     */
+    public static FunctionDescriptor calloc$descriptor() {
+        return calloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void *calloc(size_t __count, size_t __size)
+     * }
+     */
+    public static MethodHandle calloc$handle() {
+        return calloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void *calloc(size_t __count, size_t __size)
+     * }
+     */
+    public static MemorySegment calloc$address() {
+        return calloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void *calloc(size_t __count, size_t __size)
+     * }
+     */
+    public static MemorySegment calloc(long __count, long __size) {
+        var mh$ = calloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("calloc", __count, __size);
+            }
+            return (MemorySegment)mh$.invokeExact(__count, __size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class free {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("free");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void free(void *)
+     * }
+     */
+    public static FunctionDescriptor free$descriptor() {
+        return free.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void free(void *)
+     * }
+     */
+    public static MethodHandle free$handle() {
+        return free.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void free(void *)
+     * }
+     */
+    public static MemorySegment free$address() {
+        return free.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void free(void *)
+     * }
+     */
+    public static void free(MemorySegment x0) {
+        var mh$ = free.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("free", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class realloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("realloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void *realloc(void *__ptr, size_t __size)
+     * }
+     */
+    public static FunctionDescriptor realloc$descriptor() {
+        return realloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void *realloc(void *__ptr, size_t __size)
+     * }
+     */
+    public static MethodHandle realloc$handle() {
+        return realloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void *realloc(void *__ptr, size_t __size)
+     * }
+     */
+    public static MemorySegment realloc$address() {
+        return realloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void *realloc(void *__ptr, size_t __size)
+     * }
+     */
+    public static MemorySegment realloc(MemorySegment __ptr, long __size) {
+        var mh$ = realloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("realloc", __ptr, __size);
+            }
+            return (MemorySegment)mh$.invokeExact(__ptr, __size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class reallocf {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("reallocf");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void *reallocf(void *__ptr, size_t __size)
+     * }
+     */
+    public static FunctionDescriptor reallocf$descriptor() {
+        return reallocf.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void *reallocf(void *__ptr, size_t __size)
+     * }
+     */
+    public static MethodHandle reallocf$handle() {
+        return reallocf.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void *reallocf(void *__ptr, size_t __size)
+     * }
+     */
+    public static MemorySegment reallocf$address() {
+        return reallocf.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void *reallocf(void *__ptr, size_t __size)
+     * }
+     */
+    public static MemorySegment reallocf(MemorySegment __ptr, long __size) {
+        var mh$ = reallocf.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("reallocf", __ptr, __size);
+            }
+            return (MemorySegment)mh$.invokeExact(__ptr, __size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class valloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("valloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void *valloc(size_t __size)
+     * }
+     */
+    public static FunctionDescriptor valloc$descriptor() {
+        return valloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void *valloc(size_t __size)
+     * }
+     */
+    public static MethodHandle valloc$handle() {
+        return valloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void *valloc(size_t __size)
+     * }
+     */
+    public static MemorySegment valloc$address() {
+        return valloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void *valloc(size_t __size)
+     * }
+     */
+    public static MemorySegment valloc(long __size) {
+        var mh$ = valloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("valloc", __size);
+            }
+            return (MemorySegment)mh$.invokeExact(__size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class aligned_alloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("aligned_alloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void *aligned_alloc(size_t __alignment, size_t __size)
+     * }
+     */
+    public static FunctionDescriptor aligned_alloc$descriptor() {
+        return aligned_alloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void *aligned_alloc(size_t __alignment, size_t __size)
+     * }
+     */
+    public static MethodHandle aligned_alloc$handle() {
+        return aligned_alloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void *aligned_alloc(size_t __alignment, size_t __size)
+     * }
+     */
+    public static MemorySegment aligned_alloc$address() {
+        return aligned_alloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void *aligned_alloc(size_t __alignment, size_t __size)
+     * }
+     */
+    public static MemorySegment aligned_alloc(long __alignment, long __size) {
+        var mh$ = aligned_alloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("aligned_alloc", __alignment, __size);
+            }
+            return (MemorySegment)mh$.invokeExact(__alignment, __size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class posix_memalign {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("posix_memalign");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int posix_memalign(void **__memptr, size_t __alignment, size_t __size)
+     * }
+     */
+    public static FunctionDescriptor posix_memalign$descriptor() {
+        return posix_memalign.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int posix_memalign(void **__memptr, size_t __alignment, size_t __size)
+     * }
+     */
+    public static MethodHandle posix_memalign$handle() {
+        return posix_memalign.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int posix_memalign(void **__memptr, size_t __alignment, size_t __size)
+     * }
+     */
+    public static MemorySegment posix_memalign$address() {
+        return posix_memalign.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int posix_memalign(void **__memptr, size_t __alignment, size_t __size)
+     * }
+     */
+    public static int posix_memalign(MemorySegment __memptr, long __alignment, long __size) {
+        var mh$ = posix_memalign.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("posix_memalign", __memptr, __alignment, __size);
+            }
+            return (int)mh$.invokeExact(__memptr, __alignment, __size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class abs {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("abs");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int abs(int)
+     * }
+     */
+    public static FunctionDescriptor abs$descriptor() {
+        return abs.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int abs(int)
+     * }
+     */
+    public static MethodHandle abs$handle() {
+        return abs.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int abs(int)
+     * }
+     */
+    public static MemorySegment abs$address() {
+        return abs.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int abs(int)
+     * }
+     */
+    public static int abs(int x0) {
+        var mh$ = abs.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("abs", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class atexit {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("atexit");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int atexit(void (* _Nonnull)(void))
+     * }
+     */
+    public static FunctionDescriptor atexit$descriptor() {
+        return atexit.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int atexit(void (* _Nonnull)(void))
+     * }
+     */
+    public static MethodHandle atexit$handle() {
+        return atexit.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int atexit(void (* _Nonnull)(void))
+     * }
+     */
+    public static MemorySegment atexit$address() {
+        return atexit.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int atexit(void (* _Nonnull)(void))
+     * }
+     */
+    public static int atexit(MemorySegment x0) {
+        var mh$ = atexit.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("atexit", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class at_quick_exit {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("at_quick_exit");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int at_quick_exit(void (*)(void))
+     * }
+     */
+    public static FunctionDescriptor at_quick_exit$descriptor() {
+        return at_quick_exit.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int at_quick_exit(void (*)(void))
+     * }
+     */
+    public static MethodHandle at_quick_exit$handle() {
+        return at_quick_exit.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int at_quick_exit(void (*)(void))
+     * }
+     */
+    public static MemorySegment at_quick_exit$address() {
+        return at_quick_exit.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int at_quick_exit(void (*)(void))
+     * }
+     */
+    public static int at_quick_exit(MemorySegment x0) {
+        var mh$ = at_quick_exit.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("at_quick_exit", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class atof {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_DOUBLE,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("atof");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * double atof(const char *)
+     * }
+     */
+    public static FunctionDescriptor atof$descriptor() {
+        return atof.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * double atof(const char *)
+     * }
+     */
+    public static MethodHandle atof$handle() {
+        return atof.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * double atof(const char *)
+     * }
+     */
+    public static MemorySegment atof$address() {
+        return atof.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * double atof(const char *)
+     * }
+     */
+    public static double atof(MemorySegment x0) {
+        var mh$ = atof.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("atof", x0);
+            }
+            return (double)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class atoi {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("atoi");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int atoi(const char *)
+     * }
+     */
+    public static FunctionDescriptor atoi$descriptor() {
+        return atoi.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int atoi(const char *)
+     * }
+     */
+    public static MethodHandle atoi$handle() {
+        return atoi.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int atoi(const char *)
+     * }
+     */
+    public static MemorySegment atoi$address() {
+        return atoi.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int atoi(const char *)
+     * }
+     */
+    public static int atoi(MemorySegment x0) {
+        var mh$ = atoi.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("atoi", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class atol {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("atol");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long atol(const char *)
+     * }
+     */
+    public static FunctionDescriptor atol$descriptor() {
+        return atol.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long atol(const char *)
+     * }
+     */
+    public static MethodHandle atol$handle() {
+        return atol.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long atol(const char *)
+     * }
+     */
+    public static MemorySegment atol$address() {
+        return atol.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long atol(const char *)
+     * }
+     */
+    public static long atol(MemorySegment x0) {
+        var mh$ = atol.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("atol", x0);
+            }
+            return (long)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class atoll {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("atoll");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long long atoll(const char *)
+     * }
+     */
+    public static FunctionDescriptor atoll$descriptor() {
+        return atoll.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long long atoll(const char *)
+     * }
+     */
+    public static MethodHandle atoll$handle() {
+        return atoll.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long long atoll(const char *)
+     * }
+     */
+    public static MemorySegment atoll$address() {
+        return atoll.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long long atoll(const char *)
+     * }
+     */
+    public static long atoll(MemorySegment x0) {
+        var mh$ = atoll.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("atoll", x0);
+            }
+            return (long)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class bsearch {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("bsearch");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void *bsearch(const void *__key, const void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor bsearch$descriptor() {
+        return bsearch.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void *bsearch(const void *__key, const void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle bsearch$handle() {
+        return bsearch.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void *bsearch(const void *__key, const void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment bsearch$address() {
+        return bsearch.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void *bsearch(const void *__key, const void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment bsearch(MemorySegment __key, MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = bsearch.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("bsearch", __key, __base, __nel, __width, __compar);
+            }
+            return (MemorySegment)mh$.invokeExact(__key, __base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class div {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            div_t.layout(),
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("div");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * div_t div(int, int)
+     * }
+     */
+    public static FunctionDescriptor div$descriptor() {
+        return div.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * div_t div(int, int)
+     * }
+     */
+    public static MethodHandle div$handle() {
+        return div.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * div_t div(int, int)
+     * }
+     */
+    public static MemorySegment div$address() {
+        return div.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * div_t div(int, int)
+     * }
+     */
+    public static MemorySegment div(SegmentAllocator allocator, int x0, int x1) {
+        var mh$ = div.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("div", allocator, x0, x1);
+            }
+            return (MemorySegment)mh$.invokeExact(allocator, x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class exit {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("exit");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void exit(int)
+     * }
+     */
+    public static FunctionDescriptor exit$descriptor() {
+        return exit.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void exit(int)
+     * }
+     */
+    public static MethodHandle exit$handle() {
+        return exit.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void exit(int)
+     * }
+     */
+    public static MemorySegment exit$address() {
+        return exit.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void exit(int)
+     * }
+     */
+    public static void exit(int x0) {
+        var mh$ = exit.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("exit", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class getenv {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("getenv");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *getenv(const char *)
+     * }
+     */
+    public static FunctionDescriptor getenv$descriptor() {
+        return getenv.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *getenv(const char *)
+     * }
+     */
+    public static MethodHandle getenv$handle() {
+        return getenv.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *getenv(const char *)
+     * }
+     */
+    public static MemorySegment getenv$address() {
+        return getenv.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *getenv(const char *)
+     * }
+     */
+    public static MemorySegment getenv(MemorySegment x0) {
+        var mh$ = getenv.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("getenv", x0);
+            }
+            return (MemorySegment)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class labs {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("labs");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long labs(long)
+     * }
+     */
+    public static FunctionDescriptor labs$descriptor() {
+        return labs.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long labs(long)
+     * }
+     */
+    public static MethodHandle labs$handle() {
+        return labs.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long labs(long)
+     * }
+     */
+    public static MemorySegment labs$address() {
+        return labs.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long labs(long)
+     * }
+     */
+    public static long labs(long x0) {
+        var mh$ = labs.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("labs", x0);
+            }
+            return (long)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class ldiv {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ldiv_t.layout(),
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("ldiv");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * ldiv_t ldiv(long, long)
+     * }
+     */
+    public static FunctionDescriptor ldiv$descriptor() {
+        return ldiv.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * ldiv_t ldiv(long, long)
+     * }
+     */
+    public static MethodHandle ldiv$handle() {
+        return ldiv.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * ldiv_t ldiv(long, long)
+     * }
+     */
+    public static MemorySegment ldiv$address() {
+        return ldiv.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * ldiv_t ldiv(long, long)
+     * }
+     */
+    public static MemorySegment ldiv(SegmentAllocator allocator, long x0, long x1) {
+        var mh$ = ldiv.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("ldiv", allocator, x0, x1);
+            }
+            return (MemorySegment)mh$.invokeExact(allocator, x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class llabs {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_LONG_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("llabs");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long long llabs(long long)
+     * }
+     */
+    public static FunctionDescriptor llabs$descriptor() {
+        return llabs.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long long llabs(long long)
+     * }
+     */
+    public static MethodHandle llabs$handle() {
+        return llabs.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long long llabs(long long)
+     * }
+     */
+    public static MemorySegment llabs$address() {
+        return llabs.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long long llabs(long long)
+     * }
+     */
+    public static long llabs(long x0) {
+        var mh$ = llabs.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("llabs", x0);
+            }
+            return (long)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class lldiv {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            lldiv_t.layout(),
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_LONG_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("lldiv");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * lldiv_t lldiv(long long, long long)
+     * }
+     */
+    public static FunctionDescriptor lldiv$descriptor() {
+        return lldiv.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * lldiv_t lldiv(long long, long long)
+     * }
+     */
+    public static MethodHandle lldiv$handle() {
+        return lldiv.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * lldiv_t lldiv(long long, long long)
+     * }
+     */
+    public static MemorySegment lldiv$address() {
+        return lldiv.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * lldiv_t lldiv(long long, long long)
+     * }
+     */
+    public static MemorySegment lldiv(SegmentAllocator allocator, long x0, long x1) {
+        var mh$ = lldiv.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("lldiv", allocator, x0, x1);
+            }
+            return (MemorySegment)mh$.invokeExact(allocator, x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class mblen {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mblen");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int mblen(const char *__s, size_t __n)
+     * }
+     */
+    public static FunctionDescriptor mblen$descriptor() {
+        return mblen.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int mblen(const char *__s, size_t __n)
+     * }
+     */
+    public static MethodHandle mblen$handle() {
+        return mblen.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int mblen(const char *__s, size_t __n)
+     * }
+     */
+    public static MemorySegment mblen$address() {
+        return mblen.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int mblen(const char *__s, size_t __n)
+     * }
+     */
+    public static int mblen(MemorySegment __s, long __n) {
+        var mh$ = mblen.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("mblen", __s, __n);
+            }
+            return (int)mh$.invokeExact(__s, __n);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class mbstowcs {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mbstowcs");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * size_t mbstowcs(wchar_t *restrict, const char *restrict, size_t)
+     * }
+     */
+    public static FunctionDescriptor mbstowcs$descriptor() {
+        return mbstowcs.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * size_t mbstowcs(wchar_t *restrict, const char *restrict, size_t)
+     * }
+     */
+    public static MethodHandle mbstowcs$handle() {
+        return mbstowcs.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * size_t mbstowcs(wchar_t *restrict, const char *restrict, size_t)
+     * }
+     */
+    public static MemorySegment mbstowcs$address() {
+        return mbstowcs.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * size_t mbstowcs(wchar_t *restrict, const char *restrict, size_t)
+     * }
+     */
+    public static long mbstowcs(MemorySegment x0, MemorySegment x1, long x2) {
+        var mh$ = mbstowcs.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("mbstowcs", x0, x1, x2);
+            }
+            return (long)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class mbtowc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mbtowc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int mbtowc(wchar_t *restrict, const char *restrict, size_t)
+     * }
+     */
+    public static FunctionDescriptor mbtowc$descriptor() {
+        return mbtowc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int mbtowc(wchar_t *restrict, const char *restrict, size_t)
+     * }
+     */
+    public static MethodHandle mbtowc$handle() {
+        return mbtowc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int mbtowc(wchar_t *restrict, const char *restrict, size_t)
+     * }
+     */
+    public static MemorySegment mbtowc$address() {
+        return mbtowc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int mbtowc(wchar_t *restrict, const char *restrict, size_t)
+     * }
+     */
+    public static int mbtowc(MemorySegment x0, MemorySegment x1, long x2) {
+        var mh$ = mbtowc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("mbtowc", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class qsort {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("qsort");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void qsort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor qsort$descriptor() {
+        return qsort.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void qsort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle qsort$handle() {
+        return qsort.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void qsort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment qsort$address() {
+        return qsort.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void qsort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static void qsort(MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = qsort.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("qsort", __base, __nel, __width, __compar);
+            }
+            mh$.invokeExact(__base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class quick_exit {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("quick_exit");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void quick_exit(int)
+     * }
+     */
+    public static FunctionDescriptor quick_exit$descriptor() {
+        return quick_exit.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void quick_exit(int)
+     * }
+     */
+    public static MethodHandle quick_exit$handle() {
+        return quick_exit.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void quick_exit(int)
+     * }
+     */
+    public static MemorySegment quick_exit$address() {
+        return quick_exit.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void quick_exit(int)
+     * }
+     */
+    public static void quick_exit(int x0) {
+        var mh$ = quick_exit.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("quick_exit", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class rand {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("rand");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int rand()
+     * }
+     */
+    public static FunctionDescriptor rand$descriptor() {
+        return rand.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int rand()
+     * }
+     */
+    public static MethodHandle rand$handle() {
+        return rand.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int rand()
+     * }
+     */
+    public static MemorySegment rand$address() {
+        return rand.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int rand()
+     * }
+     */
+    public static int rand() {
+        var mh$ = rand.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("rand");
+            }
+            return (int)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class srand {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("srand");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void srand(unsigned int)
+     * }
+     */
+    public static FunctionDescriptor srand$descriptor() {
+        return srand.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void srand(unsigned int)
+     * }
+     */
+    public static MethodHandle srand$handle() {
+        return srand.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void srand(unsigned int)
+     * }
+     */
+    public static MemorySegment srand$address() {
+        return srand.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void srand(unsigned int)
+     * }
+     */
+    public static void srand(int x0) {
+        var mh$ = srand.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("srand", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class strtod {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_DOUBLE,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("strtod");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * double strtod(const char *, char **)
+     * }
+     */
+    public static FunctionDescriptor strtod$descriptor() {
+        return strtod.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * double strtod(const char *, char **)
+     * }
+     */
+    public static MethodHandle strtod$handle() {
+        return strtod.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * double strtod(const char *, char **)
+     * }
+     */
+    public static MemorySegment strtod$address() {
+        return strtod.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * double strtod(const char *, char **)
+     * }
+     */
+    public static double strtod(MemorySegment x0, MemorySegment x1) {
+        var mh$ = strtod.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("strtod", x0, x1);
+            }
+            return (double)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class strtof {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_FLOAT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("strtof");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * float strtof(const char *, char **)
+     * }
+     */
+    public static FunctionDescriptor strtof$descriptor() {
+        return strtof.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * float strtof(const char *, char **)
+     * }
+     */
+    public static MethodHandle strtof$handle() {
+        return strtof.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * float strtof(const char *, char **)
+     * }
+     */
+    public static MemorySegment strtof$address() {
+        return strtof.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * float strtof(const char *, char **)
+     * }
+     */
+    public static float strtof(MemorySegment x0, MemorySegment x1) {
+        var mh$ = strtof.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("strtof", x0, x1);
+            }
+            return (float)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class strtol {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("strtol");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long strtol(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static FunctionDescriptor strtol$descriptor() {
+        return strtol.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long strtol(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MethodHandle strtol$handle() {
+        return strtol.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long strtol(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MemorySegment strtol$address() {
+        return strtol.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long strtol(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static long strtol(MemorySegment __str, MemorySegment __endptr, int __base) {
+        var mh$ = strtol.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("strtol", __str, __endptr, __base);
+            }
+            return (long)mh$.invokeExact(__str, __endptr, __base);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class strtoll {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("strtoll");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long long strtoll(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static FunctionDescriptor strtoll$descriptor() {
+        return strtoll.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long long strtoll(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MethodHandle strtoll$handle() {
+        return strtoll.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long long strtoll(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MemorySegment strtoll$address() {
+        return strtoll.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long long strtoll(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static long strtoll(MemorySegment __str, MemorySegment __endptr, int __base) {
+        var mh$ = strtoll.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("strtoll", __str, __endptr, __base);
+            }
+            return (long)mh$.invokeExact(__str, __endptr, __base);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class strtoul {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("strtoul");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * unsigned long strtoul(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static FunctionDescriptor strtoul$descriptor() {
+        return strtoul.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * unsigned long strtoul(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MethodHandle strtoul$handle() {
+        return strtoul.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * unsigned long strtoul(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MemorySegment strtoul$address() {
+        return strtoul.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * unsigned long strtoul(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static long strtoul(MemorySegment __str, MemorySegment __endptr, int __base) {
+        var mh$ = strtoul.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("strtoul", __str, __endptr, __base);
+            }
+            return (long)mh$.invokeExact(__str, __endptr, __base);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class strtoull {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("strtoull");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * unsigned long long strtoull(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static FunctionDescriptor strtoull$descriptor() {
+        return strtoull.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * unsigned long long strtoull(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MethodHandle strtoull$handle() {
+        return strtoull.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * unsigned long long strtoull(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MemorySegment strtoull$address() {
+        return strtoull.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * unsigned long long strtoull(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static long strtoull(MemorySegment __str, MemorySegment __endptr, int __base) {
+        var mh$ = strtoull.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("strtoull", __str, __endptr, __base);
+            }
+            return (long)mh$.invokeExact(__str, __endptr, __base);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class system {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("system");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int system(const char *)
+     * }
+     */
+    public static FunctionDescriptor system$descriptor() {
+        return system.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int system(const char *)
+     * }
+     */
+    public static MethodHandle system$handle() {
+        return system.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int system(const char *)
+     * }
+     */
+    public static MemorySegment system$address() {
+        return system.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int system(const char *)
+     * }
+     */
+    public static int system(MemorySegment x0) {
+        var mh$ = system.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("system", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class wcstombs {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("wcstombs");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * size_t wcstombs(char *restrict, const wchar_t *restrict, size_t)
+     * }
+     */
+    public static FunctionDescriptor wcstombs$descriptor() {
+        return wcstombs.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * size_t wcstombs(char *restrict, const wchar_t *restrict, size_t)
+     * }
+     */
+    public static MethodHandle wcstombs$handle() {
+        return wcstombs.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * size_t wcstombs(char *restrict, const wchar_t *restrict, size_t)
+     * }
+     */
+    public static MemorySegment wcstombs$address() {
+        return wcstombs.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * size_t wcstombs(char *restrict, const wchar_t *restrict, size_t)
+     * }
+     */
+    public static long wcstombs(MemorySegment x0, MemorySegment x1, long x2) {
+        var mh$ = wcstombs.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("wcstombs", x0, x1, x2);
+            }
+            return (long)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class wctomb {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("wctomb");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int wctomb(char *, wchar_t)
+     * }
+     */
+    public static FunctionDescriptor wctomb$descriptor() {
+        return wctomb.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int wctomb(char *, wchar_t)
+     * }
+     */
+    public static MethodHandle wctomb$handle() {
+        return wctomb.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int wctomb(char *, wchar_t)
+     * }
+     */
+    public static MemorySegment wctomb$address() {
+        return wctomb.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int wctomb(char *, wchar_t)
+     * }
+     */
+    public static int wctomb(MemorySegment x0, int x1) {
+        var mh$ = wctomb.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("wctomb", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class _Exit {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("_Exit");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void _Exit(int)
+     * }
+     */
+    public static FunctionDescriptor _Exit$descriptor() {
+        return _Exit.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void _Exit(int)
+     * }
+     */
+    public static MethodHandle _Exit$handle() {
+        return _Exit.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void _Exit(int)
+     * }
+     */
+    public static MemorySegment _Exit$address() {
+        return _Exit.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void _Exit(int)
+     * }
+     */
+    public static void _Exit(int x0) {
+        var mh$ = _Exit.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("_Exit", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class a64l {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("a64l");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long a64l(const char *)
+     * }
+     */
+    public static FunctionDescriptor a64l$descriptor() {
+        return a64l.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long a64l(const char *)
+     * }
+     */
+    public static MethodHandle a64l$handle() {
+        return a64l.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long a64l(const char *)
+     * }
+     */
+    public static MemorySegment a64l$address() {
+        return a64l.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long a64l(const char *)
+     * }
+     */
+    public static long a64l(MemorySegment x0) {
+        var mh$ = a64l.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("a64l", x0);
+            }
+            return (long)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class drand48 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_DOUBLE    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("drand48");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * double drand48()
+     * }
+     */
+    public static FunctionDescriptor drand48$descriptor() {
+        return drand48.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * double drand48()
+     * }
+     */
+    public static MethodHandle drand48$handle() {
+        return drand48.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * double drand48()
+     * }
+     */
+    public static MemorySegment drand48$address() {
+        return drand48.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * double drand48()
+     * }
+     */
+    public static double drand48() {
+        var mh$ = drand48.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("drand48");
+            }
+            return (double)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class ecvt {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_DOUBLE,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("ecvt");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *ecvt(double, int, int *restrict, int *restrict)
+     * }
+     */
+    public static FunctionDescriptor ecvt$descriptor() {
+        return ecvt.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *ecvt(double, int, int *restrict, int *restrict)
+     * }
+     */
+    public static MethodHandle ecvt$handle() {
+        return ecvt.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *ecvt(double, int, int *restrict, int *restrict)
+     * }
+     */
+    public static MemorySegment ecvt$address() {
+        return ecvt.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *ecvt(double, int, int *restrict, int *restrict)
+     * }
+     */
+    public static MemorySegment ecvt(double x0, int x1, MemorySegment x2, MemorySegment x3) {
+        var mh$ = ecvt.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("ecvt", x0, x1, x2, x3);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1, x2, x3);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class erand48 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_DOUBLE,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("erand48");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * double erand48(unsigned short [3])
+     * }
+     */
+    public static FunctionDescriptor erand48$descriptor() {
+        return erand48.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * double erand48(unsigned short [3])
+     * }
+     */
+    public static MethodHandle erand48$handle() {
+        return erand48.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * double erand48(unsigned short [3])
+     * }
+     */
+    public static MemorySegment erand48$address() {
+        return erand48.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * double erand48(unsigned short [3])
+     * }
+     */
+    public static double erand48(MemorySegment x0) {
+        var mh$ = erand48.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("erand48", x0);
+            }
+            return (double)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class fcvt {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_DOUBLE,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("fcvt");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *fcvt(double, int, int *restrict, int *restrict)
+     * }
+     */
+    public static FunctionDescriptor fcvt$descriptor() {
+        return fcvt.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *fcvt(double, int, int *restrict, int *restrict)
+     * }
+     */
+    public static MethodHandle fcvt$handle() {
+        return fcvt.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *fcvt(double, int, int *restrict, int *restrict)
+     * }
+     */
+    public static MemorySegment fcvt$address() {
+        return fcvt.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *fcvt(double, int, int *restrict, int *restrict)
+     * }
+     */
+    public static MemorySegment fcvt(double x0, int x1, MemorySegment x2, MemorySegment x3) {
+        var mh$ = fcvt.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("fcvt", x0, x1, x2, x3);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1, x2, x3);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class gcvt {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_DOUBLE,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("gcvt");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *gcvt(double, int, char *)
+     * }
+     */
+    public static FunctionDescriptor gcvt$descriptor() {
+        return gcvt.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *gcvt(double, int, char *)
+     * }
+     */
+    public static MethodHandle gcvt$handle() {
+        return gcvt.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *gcvt(double, int, char *)
+     * }
+     */
+    public static MemorySegment gcvt$address() {
+        return gcvt.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *gcvt(double, int, char *)
+     * }
+     */
+    public static MemorySegment gcvt(double x0, int x1, MemorySegment x2) {
+        var mh$ = gcvt.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("gcvt", x0, x1, x2);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class getsubopt {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("getsubopt");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int getsubopt(char **, char *const *, char **)
+     * }
+     */
+    public static FunctionDescriptor getsubopt$descriptor() {
+        return getsubopt.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int getsubopt(char **, char *const *, char **)
+     * }
+     */
+    public static MethodHandle getsubopt$handle() {
+        return getsubopt.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int getsubopt(char **, char *const *, char **)
+     * }
+     */
+    public static MemorySegment getsubopt$address() {
+        return getsubopt.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int getsubopt(char **, char *const *, char **)
+     * }
+     */
+    public static int getsubopt(MemorySegment x0, MemorySegment x1, MemorySegment x2) {
+        var mh$ = getsubopt.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("getsubopt", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class grantpt {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("grantpt");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int grantpt(int)
+     * }
+     */
+    public static FunctionDescriptor grantpt$descriptor() {
+        return grantpt.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int grantpt(int)
+     * }
+     */
+    public static MethodHandle grantpt$handle() {
+        return grantpt.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int grantpt(int)
+     * }
+     */
+    public static MemorySegment grantpt$address() {
+        return grantpt.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int grantpt(int)
+     * }
+     */
+    public static int grantpt(int x0) {
+        var mh$ = grantpt.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("grantpt", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class initstate {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("initstate");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *initstate(unsigned int, char *, size_t)
+     * }
+     */
+    public static FunctionDescriptor initstate$descriptor() {
+        return initstate.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *initstate(unsigned int, char *, size_t)
+     * }
+     */
+    public static MethodHandle initstate$handle() {
+        return initstate.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *initstate(unsigned int, char *, size_t)
+     * }
+     */
+    public static MemorySegment initstate$address() {
+        return initstate.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *initstate(unsigned int, char *, size_t)
+     * }
+     */
+    public static MemorySegment initstate(int x0, MemorySegment x1, long x2) {
+        var mh$ = initstate.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("initstate", x0, x1, x2);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class jrand48 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("jrand48");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long jrand48(unsigned short [3])
+     * }
+     */
+    public static FunctionDescriptor jrand48$descriptor() {
+        return jrand48.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long jrand48(unsigned short [3])
+     * }
+     */
+    public static MethodHandle jrand48$handle() {
+        return jrand48.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long jrand48(unsigned short [3])
+     * }
+     */
+    public static MemorySegment jrand48$address() {
+        return jrand48.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long jrand48(unsigned short [3])
+     * }
+     */
+    public static long jrand48(MemorySegment x0) {
+        var mh$ = jrand48.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("jrand48", x0);
+            }
+            return (long)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class l64a {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("l64a");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *l64a(long)
+     * }
+     */
+    public static FunctionDescriptor l64a$descriptor() {
+        return l64a.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *l64a(long)
+     * }
+     */
+    public static MethodHandle l64a$handle() {
+        return l64a.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *l64a(long)
+     * }
+     */
+    public static MemorySegment l64a$address() {
+        return l64a.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *l64a(long)
+     * }
+     */
+    public static MemorySegment l64a(long x0) {
+        var mh$ = l64a.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("l64a", x0);
+            }
+            return (MemorySegment)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class lcong48 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("lcong48");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void lcong48(unsigned short [7])
+     * }
+     */
+    public static FunctionDescriptor lcong48$descriptor() {
+        return lcong48.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void lcong48(unsigned short [7])
+     * }
+     */
+    public static MethodHandle lcong48$handle() {
+        return lcong48.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void lcong48(unsigned short [7])
+     * }
+     */
+    public static MemorySegment lcong48$address() {
+        return lcong48.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void lcong48(unsigned short [7])
+     * }
+     */
+    public static void lcong48(MemorySegment x0) {
+        var mh$ = lcong48.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("lcong48", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class lrand48 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("lrand48");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long lrand48()
+     * }
+     */
+    public static FunctionDescriptor lrand48$descriptor() {
+        return lrand48.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long lrand48()
+     * }
+     */
+    public static MethodHandle lrand48$handle() {
+        return lrand48.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long lrand48()
+     * }
+     */
+    public static MemorySegment lrand48$address() {
+        return lrand48.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long lrand48()
+     * }
+     */
+    public static long lrand48() {
+        var mh$ = lrand48.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("lrand48");
+            }
+            return (long)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class mktemp {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mktemp");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *mktemp(char *)
+     * }
+     */
+    public static FunctionDescriptor mktemp$descriptor() {
+        return mktemp.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *mktemp(char *)
+     * }
+     */
+    public static MethodHandle mktemp$handle() {
+        return mktemp.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *mktemp(char *)
+     * }
+     */
+    public static MemorySegment mktemp$address() {
+        return mktemp.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *mktemp(char *)
+     * }
+     */
+    public static MemorySegment mktemp(MemorySegment x0) {
+        var mh$ = mktemp.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("mktemp", x0);
+            }
+            return (MemorySegment)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class mkstemp {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mkstemp");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int mkstemp(char *)
+     * }
+     */
+    public static FunctionDescriptor mkstemp$descriptor() {
+        return mkstemp.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int mkstemp(char *)
+     * }
+     */
+    public static MethodHandle mkstemp$handle() {
+        return mkstemp.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int mkstemp(char *)
+     * }
+     */
+    public static MemorySegment mkstemp$address() {
+        return mkstemp.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int mkstemp(char *)
+     * }
+     */
+    public static int mkstemp(MemorySegment x0) {
+        var mh$ = mkstemp.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("mkstemp", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class mrand48 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mrand48");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long mrand48()
+     * }
+     */
+    public static FunctionDescriptor mrand48$descriptor() {
+        return mrand48.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long mrand48()
+     * }
+     */
+    public static MethodHandle mrand48$handle() {
+        return mrand48.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long mrand48()
+     * }
+     */
+    public static MemorySegment mrand48$address() {
+        return mrand48.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long mrand48()
+     * }
+     */
+    public static long mrand48() {
+        var mh$ = mrand48.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("mrand48");
+            }
+            return (long)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class nrand48 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("nrand48");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long nrand48(unsigned short [3])
+     * }
+     */
+    public static FunctionDescriptor nrand48$descriptor() {
+        return nrand48.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long nrand48(unsigned short [3])
+     * }
+     */
+    public static MethodHandle nrand48$handle() {
+        return nrand48.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long nrand48(unsigned short [3])
+     * }
+     */
+    public static MemorySegment nrand48$address() {
+        return nrand48.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long nrand48(unsigned short [3])
+     * }
+     */
+    public static long nrand48(MemorySegment x0) {
+        var mh$ = nrand48.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("nrand48", x0);
+            }
+            return (long)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class posix_openpt {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("posix_openpt");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int posix_openpt(int)
+     * }
+     */
+    public static FunctionDescriptor posix_openpt$descriptor() {
+        return posix_openpt.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int posix_openpt(int)
+     * }
+     */
+    public static MethodHandle posix_openpt$handle() {
+        return posix_openpt.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int posix_openpt(int)
+     * }
+     */
+    public static MemorySegment posix_openpt$address() {
+        return posix_openpt.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int posix_openpt(int)
+     * }
+     */
+    public static int posix_openpt(int x0) {
+        var mh$ = posix_openpt.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("posix_openpt", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class ptsname {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("ptsname");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *ptsname(int)
+     * }
+     */
+    public static FunctionDescriptor ptsname$descriptor() {
+        return ptsname.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *ptsname(int)
+     * }
+     */
+    public static MethodHandle ptsname$handle() {
+        return ptsname.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *ptsname(int)
+     * }
+     */
+    public static MemorySegment ptsname$address() {
+        return ptsname.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *ptsname(int)
+     * }
+     */
+    public static MemorySegment ptsname(int x0) {
+        var mh$ = ptsname.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("ptsname", x0);
+            }
+            return (MemorySegment)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class ptsname_r {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("ptsname_r");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int ptsname_r(int fildes, char *buffer, size_t buflen)
+     * }
+     */
+    public static FunctionDescriptor ptsname_r$descriptor() {
+        return ptsname_r.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int ptsname_r(int fildes, char *buffer, size_t buflen)
+     * }
+     */
+    public static MethodHandle ptsname_r$handle() {
+        return ptsname_r.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int ptsname_r(int fildes, char *buffer, size_t buflen)
+     * }
+     */
+    public static MemorySegment ptsname_r$address() {
+        return ptsname_r.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int ptsname_r(int fildes, char *buffer, size_t buflen)
+     * }
+     */
+    public static int ptsname_r(int fildes, MemorySegment buffer, long buflen) {
+        var mh$ = ptsname_r.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("ptsname_r", fildes, buffer, buflen);
+            }
+            return (int)mh$.invokeExact(fildes, buffer, buflen);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class putenv {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("putenv");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int putenv(char *)
+     * }
+     */
+    public static FunctionDescriptor putenv$descriptor() {
+        return putenv.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int putenv(char *)
+     * }
+     */
+    public static MethodHandle putenv$handle() {
+        return putenv.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int putenv(char *)
+     * }
+     */
+    public static MemorySegment putenv$address() {
+        return putenv.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int putenv(char *)
+     * }
+     */
+    public static int putenv(MemorySegment x0) {
+        var mh$ = putenv.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("putenv", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class random {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("random");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long random()
+     * }
+     */
+    public static FunctionDescriptor random$descriptor() {
+        return random.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long random()
+     * }
+     */
+    public static MethodHandle random$handle() {
+        return random.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long random()
+     * }
+     */
+    public static MemorySegment random$address() {
+        return random.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long random()
+     * }
+     */
+    public static long random() {
+        var mh$ = random.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("random");
+            }
+            return (long)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class rand_r {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("rand_r");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int rand_r(unsigned int *)
+     * }
+     */
+    public static FunctionDescriptor rand_r$descriptor() {
+        return rand_r.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int rand_r(unsigned int *)
+     * }
+     */
+    public static MethodHandle rand_r$handle() {
+        return rand_r.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int rand_r(unsigned int *)
+     * }
+     */
+    public static MemorySegment rand_r$address() {
+        return rand_r.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int rand_r(unsigned int *)
+     * }
+     */
+    public static int rand_r(MemorySegment x0) {
+        var mh$ = rand_r.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("rand_r", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class realpath {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("realpath$DARWIN_EXTSN");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *realpath(const char *restrict, char *restrict)
+     * }
+     */
+    public static FunctionDescriptor realpath$descriptor() {
+        return realpath.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *realpath(const char *restrict, char *restrict)
+     * }
+     */
+    public static MethodHandle realpath$handle() {
+        return realpath.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *realpath(const char *restrict, char *restrict)
+     * }
+     */
+    public static MemorySegment realpath$address() {
+        return realpath.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *realpath(const char *restrict, char *restrict)
+     * }
+     */
+    public static MemorySegment realpath(MemorySegment x0, MemorySegment x1) {
+        var mh$ = realpath.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("realpath", x0, x1);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class seed48 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("seed48");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * unsigned short *seed48(unsigned short [3])
+     * }
+     */
+    public static FunctionDescriptor seed48$descriptor() {
+        return seed48.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * unsigned short *seed48(unsigned short [3])
+     * }
+     */
+    public static MethodHandle seed48$handle() {
+        return seed48.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * unsigned short *seed48(unsigned short [3])
+     * }
+     */
+    public static MemorySegment seed48$address() {
+        return seed48.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * unsigned short *seed48(unsigned short [3])
+     * }
+     */
+    public static MemorySegment seed48(MemorySegment x0) {
+        var mh$ = seed48.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("seed48", x0);
+            }
+            return (MemorySegment)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class setenv {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("setenv");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int setenv(const char *__name, const char *__value, int __overwrite)
+     * }
+     */
+    public static FunctionDescriptor setenv$descriptor() {
+        return setenv.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int setenv(const char *__name, const char *__value, int __overwrite)
+     * }
+     */
+    public static MethodHandle setenv$handle() {
+        return setenv.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int setenv(const char *__name, const char *__value, int __overwrite)
+     * }
+     */
+    public static MemorySegment setenv$address() {
+        return setenv.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int setenv(const char *__name, const char *__value, int __overwrite)
+     * }
+     */
+    public static int setenv(MemorySegment __name, MemorySegment __value, int __overwrite) {
+        var mh$ = setenv.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("setenv", __name, __value, __overwrite);
+            }
+            return (int)mh$.invokeExact(__name, __value, __overwrite);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class setkey {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("setkey");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void setkey(const char *)
+     * }
+     */
+    public static FunctionDescriptor setkey$descriptor() {
+        return setkey.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void setkey(const char *)
+     * }
+     */
+    public static MethodHandle setkey$handle() {
+        return setkey.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void setkey(const char *)
+     * }
+     */
+    public static MemorySegment setkey$address() {
+        return setkey.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void setkey(const char *)
+     * }
+     */
+    public static void setkey(MemorySegment x0) {
+        var mh$ = setkey.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("setkey", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class setstate {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("setstate");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *setstate(const char *)
+     * }
+     */
+    public static FunctionDescriptor setstate$descriptor() {
+        return setstate.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *setstate(const char *)
+     * }
+     */
+    public static MethodHandle setstate$handle() {
+        return setstate.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *setstate(const char *)
+     * }
+     */
+    public static MemorySegment setstate$address() {
+        return setstate.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *setstate(const char *)
+     * }
+     */
+    public static MemorySegment setstate(MemorySegment x0) {
+        var mh$ = setstate.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("setstate", x0);
+            }
+            return (MemorySegment)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class srand48 {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("srand48");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void srand48(long)
+     * }
+     */
+    public static FunctionDescriptor srand48$descriptor() {
+        return srand48.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void srand48(long)
+     * }
+     */
+    public static MethodHandle srand48$handle() {
+        return srand48.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void srand48(long)
+     * }
+     */
+    public static MemorySegment srand48$address() {
+        return srand48.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void srand48(long)
+     * }
+     */
+    public static void srand48(long x0) {
+        var mh$ = srand48.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("srand48", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class srandom {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("srandom");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void srandom(unsigned int)
+     * }
+     */
+    public static FunctionDescriptor srandom$descriptor() {
+        return srandom.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void srandom(unsigned int)
+     * }
+     */
+    public static MethodHandle srandom$handle() {
+        return srandom.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void srandom(unsigned int)
+     * }
+     */
+    public static MemorySegment srandom$address() {
+        return srandom.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void srandom(unsigned int)
+     * }
+     */
+    public static void srandom(int x0) {
+        var mh$ = srandom.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("srandom", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class unlockpt {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("unlockpt");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int unlockpt(int)
+     * }
+     */
+    public static FunctionDescriptor unlockpt$descriptor() {
+        return unlockpt.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int unlockpt(int)
+     * }
+     */
+    public static MethodHandle unlockpt$handle() {
+        return unlockpt.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int unlockpt(int)
+     * }
+     */
+    public static MemorySegment unlockpt$address() {
+        return unlockpt.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int unlockpt(int)
+     * }
+     */
+    public static int unlockpt(int x0) {
+        var mh$ = unlockpt.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("unlockpt", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class unsetenv {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("unsetenv");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int unsetenv(const char *)
+     * }
+     */
+    public static FunctionDescriptor unsetenv$descriptor() {
+        return unsetenv.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int unsetenv(const char *)
+     * }
+     */
+    public static MethodHandle unsetenv$handle() {
+        return unsetenv.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int unsetenv(const char *)
+     * }
+     */
+    public static MemorySegment unsetenv$address() {
+        return unsetenv.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int unsetenv(const char *)
+     * }
+     */
+    public static int unsetenv(MemorySegment x0) {
+        var mh$ = unsetenv.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("unsetenv", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_dev_t dev_t
+     * }
+     */
+    public static final OfInt dev_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_mode_t mode_t
+     * }
+     */
+    public static final OfShort mode_t = ObjCRuntime.C_SHORT;
+
+    private static class arc4random {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("arc4random");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * uint32_t arc4random()
+     * }
+     */
+    public static FunctionDescriptor arc4random$descriptor() {
+        return arc4random.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * uint32_t arc4random()
+     * }
+     */
+    public static MethodHandle arc4random$handle() {
+        return arc4random.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * uint32_t arc4random()
+     * }
+     */
+    public static MemorySegment arc4random$address() {
+        return arc4random.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * uint32_t arc4random()
+     * }
+     */
+    public static int arc4random() {
+        var mh$ = arc4random.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("arc4random");
+            }
+            return (int)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class arc4random_addrandom {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("arc4random_addrandom");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void arc4random_addrandom(unsigned char *, int)
+     * }
+     */
+    public static FunctionDescriptor arc4random_addrandom$descriptor() {
+        return arc4random_addrandom.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void arc4random_addrandom(unsigned char *, int)
+     * }
+     */
+    public static MethodHandle arc4random_addrandom$handle() {
+        return arc4random_addrandom.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void arc4random_addrandom(unsigned char *, int)
+     * }
+     */
+    public static MemorySegment arc4random_addrandom$address() {
+        return arc4random_addrandom.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void arc4random_addrandom(unsigned char *, int)
+     * }
+     */
+    public static void arc4random_addrandom(MemorySegment x0, int x1) {
+        var mh$ = arc4random_addrandom.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("arc4random_addrandom", x0, x1);
+            }
+            mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class arc4random_buf {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("arc4random_buf");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void arc4random_buf(void *__buf, size_t __nbytes)
+     * }
+     */
+    public static FunctionDescriptor arc4random_buf$descriptor() {
+        return arc4random_buf.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void arc4random_buf(void *__buf, size_t __nbytes)
+     * }
+     */
+    public static MethodHandle arc4random_buf$handle() {
+        return arc4random_buf.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void arc4random_buf(void *__buf, size_t __nbytes)
+     * }
+     */
+    public static MemorySegment arc4random_buf$address() {
+        return arc4random_buf.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void arc4random_buf(void *__buf, size_t __nbytes)
+     * }
+     */
+    public static void arc4random_buf(MemorySegment __buf, long __nbytes) {
+        var mh$ = arc4random_buf.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("arc4random_buf", __buf, __nbytes);
+            }
+            mh$.invokeExact(__buf, __nbytes);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class arc4random_stir {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("arc4random_stir");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void arc4random_stir()
+     * }
+     */
+    public static FunctionDescriptor arc4random_stir$descriptor() {
+        return arc4random_stir.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void arc4random_stir()
+     * }
+     */
+    public static MethodHandle arc4random_stir$handle() {
+        return arc4random_stir.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void arc4random_stir()
+     * }
+     */
+    public static MemorySegment arc4random_stir$address() {
+        return arc4random_stir.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void arc4random_stir()
+     * }
+     */
+    public static void arc4random_stir() {
+        var mh$ = arc4random_stir.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("arc4random_stir");
+            }
+            mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class arc4random_uniform {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("arc4random_uniform");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * uint32_t arc4random_uniform(uint32_t __upper_bound)
+     * }
+     */
+    public static FunctionDescriptor arc4random_uniform$descriptor() {
+        return arc4random_uniform.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * uint32_t arc4random_uniform(uint32_t __upper_bound)
+     * }
+     */
+    public static MethodHandle arc4random_uniform$handle() {
+        return arc4random_uniform.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * uint32_t arc4random_uniform(uint32_t __upper_bound)
+     * }
+     */
+    public static MemorySegment arc4random_uniform$address() {
+        return arc4random_uniform.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * uint32_t arc4random_uniform(uint32_t __upper_bound)
+     * }
+     */
+    public static int arc4random_uniform(int __upper_bound) {
+        var mh$ = arc4random_uniform.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("arc4random_uniform", __upper_bound);
+            }
+            return (int)mh$.invokeExact(__upper_bound);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class atexit_b {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("atexit_b");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int atexit_b(void (^ _Nonnull)(void))
+     * }
+     */
+    public static FunctionDescriptor atexit_b$descriptor() {
+        return atexit_b.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int atexit_b(void (^ _Nonnull)(void))
+     * }
+     */
+    public static MethodHandle atexit_b$handle() {
+        return atexit_b.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int atexit_b(void (^ _Nonnull)(void))
+     * }
+     */
+    public static MemorySegment atexit_b$address() {
+        return atexit_b.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int atexit_b(void (^ _Nonnull)(void))
+     * }
+     */
+    public static int atexit_b(MemorySegment x0) {
+        var mh$ = atexit_b.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("atexit_b", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class bsearch_b {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("bsearch_b");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void *bsearch_b(const void *__key, const void *__base, size_t __nel, size_t __width, __bsearch_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor bsearch_b$descriptor() {
+        return bsearch_b.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void *bsearch_b(const void *__key, const void *__base, size_t __nel, size_t __width, __bsearch_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle bsearch_b$handle() {
+        return bsearch_b.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void *bsearch_b(const void *__key, const void *__base, size_t __nel, size_t __width, __bsearch_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment bsearch_b$address() {
+        return bsearch_b.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void *bsearch_b(const void *__key, const void *__base, size_t __nel, size_t __width, __bsearch_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment bsearch_b(MemorySegment __key, MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = bsearch_b.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("bsearch_b", __key, __base, __nel, __width, __compar);
+            }
+            return (MemorySegment)mh$.invokeExact(__key, __base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetcap {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetcap");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *cgetcap(char *, const char *, int)
+     * }
+     */
+    public static FunctionDescriptor cgetcap$descriptor() {
+        return cgetcap.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *cgetcap(char *, const char *, int)
+     * }
+     */
+    public static MethodHandle cgetcap$handle() {
+        return cgetcap.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *cgetcap(char *, const char *, int)
+     * }
+     */
+    public static MemorySegment cgetcap$address() {
+        return cgetcap.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *cgetcap(char *, const char *, int)
+     * }
+     */
+    public static MemorySegment cgetcap(MemorySegment x0, MemorySegment x1, int x2) {
+        var mh$ = cgetcap.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetcap", x0, x1, x2);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetclose {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetclose");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int cgetclose()
+     * }
+     */
+    public static FunctionDescriptor cgetclose$descriptor() {
+        return cgetclose.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int cgetclose()
+     * }
+     */
+    public static MethodHandle cgetclose$handle() {
+        return cgetclose.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int cgetclose()
+     * }
+     */
+    public static MemorySegment cgetclose$address() {
+        return cgetclose.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int cgetclose()
+     * }
+     */
+    public static int cgetclose() {
+        var mh$ = cgetclose.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetclose");
+            }
+            return (int)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetent {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetent");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int cgetent(char **, char **, const char *)
+     * }
+     */
+    public static FunctionDescriptor cgetent$descriptor() {
+        return cgetent.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int cgetent(char **, char **, const char *)
+     * }
+     */
+    public static MethodHandle cgetent$handle() {
+        return cgetent.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int cgetent(char **, char **, const char *)
+     * }
+     */
+    public static MemorySegment cgetent$address() {
+        return cgetent.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int cgetent(char **, char **, const char *)
+     * }
+     */
+    public static int cgetent(MemorySegment x0, MemorySegment x1, MemorySegment x2) {
+        var mh$ = cgetent.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetent", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetfirst {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetfirst");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int cgetfirst(char **, char **)
+     * }
+     */
+    public static FunctionDescriptor cgetfirst$descriptor() {
+        return cgetfirst.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int cgetfirst(char **, char **)
+     * }
+     */
+    public static MethodHandle cgetfirst$handle() {
+        return cgetfirst.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int cgetfirst(char **, char **)
+     * }
+     */
+    public static MemorySegment cgetfirst$address() {
+        return cgetfirst.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int cgetfirst(char **, char **)
+     * }
+     */
+    public static int cgetfirst(MemorySegment x0, MemorySegment x1) {
+        var mh$ = cgetfirst.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetfirst", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetmatch {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetmatch");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int cgetmatch(const char *, const char *)
+     * }
+     */
+    public static FunctionDescriptor cgetmatch$descriptor() {
+        return cgetmatch.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int cgetmatch(const char *, const char *)
+     * }
+     */
+    public static MethodHandle cgetmatch$handle() {
+        return cgetmatch.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int cgetmatch(const char *, const char *)
+     * }
+     */
+    public static MemorySegment cgetmatch$address() {
+        return cgetmatch.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int cgetmatch(const char *, const char *)
+     * }
+     */
+    public static int cgetmatch(MemorySegment x0, MemorySegment x1) {
+        var mh$ = cgetmatch.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetmatch", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetnext {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetnext");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int cgetnext(char **, char **)
+     * }
+     */
+    public static FunctionDescriptor cgetnext$descriptor() {
+        return cgetnext.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int cgetnext(char **, char **)
+     * }
+     */
+    public static MethodHandle cgetnext$handle() {
+        return cgetnext.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int cgetnext(char **, char **)
+     * }
+     */
+    public static MemorySegment cgetnext$address() {
+        return cgetnext.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int cgetnext(char **, char **)
+     * }
+     */
+    public static int cgetnext(MemorySegment x0, MemorySegment x1) {
+        var mh$ = cgetnext.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetnext", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetnum {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetnum");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int cgetnum(char *, const char *, long *)
+     * }
+     */
+    public static FunctionDescriptor cgetnum$descriptor() {
+        return cgetnum.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int cgetnum(char *, const char *, long *)
+     * }
+     */
+    public static MethodHandle cgetnum$handle() {
+        return cgetnum.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int cgetnum(char *, const char *, long *)
+     * }
+     */
+    public static MemorySegment cgetnum$address() {
+        return cgetnum.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int cgetnum(char *, const char *, long *)
+     * }
+     */
+    public static int cgetnum(MemorySegment x0, MemorySegment x1, MemorySegment x2) {
+        var mh$ = cgetnum.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetnum", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetset {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetset");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int cgetset(const char *)
+     * }
+     */
+    public static FunctionDescriptor cgetset$descriptor() {
+        return cgetset.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int cgetset(const char *)
+     * }
+     */
+    public static MethodHandle cgetset$handle() {
+        return cgetset.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int cgetset(const char *)
+     * }
+     */
+    public static MemorySegment cgetset$address() {
+        return cgetset.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int cgetset(const char *)
+     * }
+     */
+    public static int cgetset(MemorySegment x0) {
+        var mh$ = cgetset.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetset", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetstr {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetstr");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int cgetstr(char *, const char *, char **)
+     * }
+     */
+    public static FunctionDescriptor cgetstr$descriptor() {
+        return cgetstr.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int cgetstr(char *, const char *, char **)
+     * }
+     */
+    public static MethodHandle cgetstr$handle() {
+        return cgetstr.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int cgetstr(char *, const char *, char **)
+     * }
+     */
+    public static MemorySegment cgetstr$address() {
+        return cgetstr.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int cgetstr(char *, const char *, char **)
+     * }
+     */
+    public static int cgetstr(MemorySegment x0, MemorySegment x1, MemorySegment x2) {
+        var mh$ = cgetstr.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetstr", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class cgetustr {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("cgetustr");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int cgetustr(char *, const char *, char **)
+     * }
+     */
+    public static FunctionDescriptor cgetustr$descriptor() {
+        return cgetustr.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int cgetustr(char *, const char *, char **)
+     * }
+     */
+    public static MethodHandle cgetustr$handle() {
+        return cgetustr.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int cgetustr(char *, const char *, char **)
+     * }
+     */
+    public static MemorySegment cgetustr$address() {
+        return cgetustr.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int cgetustr(char *, const char *, char **)
+     * }
+     */
+    public static int cgetustr(MemorySegment x0, MemorySegment x1, MemorySegment x2) {
+        var mh$ = cgetustr.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("cgetustr", x0, x1, x2);
+            }
+            return (int)mh$.invokeExact(x0, x1, x2);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class daemon {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("daemon");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int daemon(int, int)
+     * }
+     */
+    public static FunctionDescriptor daemon$descriptor() {
+        return daemon.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int daemon(int, int)
+     * }
+     */
+    public static MethodHandle daemon$handle() {
+        return daemon.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int daemon(int, int)
+     * }
+     */
+    public static MemorySegment daemon$address() {
+        return daemon.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int daemon(int, int)
+     * }
+     */
+    public static int daemon(int x0, int x1) {
+        var mh$ = daemon.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("daemon", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class devname {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_SHORT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("devname");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *devname(dev_t, mode_t)
+     * }
+     */
+    public static FunctionDescriptor devname$descriptor() {
+        return devname.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *devname(dev_t, mode_t)
+     * }
+     */
+    public static MethodHandle devname$handle() {
+        return devname.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *devname(dev_t, mode_t)
+     * }
+     */
+    public static MemorySegment devname$address() {
+        return devname.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *devname(dev_t, mode_t)
+     * }
+     */
+    public static MemorySegment devname(int x0, short x1) {
+        var mh$ = devname.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("devname", x0, x1);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class devname_r {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_SHORT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("devname_r");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *devname_r(dev_t, mode_t, char *buf, int len)
+     * }
+     */
+    public static FunctionDescriptor devname_r$descriptor() {
+        return devname_r.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *devname_r(dev_t, mode_t, char *buf, int len)
+     * }
+     */
+    public static MethodHandle devname_r$handle() {
+        return devname_r.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *devname_r(dev_t, mode_t, char *buf, int len)
+     * }
+     */
+    public static MemorySegment devname_r$address() {
+        return devname_r.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *devname_r(dev_t, mode_t, char *buf, int len)
+     * }
+     */
+    public static MemorySegment devname_r(int x0, short x1, MemorySegment buf, int len) {
+        var mh$ = devname_r.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("devname_r", x0, x1, buf, len);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1, buf, len);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class getbsize {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("getbsize");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * char *getbsize(int *, long *)
+     * }
+     */
+    public static FunctionDescriptor getbsize$descriptor() {
+        return getbsize.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * char *getbsize(int *, long *)
+     * }
+     */
+    public static MethodHandle getbsize$handle() {
+        return getbsize.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * char *getbsize(int *, long *)
+     * }
+     */
+    public static MemorySegment getbsize$address() {
+        return getbsize.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * char *getbsize(int *, long *)
+     * }
+     */
+    public static MemorySegment getbsize(MemorySegment x0, MemorySegment x1) {
+        var mh$ = getbsize.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("getbsize", x0, x1);
+            }
+            return (MemorySegment)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class getloadavg {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("getloadavg");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int getloadavg(double [], int)
+     * }
+     */
+    public static FunctionDescriptor getloadavg$descriptor() {
+        return getloadavg.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int getloadavg(double [], int)
+     * }
+     */
+    public static MethodHandle getloadavg$handle() {
+        return getloadavg.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int getloadavg(double [], int)
+     * }
+     */
+    public static MemorySegment getloadavg$address() {
+        return getloadavg.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int getloadavg(double [], int)
+     * }
+     */
+    public static int getloadavg(MemorySegment x0, int x1) {
+        var mh$ = getloadavg.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("getloadavg", x0, x1);
+            }
+            return (int)mh$.invokeExact(x0, x1);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class getprogname {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("getprogname");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * const char *getprogname()
+     * }
+     */
+    public static FunctionDescriptor getprogname$descriptor() {
+        return getprogname.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * const char *getprogname()
+     * }
+     */
+    public static MethodHandle getprogname$handle() {
+        return getprogname.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * const char *getprogname()
+     * }
+     */
+    public static MemorySegment getprogname$address() {
+        return getprogname.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * const char *getprogname()
+     * }
+     */
+    public static MemorySegment getprogname() {
+        var mh$ = getprogname.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("getprogname");
+            }
+            return (MemorySegment)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class setprogname {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("setprogname");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void setprogname(const char *)
+     * }
+     */
+    public static FunctionDescriptor setprogname$descriptor() {
+        return setprogname.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void setprogname(const char *)
+     * }
+     */
+    public static MethodHandle setprogname$handle() {
+        return setprogname.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void setprogname(const char *)
+     * }
+     */
+    public static MemorySegment setprogname$address() {
+        return setprogname.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void setprogname(const char *)
+     * }
+     */
+    public static void setprogname(MemorySegment x0) {
+        var mh$ = setprogname.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("setprogname", x0);
+            }
+            mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class heapsort {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("heapsort");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int heapsort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor heapsort$descriptor() {
+        return heapsort.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int heapsort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle heapsort$handle() {
+        return heapsort.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int heapsort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment heapsort$address() {
+        return heapsort.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int heapsort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static int heapsort(MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = heapsort.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("heapsort", __base, __nel, __width, __compar);
+            }
+            return (int)mh$.invokeExact(__base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class heapsort_b {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("heapsort_b");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int heapsort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor heapsort_b$descriptor() {
+        return heapsort_b.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int heapsort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle heapsort_b$handle() {
+        return heapsort_b.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int heapsort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment heapsort_b$address() {
+        return heapsort_b.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int heapsort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static int heapsort_b(MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = heapsort_b.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("heapsort_b", __base, __nel, __width, __compar);
+            }
+            return (int)mh$.invokeExact(__base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class mergesort {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mergesort");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int mergesort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor mergesort$descriptor() {
+        return mergesort.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int mergesort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle mergesort$handle() {
+        return mergesort.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int mergesort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment mergesort$address() {
+        return mergesort.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int mergesort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static int mergesort(MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = mergesort.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("mergesort", __base, __nel, __width, __compar);
+            }
+            return (int)mh$.invokeExact(__base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class mergesort_b {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mergesort_b");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int mergesort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor mergesort_b$descriptor() {
+        return mergesort_b.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int mergesort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle mergesort_b$handle() {
+        return mergesort_b.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int mergesort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment mergesort_b$address() {
+        return mergesort_b.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int mergesort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static int mergesort_b(MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = mergesort_b.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("mergesort_b", __base, __nel, __width, __compar);
+            }
+            return (int)mh$.invokeExact(__base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class psort {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("psort");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void psort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor psort$descriptor() {
+        return psort.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void psort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle psort$handle() {
+        return psort.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void psort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment psort$address() {
+        return psort.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void psort(void *__base, size_t __nel, size_t __width, int (* _Nonnull __compar)(const void *, const void *))
+     * }
+     */
+    public static void psort(MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = psort.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("psort", __base, __nel, __width, __compar);
+            }
+            mh$.invokeExact(__base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class psort_b {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("psort_b");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void psort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor psort_b$descriptor() {
+        return psort_b.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void psort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle psort_b$handle() {
+        return psort_b.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void psort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment psort_b$address() {
+        return psort_b.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void psort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static void psort_b(MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = psort_b.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("psort_b", __base, __nel, __width, __compar);
+            }
+            mh$.invokeExact(__base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class psort_r {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("psort_r");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void psort_r(void *__base, size_t __nel, size_t __width, void *, int (* _Nonnull __compar)(void *, const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor psort_r$descriptor() {
+        return psort_r.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void psort_r(void *__base, size_t __nel, size_t __width, void *, int (* _Nonnull __compar)(void *, const void *, const void *))
+     * }
+     */
+    public static MethodHandle psort_r$handle() {
+        return psort_r.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void psort_r(void *__base, size_t __nel, size_t __width, void *, int (* _Nonnull __compar)(void *, const void *, const void *))
+     * }
+     */
+    public static MemorySegment psort_r$address() {
+        return psort_r.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void psort_r(void *__base, size_t __nel, size_t __width, void *, int (* _Nonnull __compar)(void *, const void *, const void *))
+     * }
+     */
+    public static void psort_r(MemorySegment __base, long __nel, long __width, MemorySegment x3, MemorySegment __compar) {
+        var mh$ = psort_r.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("psort_r", __base, __nel, __width, x3, __compar);
+            }
+            mh$.invokeExact(__base, __nel, __width, x3, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class qsort_b {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("qsort_b");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void qsort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor qsort_b$descriptor() {
+        return qsort_b.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void qsort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MethodHandle qsort_b$handle() {
+        return qsort_b.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void qsort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static MemorySegment qsort_b$address() {
+        return qsort_b.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void qsort_b(void *__base, size_t __nel, size_t __width, __sort_noescape int (^__compar)(const void *, const void *))
+     * }
+     */
+    public static void qsort_b(MemorySegment __base, long __nel, long __width, MemorySegment __compar) {
+        var mh$ = qsort_b.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("qsort_b", __base, __nel, __width, __compar);
+            }
+            mh$.invokeExact(__base, __nel, __width, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class qsort_r {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("qsort_r");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void qsort_r(void *__base, size_t __nel, size_t __width, void *, int (* _Nonnull __compar)(void *, const void *, const void *))
+     * }
+     */
+    public static FunctionDescriptor qsort_r$descriptor() {
+        return qsort_r.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void qsort_r(void *__base, size_t __nel, size_t __width, void *, int (* _Nonnull __compar)(void *, const void *, const void *))
+     * }
+     */
+    public static MethodHandle qsort_r$handle() {
+        return qsort_r.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void qsort_r(void *__base, size_t __nel, size_t __width, void *, int (* _Nonnull __compar)(void *, const void *, const void *))
+     * }
+     */
+    public static MemorySegment qsort_r$address() {
+        return qsort_r.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void qsort_r(void *__base, size_t __nel, size_t __width, void *, int (* _Nonnull __compar)(void *, const void *, const void *))
+     * }
+     */
+    public static void qsort_r(MemorySegment __base, long __nel, long __width, MemorySegment x3, MemorySegment __compar) {
+        var mh$ = qsort_r.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("qsort_r", __base, __nel, __width, x3, __compar);
+            }
+            mh$.invokeExact(__base, __nel, __width, x3, __compar);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class radixsort {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("radixsort");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int radixsort(const unsigned char **__base, int __nel, const unsigned char *__table, unsigned int __endbyte)
+     * }
+     */
+    public static FunctionDescriptor radixsort$descriptor() {
+        return radixsort.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int radixsort(const unsigned char **__base, int __nel, const unsigned char *__table, unsigned int __endbyte)
+     * }
+     */
+    public static MethodHandle radixsort$handle() {
+        return radixsort.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int radixsort(const unsigned char **__base, int __nel, const unsigned char *__table, unsigned int __endbyte)
+     * }
+     */
+    public static MemorySegment radixsort$address() {
+        return radixsort.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int radixsort(const unsigned char **__base, int __nel, const unsigned char *__table, unsigned int __endbyte)
+     * }
+     */
+    public static int radixsort(MemorySegment __base, int __nel, MemorySegment __table, int __endbyte) {
+        var mh$ = radixsort.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("radixsort", __base, __nel, __table, __endbyte);
+            }
+            return (int)mh$.invokeExact(__base, __nel, __table, __endbyte);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class rpmatch {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("rpmatch");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int rpmatch(const char *)
+     * }
+     */
+    public static FunctionDescriptor rpmatch$descriptor() {
+        return rpmatch.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int rpmatch(const char *)
+     * }
+     */
+    public static MethodHandle rpmatch$handle() {
+        return rpmatch.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int rpmatch(const char *)
+     * }
+     */
+    public static MemorySegment rpmatch$address() {
+        return rpmatch.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int rpmatch(const char *)
+     * }
+     */
+    public static int rpmatch(MemorySegment x0) {
+        var mh$ = rpmatch.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("rpmatch", x0);
+            }
+            return (int)mh$.invokeExact(x0);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class sradixsort {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("sradixsort");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * int sradixsort(const unsigned char **__base, int __nel, const unsigned char *__table, unsigned int __endbyte)
+     * }
+     */
+    public static FunctionDescriptor sradixsort$descriptor() {
+        return sradixsort.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * int sradixsort(const unsigned char **__base, int __nel, const unsigned char *__table, unsigned int __endbyte)
+     * }
+     */
+    public static MethodHandle sradixsort$handle() {
+        return sradixsort.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * int sradixsort(const unsigned char **__base, int __nel, const unsigned char *__table, unsigned int __endbyte)
+     * }
+     */
+    public static MemorySegment sradixsort$address() {
+        return sradixsort.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * int sradixsort(const unsigned char **__base, int __nel, const unsigned char *__table, unsigned int __endbyte)
+     * }
+     */
+    public static int sradixsort(MemorySegment __base, int __nel, MemorySegment __table, int __endbyte) {
+        var mh$ = sradixsort.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("sradixsort", __base, __nel, __table, __endbyte);
+            }
+            return (int)mh$.invokeExact(__base, __nel, __table, __endbyte);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class sranddev {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("sranddev");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void sranddev()
+     * }
+     */
+    public static FunctionDescriptor sranddev$descriptor() {
+        return sranddev.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void sranddev()
+     * }
+     */
+    public static MethodHandle sranddev$handle() {
+        return sranddev.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void sranddev()
+     * }
+     */
+    public static MemorySegment sranddev$address() {
+        return sranddev.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void sranddev()
+     * }
+     */
+    public static void sranddev() {
+        var mh$ = sranddev.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("sranddev");
+            }
+            mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class srandomdev {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("srandomdev");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * void srandomdev()
+     * }
+     */
+    public static FunctionDescriptor srandomdev$descriptor() {
+        return srandomdev.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * void srandomdev()
+     * }
+     */
+    public static MethodHandle srandomdev$handle() {
+        return srandomdev.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * void srandomdev()
+     * }
+     */
+    public static MemorySegment srandomdev$address() {
+        return srandomdev.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * void srandomdev()
+     * }
+     */
+    public static void srandomdev() {
+        var mh$ = srandomdev.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("srandomdev");
+            }
+            mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class strtonum {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("strtonum");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long long strtonum(const char *__numstr, long long __minval, long long __maxval, const char **__errstrp)
+     * }
+     */
+    public static FunctionDescriptor strtonum$descriptor() {
+        return strtonum.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long long strtonum(const char *__numstr, long long __minval, long long __maxval, const char **__errstrp)
+     * }
+     */
+    public static MethodHandle strtonum$handle() {
+        return strtonum.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long long strtonum(const char *__numstr, long long __minval, long long __maxval, const char **__errstrp)
+     * }
+     */
+    public static MemorySegment strtonum$address() {
+        return strtonum.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long long strtonum(const char *__numstr, long long __minval, long long __maxval, const char **__errstrp)
+     * }
+     */
+    public static long strtonum(MemorySegment __numstr, long __minval, long __maxval, MemorySegment __errstrp) {
+        var mh$ = strtonum.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("strtonum", __numstr, __minval, __maxval, __errstrp);
+            }
+            return (long)mh$.invokeExact(__numstr, __minval, __maxval, __errstrp);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class strtoq {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("strtoq");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * long long strtoq(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static FunctionDescriptor strtoq$descriptor() {
+        return strtoq.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * long long strtoq(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MethodHandle strtoq$handle() {
+        return strtoq.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * long long strtoq(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MemorySegment strtoq$address() {
+        return strtoq.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * long long strtoq(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static long strtoq(MemorySegment __str, MemorySegment __endptr, int __base) {
+        var mh$ = strtoq.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("strtoq", __str, __endptr, __base);
+            }
+            return (long)mh$.invokeExact(__str, __endptr, __base);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class strtouq {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("strtouq");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * unsigned long long strtouq(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static FunctionDescriptor strtouq$descriptor() {
+        return strtouq.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * unsigned long long strtouq(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MethodHandle strtouq$handle() {
+        return strtouq.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * unsigned long long strtouq(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static MemorySegment strtouq$address() {
+        return strtouq.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * unsigned long long strtouq(const char *__str, char **__endptr, int __base)
+     * }
+     */
+    public static long strtouq(MemorySegment __str, MemorySegment __endptr, int __base) {
+        var mh$ = strtouq.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("strtouq", __str, __endptr, __base);
+            }
+            return (long)mh$.invokeExact(__str, __endptr, __base);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class suboptarg$constants {
+        public static final AddressLayout LAYOUT = ObjCRuntime.C_POINTER;
+        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("suboptarg").reinterpret(LAYOUT.byteSize());
+    }
+
+    /**
+     * Layout for variable:
+     * {@snippet lang=c :
+     * extern char *suboptarg
+     * }
+     */
+    public static AddressLayout suboptarg$layout() {
+        return suboptarg$constants.LAYOUT;
+    }
+
+    /**
+     * Segment for variable:
+     * {@snippet lang=c :
+     * extern char *suboptarg
+     * }
+     */
+    public static MemorySegment suboptarg$segment() {
+        return suboptarg$constants.SEGMENT;
+    }
+
+    /**
+     * Getter for variable:
+     * {@snippet lang=c :
+     * extern char *suboptarg
+     * }
+     */
+    public static MemorySegment suboptarg() {
+        return suboptarg$constants.SEGMENT.get(suboptarg$constants.LAYOUT, 0L);
+    }
+
+    /**
+     * Setter for variable:
+     * {@snippet lang=c :
+     * extern char *suboptarg
+     * }
+     */
+    public static void suboptarg(MemorySegment varValue) {
+        suboptarg$constants.SEGMENT.set(suboptarg$constants.LAYOUT, 0L, varValue);
+    }
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_ptrdiff_t ptrdiff_t
+     * }
+     */
+    public static final OfLong ptrdiff_t = ObjCRuntime.C_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef __darwin_size_t rsize_t
+     * }
+     */
+    public static final OfLong rsize_t = ObjCRuntime.C_LONG;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned char u_char
+     * }
+     */
+    public static final OfByte u_char = ObjCRuntime.C_CHAR;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned short u_short
+     * }
+     */
+    public static final OfShort u_short = ObjCRuntime.C_SHORT;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned int u_int
+     * }
+     */
+    public static final OfInt u_int = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef unsigned long u_long
+     * }
+     */
+    public static final OfLong u_long = ObjCRuntime.C_LONG;
     /**
      * {@snippet lang=c :
      * typedef unsigned short ushort
@@ -11377,2873 +23793,16 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
     }
     /**
      * {@snippet lang=c :
-     * typedef int64_t OSAtomic_int64_aligned64_t
-     * }
-     */
-    public static final OfLong OSAtomic_int64_aligned64_t = ObjCRuntime.C_LONG_LONG;
-
-    private static class OSAtomicAdd32 {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicAdd32");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAdd32(int32_t __theAmount, volatile int32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicAdd32$descriptor() {
-        return OSAtomicAdd32.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAdd32(int32_t __theAmount, volatile int32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicAdd32$handle() {
-        return OSAtomicAdd32.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAdd32(int32_t __theAmount, volatile int32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicAdd32$address() {
-        return OSAtomicAdd32.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicAdd32(int32_t __theAmount, volatile int32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicAdd32(int __theAmount, MemorySegment __theValue) {
-        var mh$ = OSAtomicAdd32.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicAdd32", __theAmount, __theValue);
-            }
-            return (int)mh$.invokeExact(__theAmount, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicAdd32Barrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicAdd32Barrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAdd32Barrier(int32_t __theAmount, volatile int32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicAdd32Barrier$descriptor() {
-        return OSAtomicAdd32Barrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAdd32Barrier(int32_t __theAmount, volatile int32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicAdd32Barrier$handle() {
-        return OSAtomicAdd32Barrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAdd32Barrier(int32_t __theAmount, volatile int32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicAdd32Barrier$address() {
-        return OSAtomicAdd32Barrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicAdd32Barrier(int32_t __theAmount, volatile int32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicAdd32Barrier(int __theAmount, MemorySegment __theValue) {
-        var mh$ = OSAtomicAdd32Barrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicAdd32Barrier", __theAmount, __theValue);
-            }
-            return (int)mh$.invokeExact(__theAmount, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicAdd64 {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_LONG_LONG,
-            ObjCRuntime.C_LONG_LONG,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicAdd64");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int64_t OSAtomicAdd64(int64_t __theAmount, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicAdd64$descriptor() {
-        return OSAtomicAdd64.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int64_t OSAtomicAdd64(int64_t __theAmount, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicAdd64$handle() {
-        return OSAtomicAdd64.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int64_t OSAtomicAdd64(int64_t __theAmount, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicAdd64$address() {
-        return OSAtomicAdd64.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int64_t OSAtomicAdd64(int64_t __theAmount, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static long OSAtomicAdd64(long __theAmount, MemorySegment __theValue) {
-        var mh$ = OSAtomicAdd64.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicAdd64", __theAmount, __theValue);
-            }
-            return (long)mh$.invokeExact(__theAmount, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicAdd64Barrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_LONG_LONG,
-            ObjCRuntime.C_LONG_LONG,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicAdd64Barrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int64_t OSAtomicAdd64Barrier(int64_t __theAmount, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicAdd64Barrier$descriptor() {
-        return OSAtomicAdd64Barrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int64_t OSAtomicAdd64Barrier(int64_t __theAmount, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicAdd64Barrier$handle() {
-        return OSAtomicAdd64Barrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int64_t OSAtomicAdd64Barrier(int64_t __theAmount, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicAdd64Barrier$address() {
-        return OSAtomicAdd64Barrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int64_t OSAtomicAdd64Barrier(int64_t __theAmount, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static long OSAtomicAdd64Barrier(long __theAmount, MemorySegment __theValue) {
-        var mh$ = OSAtomicAdd64Barrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicAdd64Barrier", __theAmount, __theValue);
-            }
-            return (long)mh$.invokeExact(__theAmount, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicOr32 {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicOr32");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicOr32$descriptor() {
-        return OSAtomicOr32.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicOr32$handle() {
-        return OSAtomicOr32.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicOr32$address() {
-        return OSAtomicOr32.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicOr32(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicOr32.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicOr32", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicOr32Barrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicOr32Barrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicOr32Barrier$descriptor() {
-        return OSAtomicOr32Barrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicOr32Barrier$handle() {
-        return OSAtomicOr32Barrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicOr32Barrier$address() {
-        return OSAtomicOr32Barrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicOr32Barrier(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicOr32Barrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicOr32Barrier", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicOr32Orig {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicOr32Orig");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicOr32Orig$descriptor() {
-        return OSAtomicOr32Orig.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicOr32Orig$handle() {
-        return OSAtomicOr32Orig.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicOr32Orig$address() {
-        return OSAtomicOr32Orig.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicOr32Orig(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicOr32Orig.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicOr32Orig", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicOr32OrigBarrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicOr32OrigBarrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicOr32OrigBarrier$descriptor() {
-        return OSAtomicOr32OrigBarrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicOr32OrigBarrier$handle() {
-        return OSAtomicOr32OrigBarrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicOr32OrigBarrier$address() {
-        return OSAtomicOr32OrigBarrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicOr32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicOr32OrigBarrier(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicOr32OrigBarrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicOr32OrigBarrier", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicAnd32 {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicAnd32");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicAnd32$descriptor() {
-        return OSAtomicAnd32.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicAnd32$handle() {
-        return OSAtomicAnd32.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicAnd32$address() {
-        return OSAtomicAnd32.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicAnd32(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicAnd32.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicAnd32", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicAnd32Barrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicAnd32Barrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicAnd32Barrier$descriptor() {
-        return OSAtomicAnd32Barrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicAnd32Barrier$handle() {
-        return OSAtomicAnd32Barrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicAnd32Barrier$address() {
-        return OSAtomicAnd32Barrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicAnd32Barrier(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicAnd32Barrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicAnd32Barrier", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicAnd32Orig {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicAnd32Orig");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicAnd32Orig$descriptor() {
-        return OSAtomicAnd32Orig.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicAnd32Orig$handle() {
-        return OSAtomicAnd32Orig.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicAnd32Orig$address() {
-        return OSAtomicAnd32Orig.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicAnd32Orig(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicAnd32Orig.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicAnd32Orig", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicAnd32OrigBarrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicAnd32OrigBarrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicAnd32OrigBarrier$descriptor() {
-        return OSAtomicAnd32OrigBarrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicAnd32OrigBarrier$handle() {
-        return OSAtomicAnd32OrigBarrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicAnd32OrigBarrier$address() {
-        return OSAtomicAnd32OrigBarrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicAnd32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicAnd32OrigBarrier(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicAnd32OrigBarrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicAnd32OrigBarrier", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicXor32 {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicXor32");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicXor32$descriptor() {
-        return OSAtomicXor32.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicXor32$handle() {
-        return OSAtomicXor32.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicXor32$address() {
-        return OSAtomicXor32.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicXor32(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicXor32.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicXor32", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicXor32Barrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicXor32Barrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicXor32Barrier$descriptor() {
-        return OSAtomicXor32Barrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicXor32Barrier$handle() {
-        return OSAtomicXor32Barrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicXor32Barrier$address() {
-        return OSAtomicXor32Barrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32Barrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicXor32Barrier(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicXor32Barrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicXor32Barrier", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicXor32Orig {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicXor32Orig");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicXor32Orig$descriptor() {
-        return OSAtomicXor32Orig.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicXor32Orig$handle() {
-        return OSAtomicXor32Orig.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicXor32Orig$address() {
-        return OSAtomicXor32Orig.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32Orig(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicXor32Orig(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicXor32Orig.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicXor32Orig", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicXor32OrigBarrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicXor32OrigBarrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicXor32OrigBarrier$descriptor() {
-        return OSAtomicXor32OrigBarrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicXor32OrigBarrier$handle() {
-        return OSAtomicXor32OrigBarrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicXor32OrigBarrier$address() {
-        return OSAtomicXor32OrigBarrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int32_t OSAtomicXor32OrigBarrier(uint32_t __theMask, volatile uint32_t *__theValue)
-     * }
-     */
-    public static int OSAtomicXor32OrigBarrier(int __theMask, MemorySegment __theValue) {
-        var mh$ = OSAtomicXor32OrigBarrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicXor32OrigBarrier", __theMask, __theValue);
-            }
-            return (int)mh$.invokeExact(__theMask, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwap32 {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwap32");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap32(int32_t __oldValue, int32_t __newValue, volatile int32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwap32$descriptor() {
-        return OSAtomicCompareAndSwap32.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap32(int32_t __oldValue, int32_t __newValue, volatile int32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwap32$handle() {
-        return OSAtomicCompareAndSwap32.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap32(int32_t __oldValue, int32_t __newValue, volatile int32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwap32$address() {
-        return OSAtomicCompareAndSwap32.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap32(int32_t __oldValue, int32_t __newValue, volatile int32_t *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwap32(int __oldValue, int __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwap32.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwap32", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwap32Barrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwap32Barrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap32Barrier(int32_t __oldValue, int32_t __newValue, volatile int32_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwap32Barrier$descriptor() {
-        return OSAtomicCompareAndSwap32Barrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap32Barrier(int32_t __oldValue, int32_t __newValue, volatile int32_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwap32Barrier$handle() {
-        return OSAtomicCompareAndSwap32Barrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap32Barrier(int32_t __oldValue, int32_t __newValue, volatile int32_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwap32Barrier$address() {
-        return OSAtomicCompareAndSwap32Barrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap32Barrier(int32_t __oldValue, int32_t __newValue, volatile int32_t *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwap32Barrier(int __oldValue, int __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwap32Barrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwap32Barrier", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwapPtr {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwapPtr");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapPtr(void *__oldValue, void *__newValue, void *volatile *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwapPtr$descriptor() {
-        return OSAtomicCompareAndSwapPtr.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapPtr(void *__oldValue, void *__newValue, void *volatile *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwapPtr$handle() {
-        return OSAtomicCompareAndSwapPtr.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapPtr(void *__oldValue, void *__newValue, void *volatile *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwapPtr$address() {
-        return OSAtomicCompareAndSwapPtr.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapPtr(void *__oldValue, void *__newValue, void *volatile *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwapPtr(MemorySegment __oldValue, MemorySegment __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwapPtr.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwapPtr", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwapPtrBarrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwapPtrBarrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapPtrBarrier(void *__oldValue, void *__newValue, void *volatile *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwapPtrBarrier$descriptor() {
-        return OSAtomicCompareAndSwapPtrBarrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapPtrBarrier(void *__oldValue, void *__newValue, void *volatile *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwapPtrBarrier$handle() {
-        return OSAtomicCompareAndSwapPtrBarrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapPtrBarrier(void *__oldValue, void *__newValue, void *volatile *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwapPtrBarrier$address() {
-        return OSAtomicCompareAndSwapPtrBarrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapPtrBarrier(void *__oldValue, void *__newValue, void *volatile *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwapPtrBarrier(MemorySegment __oldValue, MemorySegment __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwapPtrBarrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwapPtrBarrier", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwapInt {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwapInt");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapInt(int __oldValue, int __newValue, volatile int *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwapInt$descriptor() {
-        return OSAtomicCompareAndSwapInt.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapInt(int __oldValue, int __newValue, volatile int *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwapInt$handle() {
-        return OSAtomicCompareAndSwapInt.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapInt(int __oldValue, int __newValue, volatile int *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwapInt$address() {
-        return OSAtomicCompareAndSwapInt.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapInt(int __oldValue, int __newValue, volatile int *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwapInt(int __oldValue, int __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwapInt.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwapInt", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwapIntBarrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwapIntBarrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapIntBarrier(int __oldValue, int __newValue, volatile int *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwapIntBarrier$descriptor() {
-        return OSAtomicCompareAndSwapIntBarrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapIntBarrier(int __oldValue, int __newValue, volatile int *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwapIntBarrier$handle() {
-        return OSAtomicCompareAndSwapIntBarrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapIntBarrier(int __oldValue, int __newValue, volatile int *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwapIntBarrier$address() {
-        return OSAtomicCompareAndSwapIntBarrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapIntBarrier(int __oldValue, int __newValue, volatile int *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwapIntBarrier(int __oldValue, int __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwapIntBarrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwapIntBarrier", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwapLong {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwapLong");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapLong(long __oldValue, long __newValue, volatile long *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwapLong$descriptor() {
-        return OSAtomicCompareAndSwapLong.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapLong(long __oldValue, long __newValue, volatile long *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwapLong$handle() {
-        return OSAtomicCompareAndSwapLong.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapLong(long __oldValue, long __newValue, volatile long *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwapLong$address() {
-        return OSAtomicCompareAndSwapLong.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapLong(long __oldValue, long __newValue, volatile long *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwapLong(long __oldValue, long __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwapLong.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwapLong", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwapLongBarrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwapLongBarrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapLongBarrier(long __oldValue, long __newValue, volatile long *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwapLongBarrier$descriptor() {
-        return OSAtomicCompareAndSwapLongBarrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapLongBarrier(long __oldValue, long __newValue, volatile long *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwapLongBarrier$handle() {
-        return OSAtomicCompareAndSwapLongBarrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapLongBarrier(long __oldValue, long __newValue, volatile long *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwapLongBarrier$address() {
-        return OSAtomicCompareAndSwapLongBarrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwapLongBarrier(long __oldValue, long __newValue, volatile long *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwapLongBarrier(long __oldValue, long __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwapLongBarrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwapLongBarrier", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwap64 {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_LONG_LONG,
-            ObjCRuntime.C_LONG_LONG,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwap64");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap64(int64_t __oldValue, int64_t __newValue, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwap64$descriptor() {
-        return OSAtomicCompareAndSwap64.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap64(int64_t __oldValue, int64_t __newValue, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwap64$handle() {
-        return OSAtomicCompareAndSwap64.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap64(int64_t __oldValue, int64_t __newValue, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwap64$address() {
-        return OSAtomicCompareAndSwap64.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap64(int64_t __oldValue, int64_t __newValue, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwap64(long __oldValue, long __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwap64.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwap64", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicCompareAndSwap64Barrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_LONG_LONG,
-            ObjCRuntime.C_LONG_LONG,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicCompareAndSwap64Barrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap64Barrier(int64_t __oldValue, int64_t __newValue, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicCompareAndSwap64Barrier$descriptor() {
-        return OSAtomicCompareAndSwap64Barrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap64Barrier(int64_t __oldValue, int64_t __newValue, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static MethodHandle OSAtomicCompareAndSwap64Barrier$handle() {
-        return OSAtomicCompareAndSwap64Barrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap64Barrier(int64_t __oldValue, int64_t __newValue, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static MemorySegment OSAtomicCompareAndSwap64Barrier$address() {
-        return OSAtomicCompareAndSwap64Barrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicCompareAndSwap64Barrier(int64_t __oldValue, int64_t __newValue, volatile OSAtomic_int64_aligned64_t *__theValue)
-     * }
-     */
-    public static boolean OSAtomicCompareAndSwap64Barrier(long __oldValue, long __newValue, MemorySegment __theValue) {
-        var mh$ = OSAtomicCompareAndSwap64Barrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicCompareAndSwap64Barrier", __oldValue, __newValue, __theValue);
-            }
-            return (boolean)mh$.invokeExact(__oldValue, __newValue, __theValue);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicTestAndSet {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicTestAndSet");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndSet(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicTestAndSet$descriptor() {
-        return OSAtomicTestAndSet.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndSet(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static MethodHandle OSAtomicTestAndSet$handle() {
-        return OSAtomicTestAndSet.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndSet(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static MemorySegment OSAtomicTestAndSet$address() {
-        return OSAtomicTestAndSet.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndSet(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static boolean OSAtomicTestAndSet(int __n, MemorySegment __theAddress) {
-        var mh$ = OSAtomicTestAndSet.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicTestAndSet", __n, __theAddress);
-            }
-            return (boolean)mh$.invokeExact(__n, __theAddress);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicTestAndSetBarrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicTestAndSetBarrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndSetBarrier(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicTestAndSetBarrier$descriptor() {
-        return OSAtomicTestAndSetBarrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndSetBarrier(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static MethodHandle OSAtomicTestAndSetBarrier$handle() {
-        return OSAtomicTestAndSetBarrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndSetBarrier(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static MemorySegment OSAtomicTestAndSetBarrier$address() {
-        return OSAtomicTestAndSetBarrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndSetBarrier(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static boolean OSAtomicTestAndSetBarrier(int __n, MemorySegment __theAddress) {
-        var mh$ = OSAtomicTestAndSetBarrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicTestAndSetBarrier", __n, __theAddress);
-            }
-            return (boolean)mh$.invokeExact(__n, __theAddress);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicTestAndClear {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicTestAndClear");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndClear(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicTestAndClear$descriptor() {
-        return OSAtomicTestAndClear.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndClear(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static MethodHandle OSAtomicTestAndClear$handle() {
-        return OSAtomicTestAndClear.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndClear(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static MemorySegment OSAtomicTestAndClear$address() {
-        return OSAtomicTestAndClear.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndClear(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static boolean OSAtomicTestAndClear(int __n, MemorySegment __theAddress) {
-        var mh$ = OSAtomicTestAndClear.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicTestAndClear", __n, __theAddress);
-            }
-            return (boolean)mh$.invokeExact(__n, __theAddress);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicTestAndClearBarrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicTestAndClearBarrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndClearBarrier(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicTestAndClearBarrier$descriptor() {
-        return OSAtomicTestAndClearBarrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndClearBarrier(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static MethodHandle OSAtomicTestAndClearBarrier$handle() {
-        return OSAtomicTestAndClearBarrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndClearBarrier(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static MemorySegment OSAtomicTestAndClearBarrier$address() {
-        return OSAtomicTestAndClearBarrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSAtomicTestAndClearBarrier(uint32_t __n, volatile void *__theAddress)
-     * }
-     */
-    public static boolean OSAtomicTestAndClearBarrier(int __n, MemorySegment __theAddress) {
-        var mh$ = OSAtomicTestAndClearBarrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicTestAndClearBarrier", __n, __theAddress);
-            }
-            return (boolean)mh$.invokeExact(__n, __theAddress);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSMemoryBarrier {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(    );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSMemoryBarrier");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * void OSMemoryBarrier()
-     * }
-     */
-    public static FunctionDescriptor OSMemoryBarrier$descriptor() {
-        return OSMemoryBarrier.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * void OSMemoryBarrier()
-     * }
-     */
-    public static MethodHandle OSMemoryBarrier$handle() {
-        return OSMemoryBarrier.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * void OSMemoryBarrier()
-     * }
-     */
-    public static MemorySegment OSMemoryBarrier$address() {
-        return OSMemoryBarrier.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * void OSMemoryBarrier()
-     * }
-     */
-    public static void OSMemoryBarrier() {
-        var mh$ = OSMemoryBarrier.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSMemoryBarrier");
-            }
-            mh$.invokeExact();
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-    /**
-     * {@snippet lang=c :
-     * typedef int32_t OSSpinLock
-     * }
-     */
-    public static final OfInt OSSpinLock = ObjCRuntime.C_INT;
-
-    private static class OSSpinLockTry {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_BOOL,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSSpinLockTry");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * bool OSSpinLockTry(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static FunctionDescriptor OSSpinLockTry$descriptor() {
-        return OSSpinLockTry.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * bool OSSpinLockTry(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static MethodHandle OSSpinLockTry$handle() {
-        return OSSpinLockTry.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * bool OSSpinLockTry(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static MemorySegment OSSpinLockTry$address() {
-        return OSSpinLockTry.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * bool OSSpinLockTry(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static boolean OSSpinLockTry(MemorySegment __lock) {
-        var mh$ = OSSpinLockTry.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSSpinLockTry", __lock);
-            }
-            return (boolean)mh$.invokeExact(__lock);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSSpinLockLock {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSSpinLockLock");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * void OSSpinLockLock(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static FunctionDescriptor OSSpinLockLock$descriptor() {
-        return OSSpinLockLock.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * void OSSpinLockLock(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static MethodHandle OSSpinLockLock$handle() {
-        return OSSpinLockLock.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * void OSSpinLockLock(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static MemorySegment OSSpinLockLock$address() {
-        return OSSpinLockLock.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * void OSSpinLockLock(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static void OSSpinLockLock(MemorySegment __lock) {
-        var mh$ = OSSpinLockLock.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSSpinLockLock", __lock);
-            }
-            mh$.invokeExact(__lock);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSSpinLockUnlock {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSSpinLockUnlock");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * void OSSpinLockUnlock(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static FunctionDescriptor OSSpinLockUnlock$descriptor() {
-        return OSSpinLockUnlock.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * void OSSpinLockUnlock(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static MethodHandle OSSpinLockUnlock$handle() {
-        return OSSpinLockUnlock.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * void OSSpinLockUnlock(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static MemorySegment OSSpinLockUnlock$address() {
-        return OSSpinLockUnlock.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * void OSSpinLockUnlock(volatile OSSpinLock *__lock)
-     * }
-     */
-    public static void OSSpinLockUnlock(MemorySegment __lock) {
-        var mh$ = OSSpinLockUnlock.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSSpinLockUnlock", __lock);
-            }
-            mh$.invokeExact(__lock);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicEnqueue {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicEnqueue");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * void OSAtomicEnqueue(OSQueueHead *__list, void *__new, size_t __offset)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicEnqueue$descriptor() {
-        return OSAtomicEnqueue.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * void OSAtomicEnqueue(OSQueueHead *__list, void *__new, size_t __offset)
-     * }
-     */
-    public static MethodHandle OSAtomicEnqueue$handle() {
-        return OSAtomicEnqueue.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * void OSAtomicEnqueue(OSQueueHead *__list, void *__new, size_t __offset)
-     * }
-     */
-    public static MemorySegment OSAtomicEnqueue$address() {
-        return OSAtomicEnqueue.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * void OSAtomicEnqueue(OSQueueHead *__list, void *__new, size_t __offset)
-     * }
-     */
-    public static void OSAtomicEnqueue(MemorySegment __list, MemorySegment __new, long __offset) {
-        var mh$ = OSAtomicEnqueue.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicEnqueue", __list, __new, __offset);
-            }
-            mh$.invokeExact(__list, __new, __offset);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class OSAtomicDequeue {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("OSAtomicDequeue");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * void *OSAtomicDequeue(OSQueueHead *__list, size_t __offset)
-     * }
-     */
-    public static FunctionDescriptor OSAtomicDequeue$descriptor() {
-        return OSAtomicDequeue.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * void *OSAtomicDequeue(OSQueueHead *__list, size_t __offset)
-     * }
-     */
-    public static MethodHandle OSAtomicDequeue$handle() {
-        return OSAtomicDequeue.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * void *OSAtomicDequeue(OSQueueHead *__list, size_t __offset)
-     * }
-     */
-    public static MemorySegment OSAtomicDequeue$address() {
-        return OSAtomicDequeue.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * void *OSAtomicDequeue(OSQueueHead *__list, size_t __offset)
-     * }
-     */
-    public static MemorySegment OSAtomicDequeue(MemorySegment __list, long __offset) {
-        var mh$ = OSAtomicDequeue.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("OSAtomicDequeue", __list, __offset);
-            }
-            return (MemorySegment)mh$.invokeExact(__list, __offset);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-    /**
-     * {@snippet lang=c :
      * typedef int boolean_t
      * }
      */
     public static final OfInt boolean_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
-     * typedef int kern_return_t
-     * }
-     */
-    public static final OfInt kern_return_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_port_name_t
-     * }
-     */
-    public static final OfInt mach_port_name_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_port_name_t *mach_port_name_array_t
-     * }
-     */
-    public static final AddressLayout mach_port_name_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
      * typedef __darwin_mach_port_t mach_port_t
      * }
      */
     public static final OfInt mach_port_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_port_t *mach_port_array_t
-     * }
-     */
-    public static final AddressLayout mach_port_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_port_right_t
-     * }
-     */
-    public static final OfInt mach_port_right_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_port_type_t
-     * }
-     */
-    public static final OfInt mach_port_type_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_port_type_t *mach_port_type_array_t
-     * }
-     */
-    public static final AddressLayout mach_port_type_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_port_urefs_t
-     * }
-     */
-    public static final OfInt mach_port_urefs_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t mach_port_delta_t
-     * }
-     */
-    public static final OfInt mach_port_delta_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_port_seqno_t
-     * }
-     */
-    public static final OfInt mach_port_seqno_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_port_mscount_t
-     * }
-     */
-    public static final OfInt mach_port_mscount_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_port_msgcount_t
-     * }
-     */
-    public static final OfInt mach_port_msgcount_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_port_rights_t
-     * }
-     */
-    public static final OfInt mach_port_rights_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int mach_port_srights_t
-     * }
-     */
-    public static final OfInt mach_port_srights_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *mach_port_info_t
-     * }
-     */
-    public static final AddressLayout mach_port_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int mach_port_flavor_t
-     * }
-     */
-    public static final OfInt mach_port_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef struct mach_service_port_info {
-     *     char mspi_string_name[255];
-     *     uint8_t mspi_domain_type;
-     * } *mach_service_port_info_t
-     * }
-     */
-    public static final AddressLayout mach_service_port_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_port_options_t *mach_port_options_ptr_t
-     * }
-     */
-    public static final AddressLayout mach_port_options_ptr_t = ObjCRuntime.C_POINTER;
-    private static final int kGUARD_EXC_DESTROY = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_DESTROY = 1
-     * }
-     */
-    public static int kGUARD_EXC_DESTROY() {
-        return kGUARD_EXC_DESTROY;
-    }
-    private static final int kGUARD_EXC_MOD_REFS = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_MOD_REFS = 2
-     * }
-     */
-    public static int kGUARD_EXC_MOD_REFS() {
-        return kGUARD_EXC_MOD_REFS;
-    }
-    private static final int kGUARD_EXC_INVALID_OPTIONS = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_INVALID_OPTIONS = 3
-     * }
-     */
-    public static int kGUARD_EXC_INVALID_OPTIONS() {
-        return kGUARD_EXC_INVALID_OPTIONS;
-    }
-    private static final int kGUARD_EXC_SET_CONTEXT = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_SET_CONTEXT = 4
-     * }
-     */
-    public static int kGUARD_EXC_SET_CONTEXT() {
-        return kGUARD_EXC_SET_CONTEXT;
-    }
-    private static final int kGUARD_EXC_THREAD_SET_STATE = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_THREAD_SET_STATE = 5
-     * }
-     */
-    public static int kGUARD_EXC_THREAD_SET_STATE() {
-        return kGUARD_EXC_THREAD_SET_STATE;
-    }
-    private static final int kGUARD_EXC_EXCEPTION_BEHAVIOR_ENFORCE = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_EXCEPTION_BEHAVIOR_ENFORCE = 6
-     * }
-     */
-    public static int kGUARD_EXC_EXCEPTION_BEHAVIOR_ENFORCE() {
-        return kGUARD_EXC_EXCEPTION_BEHAVIOR_ENFORCE;
-    }
-    private static final int kGUARD_EXC_UNGUARDED = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_UNGUARDED = 8
-     * }
-     */
-    public static int kGUARD_EXC_UNGUARDED() {
-        return kGUARD_EXC_UNGUARDED;
-    }
-    private static final int kGUARD_EXC_INCORRECT_GUARD = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_INCORRECT_GUARD = 16
-     * }
-     */
-    public static int kGUARD_EXC_INCORRECT_GUARD() {
-        return kGUARD_EXC_INCORRECT_GUARD;
-    }
-    private static final int kGUARD_EXC_IMMOVABLE = (int)32L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_IMMOVABLE = 32
-     * }
-     */
-    public static int kGUARD_EXC_IMMOVABLE() {
-        return kGUARD_EXC_IMMOVABLE;
-    }
-    private static final int kGUARD_EXC_STRICT_REPLY = (int)64L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_STRICT_REPLY = 64
-     * }
-     */
-    public static int kGUARD_EXC_STRICT_REPLY() {
-        return kGUARD_EXC_STRICT_REPLY;
-    }
-    private static final int kGUARD_EXC_MSG_FILTERED = (int)128L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_MSG_FILTERED = 128
-     * }
-     */
-    public static int kGUARD_EXC_MSG_FILTERED() {
-        return kGUARD_EXC_MSG_FILTERED;
-    }
-    private static final int kGUARD_EXC_INVALID_RIGHT = (int)256L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_INVALID_RIGHT = 256
-     * }
-     */
-    public static int kGUARD_EXC_INVALID_RIGHT() {
-        return kGUARD_EXC_INVALID_RIGHT;
-    }
-    private static final int kGUARD_EXC_INVALID_NAME = (int)512L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_INVALID_NAME = 512
-     * }
-     */
-    public static int kGUARD_EXC_INVALID_NAME() {
-        return kGUARD_EXC_INVALID_NAME;
-    }
-    private static final int kGUARD_EXC_INVALID_VALUE = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_INVALID_VALUE = 1024
-     * }
-     */
-    public static int kGUARD_EXC_INVALID_VALUE() {
-        return kGUARD_EXC_INVALID_VALUE;
-    }
-    private static final int kGUARD_EXC_INVALID_ARGUMENT = (int)2048L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_INVALID_ARGUMENT = 2048
-     * }
-     */
-    public static int kGUARD_EXC_INVALID_ARGUMENT() {
-        return kGUARD_EXC_INVALID_ARGUMENT;
-    }
-    private static final int kGUARD_EXC_RIGHT_EXISTS = (int)4096L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_RIGHT_EXISTS = 4096
-     * }
-     */
-    public static int kGUARD_EXC_RIGHT_EXISTS() {
-        return kGUARD_EXC_RIGHT_EXISTS;
-    }
-    private static final int kGUARD_EXC_KERN_NO_SPACE = (int)8192L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_KERN_NO_SPACE = 8192
-     * }
-     */
-    public static int kGUARD_EXC_KERN_NO_SPACE() {
-        return kGUARD_EXC_KERN_NO_SPACE;
-    }
-    private static final int kGUARD_EXC_KERN_FAILURE = (int)16384L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_KERN_FAILURE = 16384
-     * }
-     */
-    public static int kGUARD_EXC_KERN_FAILURE() {
-        return kGUARD_EXC_KERN_FAILURE;
-    }
-    private static final int kGUARD_EXC_KERN_RESOURCE = (int)32768L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_KERN_RESOURCE = 32768
-     * }
-     */
-    public static int kGUARD_EXC_KERN_RESOURCE() {
-        return kGUARD_EXC_KERN_RESOURCE;
-    }
-    private static final int kGUARD_EXC_SEND_INVALID_REPLY = (int)65536L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_SEND_INVALID_REPLY = 65536
-     * }
-     */
-    public static int kGUARD_EXC_SEND_INVALID_REPLY() {
-        return kGUARD_EXC_SEND_INVALID_REPLY;
-    }
-    private static final int kGUARD_EXC_SEND_INVALID_VOUCHER = (int)131072L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_SEND_INVALID_VOUCHER = 131072
-     * }
-     */
-    public static int kGUARD_EXC_SEND_INVALID_VOUCHER() {
-        return kGUARD_EXC_SEND_INVALID_VOUCHER;
-    }
-    private static final int kGUARD_EXC_SEND_INVALID_RIGHT = (int)262144L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_SEND_INVALID_RIGHT = 262144
-     * }
-     */
-    public static int kGUARD_EXC_SEND_INVALID_RIGHT() {
-        return kGUARD_EXC_SEND_INVALID_RIGHT;
-    }
-    private static final int kGUARD_EXC_RCV_INVALID_NAME = (int)524288L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_RCV_INVALID_NAME = 524288
-     * }
-     */
-    public static int kGUARD_EXC_RCV_INVALID_NAME() {
-        return kGUARD_EXC_RCV_INVALID_NAME;
-    }
-    private static final int kGUARD_EXC_RCV_GUARDED_DESC = (int)1048576L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_RCV_GUARDED_DESC = 1048576
-     * }
-     */
-    public static int kGUARD_EXC_RCV_GUARDED_DESC() {
-        return kGUARD_EXC_RCV_GUARDED_DESC;
-    }
-    private static final int kGUARD_EXC_MOD_REFS_NON_FATAL = (int)2097152L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_MOD_REFS_NON_FATAL = 2097152
-     * }
-     */
-    public static int kGUARD_EXC_MOD_REFS_NON_FATAL() {
-        return kGUARD_EXC_MOD_REFS_NON_FATAL;
-    }
-    private static final int kGUARD_EXC_IMMOVABLE_NON_FATAL = (int)4194304L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_IMMOVABLE_NON_FATAL = 4194304
-     * }
-     */
-    public static int kGUARD_EXC_IMMOVABLE_NON_FATAL() {
-        return kGUARD_EXC_IMMOVABLE_NON_FATAL;
-    }
-    private static final int kGUARD_EXC_REQUIRE_REPLY_PORT_SEMANTICS = (int)8388608L;
-    /**
-     * {@snippet lang=c :
-     * enum mach_port_guard_exception_codes.kGUARD_EXC_REQUIRE_REPLY_PORT_SEMANTICS = 8388608
-     * }
-     */
-    public static int kGUARD_EXC_REQUIRE_REPLY_PORT_SEMANTICS() {
-        return kGUARD_EXC_REQUIRE_REPLY_PORT_SEMANTICS;
-    }
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_msg_timeout_t
-     * }
-     */
-    public static final OfInt mach_msg_timeout_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int mach_msg_bits_t
-     * }
-     */
-    public static final OfInt mach_msg_bits_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_msg_size_t
-     * }
-     */
-    public static final OfInt mach_msg_size_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t mach_msg_id_t
-     * }
-     */
-    public static final OfInt mach_msg_id_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int mach_msg_priority_t
-     * }
-     */
-    public static final OfInt mach_msg_priority_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int mach_msg_type_name_t
-     * }
-     */
-    public static final OfInt mach_msg_type_name_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int mach_msg_copy_options_t
-     * }
-     */
-    public static final OfInt mach_msg_copy_options_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int mach_msg_guard_flags_t
-     * }
-     */
-    public static final OfInt mach_msg_guard_flags_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int mach_msg_descriptor_type_t
-     * }
-     */
-    public static final OfInt mach_msg_descriptor_type_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int mach_msg_trailer_type_t
-     * }
-     */
-    public static final OfInt mach_msg_trailer_type_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int mach_msg_trailer_size_t
-     * }
-     */
-    public static final OfInt mach_msg_trailer_size_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef char *mach_msg_trailer_info_t
-     * }
-     */
-    public static final AddressLayout mach_msg_trailer_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int mach_msg_filter_id
-     * }
-     */
-    public static final OfInt mach_msg_filter_id = ObjCRuntime.C_INT;
-
-    private static class KERNEL_SECURITY_TOKEN$constants {
-        public static final GroupLayout LAYOUT = security_token_t.layout();
-        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("KERNEL_SECURITY_TOKEN").reinterpret(LAYOUT.byteSize());
-    }
-
-    /**
-     * Layout for variable:
-     * {@snippet lang=c :
-     * extern const security_token_t KERNEL_SECURITY_TOKEN
-     * }
-     */
-    public static GroupLayout KERNEL_SECURITY_TOKEN$layout() {
-        return KERNEL_SECURITY_TOKEN$constants.LAYOUT;
-    }
-
-    /**
-     * Getter for variable:
-     * {@snippet lang=c :
-     * extern const security_token_t KERNEL_SECURITY_TOKEN
-     * }
-     */
-    public static MemorySegment KERNEL_SECURITY_TOKEN() {
-        return KERNEL_SECURITY_TOKEN$constants.SEGMENT;
-    }
-
-    /**
-     * Setter for variable:
-     * {@snippet lang=c :
-     * extern const security_token_t KERNEL_SECURITY_TOKEN
-     * }
-     */
-    public static void KERNEL_SECURITY_TOKEN(MemorySegment varValue) {
-        MemorySegment.copy(varValue, 0L, KERNEL_SECURITY_TOKEN$constants.SEGMENT, 0L, KERNEL_SECURITY_TOKEN$constants.LAYOUT.byteSize());
-    }
-
-    private static class KERNEL_AUDIT_TOKEN$constants {
-        public static final GroupLayout LAYOUT = audit_token_t.layout();
-        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("KERNEL_AUDIT_TOKEN").reinterpret(LAYOUT.byteSize());
-    }
-
-    /**
-     * Layout for variable:
-     * {@snippet lang=c :
-     * extern const audit_token_t KERNEL_AUDIT_TOKEN
-     * }
-     */
-    public static GroupLayout KERNEL_AUDIT_TOKEN$layout() {
-        return KERNEL_AUDIT_TOKEN$constants.LAYOUT;
-    }
-
-    /**
-     * Getter for variable:
-     * {@snippet lang=c :
-     * extern const audit_token_t KERNEL_AUDIT_TOKEN
-     * }
-     */
-    public static MemorySegment KERNEL_AUDIT_TOKEN() {
-        return KERNEL_AUDIT_TOKEN$constants.SEGMENT;
-    }
-
-    /**
-     * Setter for variable:
-     * {@snippet lang=c :
-     * extern const audit_token_t KERNEL_AUDIT_TOKEN
-     * }
-     */
-    public static void KERNEL_AUDIT_TOKEN(MemorySegment varValue) {
-        MemorySegment.copy(varValue, 0L, KERNEL_AUDIT_TOKEN$constants.SEGMENT, 0L, KERNEL_AUDIT_TOKEN$constants.LAYOUT.byteSize());
-    }
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t mach_msg_options_t
-     * }
-     */
-    public static final OfInt mach_msg_options_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_msg_type_size_t
-     * }
-     */
-    public static final OfInt mach_msg_type_size_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t mach_msg_type_number_t
-     * }
-     */
-    public static final OfInt mach_msg_type_number_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t mach_msg_option_t
-     * }
-     */
-    public static final OfInt mach_msg_option_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef kern_return_t mach_msg_return_t
-     * }
-     */
-    public static final OfInt mach_msg_return_t = ObjCRuntime.C_INT;
-
-    private static class mach_msg_overwrite {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_INT
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mach_msg_overwrite");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern mach_msg_return_t mach_msg_overwrite(mach_msg_header_t *msg, mach_msg_option_t option, mach_msg_size_t send_size, mach_msg_size_t rcv_size, mach_port_name_t rcv_name, mach_msg_timeout_t timeout, mach_port_name_t notify, mach_msg_header_t *rcv_msg, mach_msg_size_t rcv_limit)
-     * }
-     */
-    public static FunctionDescriptor mach_msg_overwrite$descriptor() {
-        return mach_msg_overwrite.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern mach_msg_return_t mach_msg_overwrite(mach_msg_header_t *msg, mach_msg_option_t option, mach_msg_size_t send_size, mach_msg_size_t rcv_size, mach_port_name_t rcv_name, mach_msg_timeout_t timeout, mach_port_name_t notify, mach_msg_header_t *rcv_msg, mach_msg_size_t rcv_limit)
-     * }
-     */
-    public static MethodHandle mach_msg_overwrite$handle() {
-        return mach_msg_overwrite.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern mach_msg_return_t mach_msg_overwrite(mach_msg_header_t *msg, mach_msg_option_t option, mach_msg_size_t send_size, mach_msg_size_t rcv_size, mach_port_name_t rcv_name, mach_msg_timeout_t timeout, mach_port_name_t notify, mach_msg_header_t *rcv_msg, mach_msg_size_t rcv_limit)
-     * }
-     */
-    public static MemorySegment mach_msg_overwrite$address() {
-        return mach_msg_overwrite.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern mach_msg_return_t mach_msg_overwrite(mach_msg_header_t *msg, mach_msg_option_t option, mach_msg_size_t send_size, mach_msg_size_t rcv_size, mach_port_name_t rcv_name, mach_msg_timeout_t timeout, mach_port_name_t notify, mach_msg_header_t *rcv_msg, mach_msg_size_t rcv_limit)
-     * }
-     */
-    public static int mach_msg_overwrite(MemorySegment msg, int option, int send_size, int rcv_size, int rcv_name, int timeout, int notify, MemorySegment rcv_msg, int rcv_limit) {
-        var mh$ = mach_msg_overwrite.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("mach_msg_overwrite", msg, option, send_size, rcv_size, rcv_name, timeout, notify, rcv_msg, rcv_limit);
-            }
-            return (int)mh$.invokeExact(msg, option, send_size, rcv_size, rcv_name, timeout, notify, rcv_msg, rcv_limit);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class mach_msg {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mach_msg");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern mach_msg_return_t mach_msg(mach_msg_header_t *msg, mach_msg_option_t option, mach_msg_size_t send_size, mach_msg_size_t rcv_size, mach_port_name_t rcv_name, mach_msg_timeout_t timeout, mach_port_name_t notify)
-     * }
-     */
-    public static FunctionDescriptor mach_msg$descriptor() {
-        return mach_msg.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern mach_msg_return_t mach_msg(mach_msg_header_t *msg, mach_msg_option_t option, mach_msg_size_t send_size, mach_msg_size_t rcv_size, mach_port_name_t rcv_name, mach_msg_timeout_t timeout, mach_port_name_t notify)
-     * }
-     */
-    public static MethodHandle mach_msg$handle() {
-        return mach_msg.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern mach_msg_return_t mach_msg(mach_msg_header_t *msg, mach_msg_option_t option, mach_msg_size_t send_size, mach_msg_size_t rcv_size, mach_port_name_t rcv_name, mach_msg_timeout_t timeout, mach_port_name_t notify)
-     * }
-     */
-    public static MemorySegment mach_msg$address() {
-        return mach_msg.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern mach_msg_return_t mach_msg(mach_msg_header_t *msg, mach_msg_option_t option, mach_msg_size_t send_size, mach_msg_size_t rcv_size, mach_port_name_t rcv_name, mach_msg_timeout_t timeout, mach_port_name_t notify)
-     * }
-     */
-    public static int mach_msg(MemorySegment msg, int option, int send_size, int rcv_size, int rcv_name, int timeout, int notify) {
-        var mh$ = mach_msg.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("mach_msg", msg, option, send_size, rcv_size, rcv_name, timeout, notify);
-            }
-            return (int)mh$.invokeExact(msg, option, send_size, rcv_size, rcv_name, timeout, notify);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class mach_voucher_deallocate {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("mach_voucher_deallocate");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern kern_return_t mach_voucher_deallocate(mach_port_name_t voucher)
-     * }
-     */
-    public static FunctionDescriptor mach_voucher_deallocate$descriptor() {
-        return mach_voucher_deallocate.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern kern_return_t mach_voucher_deallocate(mach_port_name_t voucher)
-     * }
-     */
-    public static MethodHandle mach_voucher_deallocate$handle() {
-        return mach_voucher_deallocate.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern kern_return_t mach_voucher_deallocate(mach_port_name_t voucher)
-     * }
-     */
-    public static MemorySegment mach_voucher_deallocate$address() {
-        return mach_voucher_deallocate.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern kern_return_t mach_voucher_deallocate(mach_port_name_t voucher)
-     * }
-     */
-    public static int mach_voucher_deallocate(int voucher) {
-        var mh$ = mach_voucher_deallocate.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("mach_voucher_deallocate", voucher);
-            }
-            return (int)mh$.invokeExact(voucher);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
     /**
      * {@snippet lang=c :
      * typedef struct vm_statistics {
@@ -14570,122 +24129,6 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
     public static final AddressLayout mach_vm_range_recipes_raw_t = ObjCRuntime.C_POINTER;
     /**
      * {@snippet lang=c :
-     * typedef unsigned long long memory_object_offset_t
-     * }
-     */
-    public static final OfLong memory_object_offset_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned long long memory_object_size_t
-     * }
-     */
-    public static final OfLong memory_object_size_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t memory_object_cluster_size_t
-     * }
-     */
-    public static final OfInt memory_object_cluster_size_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t *memory_object_fault_info_t
-     * }
-     */
-    public static final AddressLayout memory_object_fault_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned long long vm_object_id_t
-     * }
-     */
-    public static final OfLong vm_object_id_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_port_t memory_object_t
-     * }
-     */
-    public static final OfInt memory_object_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_port_t memory_object_control_t
-     * }
-     */
-    public static final OfInt memory_object_control_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef memory_object_t *memory_object_array_t
-     * }
-     */
-    public static final AddressLayout memory_object_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_port_t memory_object_name_t
-     * }
-     */
-    public static final OfInt memory_object_name_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_port_t memory_object_default_t
-     * }
-     */
-    public static final OfInt memory_object_default_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int memory_object_copy_strategy_t
-     * }
-     */
-    public static final OfInt memory_object_copy_strategy_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int memory_object_return_t
-     * }
-     */
-    public static final OfInt memory_object_return_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int *memory_object_info_t
-     * }
-     */
-    public static final AddressLayout memory_object_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int memory_object_flavor_t
-     * }
-     */
-    public static final OfInt memory_object_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef struct memory_object_behave_info {
-     *     memory_object_copy_strategy_t copy_strategy;
-     *     boolean_t temporary;
-     *     boolean_t invalidate;
-     *     boolean_t silent_overwrite;
-     *     boolean_t advisory_pageout;
-     * } *memory_object_behave_info_t
-     * }
-     */
-    public static final AddressLayout memory_object_behave_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct memory_object_perf_info {
-     *     memory_object_cluster_size_t cluster_size;
-     *     boolean_t may_cache;
-     * } *memory_object_perf_info_t
-     * }
-     */
-    public static final AddressLayout memory_object_perf_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct memory_object_attr_info {
-     *     memory_object_copy_strategy_t copy_strategy;
-     *     memory_object_cluster_size_t cluster_size;
-     *     boolean_t may_cache_object;
-     *     boolean_t temporary;
-     * } *memory_object_attr_info_t
-     * }
-     */
-    public static final AddressLayout memory_object_attr_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
      * typedef natural_t *thread_state_t
      * }
      */
@@ -14702,614 +24145,6 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
      * }
      */
     public static final AddressLayout thread_state_flavor_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int exception_type_t
-     * }
-     */
-    public static final OfInt exception_type_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t exception_data_type_t
-     * }
-     */
-    public static final OfInt exception_data_type_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int64_t mach_exception_data_type_t
-     * }
-     */
-    public static final OfLong mach_exception_data_type_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef int exception_behavior_t
-     * }
-     */
-    public static final OfInt exception_behavior_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef exception_data_type_t *exception_data_t
-     * }
-     */
-    public static final AddressLayout exception_data_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_exception_data_type_t *mach_exception_data_t
-     * }
-     */
-    public static final AddressLayout mach_exception_data_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int exception_mask_t
-     * }
-     */
-    public static final OfInt exception_mask_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef exception_mask_t *exception_mask_array_t
-     * }
-     */
-    public static final AddressLayout exception_mask_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef exception_behavior_t *exception_behavior_array_t
-     * }
-     */
-    public static final AddressLayout exception_behavior_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef thread_state_flavor_t *exception_flavor_array_t
-     * }
-     */
-    public static final AddressLayout exception_flavor_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_port_t *exception_port_array_t
-     * }
-     */
-    public static final AddressLayout exception_port_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef ipc_info_port_t *exception_port_info_array_t
-     * }
-     */
-    public static final AddressLayout exception_port_info_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_exception_data_type_t mach_exception_code_t
-     * }
-     */
-    public static final OfLong mach_exception_code_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef mach_exception_data_type_t mach_exception_subcode_t
-     * }
-     */
-    public static final OfLong mach_exception_subcode_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef struct processor_cpu_stat {
-     *     uint32_t irq_ex_cnt;
-     *     uint32_t ipi_cnt;
-     *     uint32_t timer_cnt;
-     *     uint32_t undef_ex_cnt;
-     *     uint32_t unaligned_cnt;
-     *     uint32_t vfp_cnt;
-     *     uint32_t vfp_shortv_cnt;
-     *     uint32_t data_ex_cnt;
-     *     uint32_t instr_ex_cnt;
-     * } *processor_cpu_stat_t
-     * }
-     */
-    public static final AddressLayout processor_cpu_stat_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct processor_cpu_stat64 {
-     *     uint64_t irq_ex_cnt;
-     *     uint64_t ipi_cnt;
-     *     uint64_t timer_cnt;
-     *     uint64_t undef_ex_cnt;
-     *     uint64_t unaligned_cnt;
-     *     uint64_t vfp_cnt;
-     *     uint64_t vfp_shortv_cnt;
-     *     uint64_t data_ex_cnt;
-     *     uint64_t instr_ex_cnt;
-     *     uint64_t pmi_cnt;
-     * } *processor_cpu_stat64_t
-     * }
-     */
-    public static final AddressLayout processor_cpu_stat64_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *processor_info_t
-     * }
-     */
-    public static final AddressLayout processor_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *processor_info_array_t
-     * }
-     */
-    public static final AddressLayout processor_info_array_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *processor_set_info_t
-     * }
-     */
-    public static final AddressLayout processor_set_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int processor_flavor_t
-     * }
-     */
-    public static final OfInt processor_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef struct processor_basic_info {
-     *     cpu_type_t cpu_type;
-     *     cpu_subtype_t cpu_subtype;
-     *     boolean_t running;
-     *     int slot_num;
-     *     union {
-     *         boolean_t is_master;
-     *         boolean_t is_main;
-     *     };
-     * } *processor_basic_info_t
-     * }
-     */
-    public static final AddressLayout processor_basic_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct processor_cpu_load_info {
-     *     unsigned int cpu_ticks[4];
-     * } *processor_cpu_load_info_t
-     * }
-     */
-    public static final AddressLayout processor_cpu_load_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int processor_set_flavor_t
-     * }
-     */
-    public static final OfInt processor_set_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef struct processor_set_basic_info {
-     *     int processor_count;
-     *     int default_policy;
-     * } *processor_set_basic_info_t
-     * }
-     */
-    public static final AddressLayout processor_set_basic_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct processor_set_load_info {
-     *     int task_count;
-     *     int thread_count;
-     *     integer_t load_average;
-     *     integer_t mach_factor;
-     * } *processor_set_load_info_t
-     * }
-     */
-    public static final AddressLayout processor_set_load_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int policy_t
-     * }
-     */
-    public static final OfInt policy_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *policy_info_t
-     * }
-     */
-    public static final AddressLayout policy_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *policy_base_t
-     * }
-     */
-    public static final AddressLayout policy_base_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *policy_limit_t
-     * }
-     */
-    public static final AddressLayout policy_limit_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct policy_timeshare_base {
-     *     integer_t base_priority;
-     * } *policy_timeshare_base_t
-     * }
-     */
-    public static final AddressLayout policy_timeshare_base_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct policy_timeshare_limit {
-     *     integer_t max_priority;
-     * } *policy_timeshare_limit_t
-     * }
-     */
-    public static final AddressLayout policy_timeshare_limit_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct policy_timeshare_info {
-     *     integer_t max_priority;
-     *     integer_t base_priority;
-     *     integer_t cur_priority;
-     *     boolean_t depressed;
-     *     integer_t depress_priority;
-     * } *policy_timeshare_info_t
-     * }
-     */
-    public static final AddressLayout policy_timeshare_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct policy_rr_base {
-     *     integer_t base_priority;
-     *     integer_t quantum;
-     * } *policy_rr_base_t
-     * }
-     */
-    public static final AddressLayout policy_rr_base_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct policy_rr_limit {
-     *     integer_t max_priority;
-     * } *policy_rr_limit_t
-     * }
-     */
-    public static final AddressLayout policy_rr_limit_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct policy_rr_info {
-     *     integer_t max_priority;
-     *     integer_t base_priority;
-     *     integer_t quantum;
-     *     boolean_t depressed;
-     *     integer_t depress_priority;
-     * } *policy_rr_info_t
-     * }
-     */
-    public static final AddressLayout policy_rr_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct policy_fifo_base {
-     *     integer_t base_priority;
-     * } *policy_fifo_base_t
-     * }
-     */
-    public static final AddressLayout policy_fifo_base_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct policy_fifo_limit {
-     *     integer_t max_priority;
-     * } *policy_fifo_limit_t
-     * }
-     */
-    public static final AddressLayout policy_fifo_limit_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct policy_fifo_info {
-     *     integer_t max_priority;
-     *     integer_t base_priority;
-     *     boolean_t depressed;
-     *     integer_t depress_priority;
-     * } *policy_fifo_info_t
-     * }
-     */
-    public static final AddressLayout policy_fifo_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t task_flavor_t
-     * }
-     */
-    public static final OfInt task_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *task_info_t
-     * }
-     */
-    public static final AddressLayout task_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_basic_info_32 {
-     *     integer_t suspend_count;
-     *     natural_t virtual_size;
-     *     natural_t resident_size;
-     *     time_value_t user_time;
-     *     time_value_t system_time;
-     *     policy_t policy;
-     * } *task_basic_info_32_t
-     * }
-     */
-    public static final AddressLayout task_basic_info_32_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_basic_info_64 {
-     *     integer_t suspend_count;
-     *     mach_vm_size_t virtual_size;
-     *     mach_vm_size_t resident_size;
-     *     time_value_t user_time;
-     *     time_value_t system_time;
-     *     policy_t policy;
-     * } *task_basic_info_64_t
-     * }
-     */
-    public static final AddressLayout task_basic_info_64_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_basic_info {
-     *     integer_t suspend_count;
-     *     vm_size_t virtual_size;
-     *     vm_size_t resident_size;
-     *     time_value_t user_time;
-     *     time_value_t system_time;
-     *     policy_t policy;
-     * } *task_basic_info_t
-     * }
-     */
-    public static final AddressLayout task_basic_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_events_info {
-     *     integer_t faults;
-     *     integer_t pageins;
-     *     integer_t cow_faults;
-     *     integer_t messages_sent;
-     *     integer_t messages_received;
-     *     integer_t syscalls_mach;
-     *     integer_t syscalls_unix;
-     *     integer_t csw;
-     * } *task_events_info_t
-     * }
-     */
-    public static final AddressLayout task_events_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_thread_times_info {
-     *     time_value_t user_time;
-     *     time_value_t system_time;
-     * } *task_thread_times_info_t
-     * }
-     */
-    public static final AddressLayout task_thread_times_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_absolutetime_info {
-     *     uint64_t total_user;
-     *     uint64_t total_system;
-     *     uint64_t threads_user;
-     *     uint64_t threads_system;
-     * } *task_absolutetime_info_t
-     * }
-     */
-    public static final AddressLayout task_absolutetime_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_kernelmemory_info {
-     *     uint64_t total_palloc;
-     *     uint64_t total_pfree;
-     *     uint64_t total_salloc;
-     *     uint64_t total_sfree;
-     * } *task_kernelmemory_info_t
-     * }
-     */
-    public static final AddressLayout task_kernelmemory_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_affinity_tag_info {
-     *     integer_t set_count;
-     *     integer_t min;
-     *     integer_t max;
-     *     integer_t task_count;
-     * } *task_affinity_tag_info_t
-     * }
-     */
-    public static final AddressLayout task_affinity_tag_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_dyld_info {
-     *     mach_vm_address_t all_image_info_addr;
-     *     mach_vm_size_t all_image_info_size;
-     *     integer_t all_image_info_format;
-     * } *task_dyld_info_t
-     * }
-     */
-    public static final AddressLayout task_dyld_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_basic_info_64_2 {
-     *     integer_t suspend_count;
-     *     mach_vm_size_t virtual_size;
-     *     mach_vm_size_t resident_size;
-     *     time_value_t user_time;
-     *     time_value_t system_time;
-     *     policy_t policy;
-     * } *task_basic_info_64_2_t
-     * }
-     */
-    public static final AddressLayout task_basic_info_64_2_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_extmod_info {
-     *     unsigned char task_uuid[16];
-     *     vm_extmod_statistics_data_t extmod_statistics;
-     * } *task_extmod_info_t
-     * }
-     */
-    public static final AddressLayout task_extmod_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct mach_task_basic_info {
-     *     mach_vm_size_t virtual_size;
-     *     mach_vm_size_t resident_size;
-     *     mach_vm_size_t resident_size_max;
-     *     time_value_t user_time;
-     *     time_value_t system_time;
-     *     policy_t policy;
-     *     integer_t suspend_count;
-     * } *mach_task_basic_info_t
-     * }
-     */
-    public static final AddressLayout mach_task_basic_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_power_info {
-     *     uint64_t total_user;
-     *     uint64_t total_system;
-     *     uint64_t task_interrupt_wakeups;
-     *     uint64_t task_platform_idle_wakeups;
-     *     uint64_t task_timer_wakeups_bin_1;
-     *     uint64_t task_timer_wakeups_bin_2;
-     * } *task_power_info_t
-     * }
-     */
-    public static final AddressLayout task_power_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_vm_info {
-     *     mach_vm_size_t virtual_size;
-     *     integer_t region_count;
-     *     integer_t page_size;
-     *     mach_vm_size_t resident_size;
-     *     mach_vm_size_t resident_size_peak;
-     *     mach_vm_size_t device;
-     *     mach_vm_size_t device_peak;
-     *     mach_vm_size_t internal;
-     *     mach_vm_size_t internal_peak;
-     *     mach_vm_size_t external;
-     *     mach_vm_size_t external_peak;
-     *     mach_vm_size_t reusable;
-     *     mach_vm_size_t reusable_peak;
-     *     mach_vm_size_t purgeable_volatile_pmap;
-     *     mach_vm_size_t purgeable_volatile_resident;
-     *     mach_vm_size_t purgeable_volatile_virtual;
-     *     mach_vm_size_t compressed;
-     *     mach_vm_size_t compressed_peak;
-     *     mach_vm_size_t compressed_lifetime;
-     *     mach_vm_size_t phys_footprint;
-     *     mach_vm_address_t min_address;
-     *     mach_vm_address_t max_address;
-     *     int64_t ledger_phys_footprint_peak;
-     *     int64_t ledger_purgeable_nonvolatile;
-     *     int64_t ledger_purgeable_novolatile_compressed;
-     *     int64_t ledger_purgeable_volatile;
-     *     int64_t ledger_purgeable_volatile_compressed;
-     *     int64_t ledger_tag_network_nonvolatile;
-     *     int64_t ledger_tag_network_nonvolatile_compressed;
-     *     int64_t ledger_tag_network_volatile;
-     *     int64_t ledger_tag_network_volatile_compressed;
-     *     int64_t ledger_tag_media_footprint;
-     *     int64_t ledger_tag_media_footprint_compressed;
-     *     int64_t ledger_tag_media_nofootprint;
-     *     int64_t ledger_tag_media_nofootprint_compressed;
-     *     int64_t ledger_tag_graphics_footprint;
-     *     int64_t ledger_tag_graphics_footprint_compressed;
-     *     int64_t ledger_tag_graphics_nofootprint;
-     *     int64_t ledger_tag_graphics_nofootprint_compressed;
-     *     int64_t ledger_tag_neural_footprint;
-     *     int64_t ledger_tag_neural_footprint_compressed;
-     *     int64_t ledger_tag_neural_nofootprint;
-     *     int64_t ledger_tag_neural_nofootprint_compressed;
-     *     uint64_t limit_bytes_remaining;
-     *     integer_t decompressions;
-     *     int64_t ledger_swapins;
-     *     int64_t ledger_tag_neural_nofootprint_total;
-     *     int64_t ledger_tag_neural_nofootprint_peak;
-     * } *task_vm_info_t
-     * }
-     */
-    public static final AddressLayout task_vm_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_trace_memory_info {
-     *     uint64_t user_memory_address;
-     *     uint64_t buffer_size;
-     *     uint64_t mailbox_array_size;
-     * } *task_trace_memory_info_t
-     * }
-     */
-    public static final AddressLayout task_trace_memory_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_wait_state_info {
-     *     uint64_t total_wait_state_time;
-     *     uint64_t total_wait_sfi_state_time;
-     *     uint32_t _reserved[4];
-     * } *task_wait_state_info_t
-     * }
-     */
-    public static final AddressLayout task_wait_state_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef gpu_energy_data *gpu_energy_data_t
-     * }
-     */
-    public static final AddressLayout gpu_energy_data_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_power_info_v2 {
-     *     task_power_info_data_t cpu_energy;
-     *     gpu_energy_data gpu_energy;
-     *     uint64_t task_energy;
-     *     uint64_t task_ptime;
-     *     uint64_t task_pset_switches;
-     * } *task_power_info_v2_t
-     * }
-     */
-    public static final AddressLayout task_power_info_v2_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_flags_info {
-     *     uint32_t flags;
-     * } *task_flags_info_t
-     * }
-     */
-    public static final AddressLayout task_flags_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef uint32_t task_exc_guard_behavior_t
-     * }
-     */
-    public static final OfInt task_exc_guard_behavior_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef uint32_t task_corpse_forking_behavior_t
-     * }
-     */
-    public static final OfInt task_corpse_forking_behavior_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t task_inspect_flavor_t
-     * }
-     */
-    public static final OfInt task_inspect_flavor_t = ObjCRuntime.C_INT;
-    private static final int TASK_INSPECT_BASIC_COUNTS = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * enum task_inspect_flavor.TASK_INSPECT_BASIC_COUNTS = 1
-     * }
-     */
-    public static int TASK_INSPECT_BASIC_COUNTS() {
-        return TASK_INSPECT_BASIC_COUNTS;
-    }
-    /**
-     * {@snippet lang=c :
-     * typedef struct task_inspect_basic_counts {
-     *     uint64_t instructions;
-     *     uint64_t cycles;
-     * } *task_inspect_basic_counts_t
-     * }
-     */
-    public static final AddressLayout task_inspect_basic_counts_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *task_inspect_info_t
-     * }
-     */
-    public static final AddressLayout task_inspect_info_t = ObjCRuntime.C_POINTER;
     /**
      * {@snippet lang=c :
      * typedef natural_t task_policy_flavor_t
@@ -15610,6522 +24445,5 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
      * }
      */
     public static final AddressLayout thread_identifier_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct thread_extended_info {
-     *     uint64_t pth_user_time;
-     *     uint64_t pth_system_time;
-     *     int32_t pth_cpu_usage;
-     *     int32_t pth_policy;
-     *     int32_t pth_run_state;
-     *     int32_t pth_flags;
-     *     int32_t pth_sleep_time;
-     *     int32_t pth_curpri;
-     *     int32_t pth_priority;
-     *     int32_t pth_maxpriority;
-     *     char pth_name[64];
-     * } *thread_extended_info_t
-     * }
-     */
-    public static final AddressLayout thread_extended_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct io_stat_info {
-     *     struct io_stat_entry disk_reads;
-     *     struct io_stat_entry io_priority[4];
-     *     struct io_stat_entry paging;
-     *     struct io_stat_entry metadata;
-     *     struct io_stat_entry total_io;
-     * } *io_stat_info_t
-     * }
-     */
-    public static final AddressLayout io_stat_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef natural_t thread_policy_flavor_t
-     * }
-     */
-    public static final OfInt thread_policy_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *thread_policy_t
-     * }
-     */
-    public static final AddressLayout thread_policy_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct thread_standard_policy {
-     *     natural_t no_data;
-     * } *thread_standard_policy_t
-     * }
-     */
-    public static final AddressLayout thread_standard_policy_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct thread_extended_policy {
-     *     boolean_t timeshare;
-     * } *thread_extended_policy_t
-     * }
-     */
-    public static final AddressLayout thread_extended_policy_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct thread_time_constraint_policy {
-     *     uint32_t period;
-     *     uint32_t computation;
-     *     uint32_t constraint;
-     *     boolean_t preemptible;
-     * } *thread_time_constraint_policy_t
-     * }
-     */
-    public static final AddressLayout thread_time_constraint_policy_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct thread_precedence_policy {
-     *     integer_t importance;
-     * } *thread_precedence_policy_t
-     * }
-     */
-    public static final AddressLayout thread_precedence_policy_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct thread_affinity_policy {
-     *     integer_t affinity_tag;
-     * } *thread_affinity_policy_t
-     * }
-     */
-    public static final AddressLayout thread_affinity_policy_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct thread_background_policy {
-     *     integer_t priority;
-     * } *thread_background_policy_t
-     * }
-     */
-    public static final AddressLayout thread_background_policy_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t thread_latency_qos_t
-     * }
-     */
-    public static final OfInt thread_latency_qos_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef struct thread_latency_qos_policy {
-     *     thread_latency_qos_t thread_latency_qos_tier;
-     * } *thread_latency_qos_policy_t
-     * }
-     */
-    public static final AddressLayout thread_latency_qos_policy_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t thread_throughput_qos_t
-     * }
-     */
-    public static final OfInt thread_throughput_qos_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef struct thread_throughput_qos_policy {
-     *     thread_throughput_qos_t thread_throughput_qos_tier;
-     * } *thread_throughput_qos_policy_t
-     * }
-     */
-    public static final AddressLayout thread_throughput_qos_policy_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int vm_machine_attribute_t
-     * }
-     */
-    public static final OfInt vm_machine_attribute_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int vm_machine_attribute_val_t
-     * }
-     */
-    public static final OfInt vm_machine_attribute_val_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int vm_inherit_t
-     * }
-     */
-    public static final OfInt vm_inherit_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int vm_purgable_t
-     * }
-     */
-    public static final OfInt vm_purgable_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int vm_behavior_t
-     * }
-     */
-    public static final OfInt vm_behavior_t = ObjCRuntime.C_INT;
-
-    private static class vm_page_size$constants {
-        public static final OfLong LAYOUT = ObjCRuntime.C_LONG;
-        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("vm_page_size").reinterpret(LAYOUT.byteSize());
-    }
-
-    /**
-     * Layout for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_page_size
-     * }
-     */
-    public static OfLong vm_page_size$layout() {
-        return vm_page_size$constants.LAYOUT;
-    }
-
-    /**
-     * Segment for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_page_size
-     * }
-     */
-    public static MemorySegment vm_page_size$segment() {
-        return vm_page_size$constants.SEGMENT;
-    }
-
-    /**
-     * Getter for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_page_size
-     * }
-     */
-    public static long vm_page_size() {
-        return vm_page_size$constants.SEGMENT.get(vm_page_size$constants.LAYOUT, 0L);
-    }
-
-    /**
-     * Setter for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_page_size
-     * }
-     */
-    public static void vm_page_size(long varValue) {
-        vm_page_size$constants.SEGMENT.set(vm_page_size$constants.LAYOUT, 0L, varValue);
-    }
-
-    private static class vm_page_mask$constants {
-        public static final OfLong LAYOUT = ObjCRuntime.C_LONG;
-        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("vm_page_mask").reinterpret(LAYOUT.byteSize());
-    }
-
-    /**
-     * Layout for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_page_mask
-     * }
-     */
-    public static OfLong vm_page_mask$layout() {
-        return vm_page_mask$constants.LAYOUT;
-    }
-
-    /**
-     * Segment for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_page_mask
-     * }
-     */
-    public static MemorySegment vm_page_mask$segment() {
-        return vm_page_mask$constants.SEGMENT;
-    }
-
-    /**
-     * Getter for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_page_mask
-     * }
-     */
-    public static long vm_page_mask() {
-        return vm_page_mask$constants.SEGMENT.get(vm_page_mask$constants.LAYOUT, 0L);
-    }
-
-    /**
-     * Setter for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_page_mask
-     * }
-     */
-    public static void vm_page_mask(long varValue) {
-        vm_page_mask$constants.SEGMENT.set(vm_page_mask$constants.LAYOUT, 0L, varValue);
-    }
-
-    private static class vm_page_shift$constants {
-        public static final OfInt LAYOUT = ObjCRuntime.C_INT;
-        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("vm_page_shift").reinterpret(LAYOUT.byteSize());
-    }
-
-    /**
-     * Layout for variable:
-     * {@snippet lang=c :
-     * extern int vm_page_shift
-     * }
-     */
-    public static OfInt vm_page_shift$layout() {
-        return vm_page_shift$constants.LAYOUT;
-    }
-
-    /**
-     * Segment for variable:
-     * {@snippet lang=c :
-     * extern int vm_page_shift
-     * }
-     */
-    public static MemorySegment vm_page_shift$segment() {
-        return vm_page_shift$constants.SEGMENT;
-    }
-
-    /**
-     * Getter for variable:
-     * {@snippet lang=c :
-     * extern int vm_page_shift
-     * }
-     */
-    public static int vm_page_shift() {
-        return vm_page_shift$constants.SEGMENT.get(vm_page_shift$constants.LAYOUT, 0L);
-    }
-
-    /**
-     * Setter for variable:
-     * {@snippet lang=c :
-     * extern int vm_page_shift
-     * }
-     */
-    public static void vm_page_shift(int varValue) {
-        vm_page_shift$constants.SEGMENT.set(vm_page_shift$constants.LAYOUT, 0L, varValue);
-    }
-
-    private static class vm_kernel_page_size$constants {
-        public static final OfLong LAYOUT = ObjCRuntime.C_LONG;
-        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("vm_kernel_page_size").reinterpret(LAYOUT.byteSize());
-    }
-
-    /**
-     * Layout for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_kernel_page_size
-     * }
-     */
-    public static OfLong vm_kernel_page_size$layout() {
-        return vm_kernel_page_size$constants.LAYOUT;
-    }
-
-    /**
-     * Segment for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_kernel_page_size
-     * }
-     */
-    public static MemorySegment vm_kernel_page_size$segment() {
-        return vm_kernel_page_size$constants.SEGMENT;
-    }
-
-    /**
-     * Getter for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_kernel_page_size
-     * }
-     */
-    public static long vm_kernel_page_size() {
-        return vm_kernel_page_size$constants.SEGMENT.get(vm_kernel_page_size$constants.LAYOUT, 0L);
-    }
-
-    /**
-     * Setter for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_kernel_page_size
-     * }
-     */
-    public static void vm_kernel_page_size(long varValue) {
-        vm_kernel_page_size$constants.SEGMENT.set(vm_kernel_page_size$constants.LAYOUT, 0L, varValue);
-    }
-
-    private static class vm_kernel_page_mask$constants {
-        public static final OfLong LAYOUT = ObjCRuntime.C_LONG;
-        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("vm_kernel_page_mask").reinterpret(LAYOUT.byteSize());
-    }
-
-    /**
-     * Layout for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_kernel_page_mask
-     * }
-     */
-    public static OfLong vm_kernel_page_mask$layout() {
-        return vm_kernel_page_mask$constants.LAYOUT;
-    }
-
-    /**
-     * Segment for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_kernel_page_mask
-     * }
-     */
-    public static MemorySegment vm_kernel_page_mask$segment() {
-        return vm_kernel_page_mask$constants.SEGMENT;
-    }
-
-    /**
-     * Getter for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_kernel_page_mask
-     * }
-     */
-    public static long vm_kernel_page_mask() {
-        return vm_kernel_page_mask$constants.SEGMENT.get(vm_kernel_page_mask$constants.LAYOUT, 0L);
-    }
-
-    /**
-     * Setter for variable:
-     * {@snippet lang=c :
-     * extern vm_size_t vm_kernel_page_mask
-     * }
-     */
-    public static void vm_kernel_page_mask(long varValue) {
-        vm_kernel_page_mask$constants.SEGMENT.set(vm_kernel_page_mask$constants.LAYOUT, 0L, varValue);
-    }
-
-    private static class vm_kernel_page_shift$constants {
-        public static final OfInt LAYOUT = ObjCRuntime.C_INT;
-        public static final MemorySegment SEGMENT = ObjCRuntime.findOrThrow("vm_kernel_page_shift").reinterpret(LAYOUT.byteSize());
-    }
-
-    /**
-     * Layout for variable:
-     * {@snippet lang=c :
-     * extern int vm_kernel_page_shift
-     * }
-     */
-    public static OfInt vm_kernel_page_shift$layout() {
-        return vm_kernel_page_shift$constants.LAYOUT;
-    }
-
-    /**
-     * Segment for variable:
-     * {@snippet lang=c :
-     * extern int vm_kernel_page_shift
-     * }
-     */
-    public static MemorySegment vm_kernel_page_shift$segment() {
-        return vm_kernel_page_shift$constants.SEGMENT;
-    }
-
-    /**
-     * Getter for variable:
-     * {@snippet lang=c :
-     * extern int vm_kernel_page_shift
-     * }
-     */
-    public static int vm_kernel_page_shift() {
-        return vm_kernel_page_shift$constants.SEGMENT.get(vm_kernel_page_shift$constants.LAYOUT, 0L);
-    }
-
-    /**
-     * Setter for variable:
-     * {@snippet lang=c :
-     * extern int vm_kernel_page_shift
-     * }
-     */
-    public static void vm_kernel_page_shift(int varValue) {
-        vm_kernel_page_shift$constants.SEGMENT.set(vm_kernel_page_shift$constants.LAYOUT, 0L, varValue);
-    }
-    /**
-     * {@snippet lang=c :
-     * typedef uint32_t vm32_object_id_t
-     * }
-     */
-    public static final OfInt vm32_object_id_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int *vm_region_info_t
-     * }
-     */
-    public static final AddressLayout vm_region_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int *vm_region_info_64_t
-     * }
-     */
-    public static final AddressLayout vm_region_info_64_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int *vm_region_recurse_info_t
-     * }
-     */
-    public static final AddressLayout vm_region_recurse_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int *vm_region_recurse_info_64_t
-     * }
-     */
-    public static final AddressLayout vm_region_recurse_info_64_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int vm_region_flavor_t
-     * }
-     */
-    public static final OfInt vm_region_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef struct vm_region_basic_info_64 {
-     *     vm_prot_t protection;
-     *     vm_prot_t max_protection;
-     *     vm_inherit_t inheritance;
-     *     boolean_t shared;
-     *     boolean_t reserved;
-     *     memory_object_offset_t offset;
-     *     vm_behavior_t behavior;
-     *     unsigned short user_wired_count;
-     * } *vm_region_basic_info_64_t
-     * }
-     */
-    public static final AddressLayout vm_region_basic_info_64_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct vm_region_basic_info {
-     *     vm_prot_t protection;
-     *     vm_prot_t max_protection;
-     *     vm_inherit_t inheritance;
-     *     boolean_t shared;
-     *     boolean_t reserved;
-     *     uint32_t offset;
-     *     vm_behavior_t behavior;
-     *     unsigned short user_wired_count;
-     * } *vm_region_basic_info_t
-     * }
-     */
-    public static final AddressLayout vm_region_basic_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct vm_region_extended_info {
-     *     vm_prot_t protection;
-     *     unsigned int user_tag;
-     *     unsigned int pages_resident;
-     *     unsigned int pages_shared_now_private;
-     *     unsigned int pages_swapped_out;
-     *     unsigned int pages_dirtied;
-     *     unsigned int ref_count;
-     *     unsigned short shadow_depth;
-     *     unsigned char external_pager;
-     *     unsigned char share_mode;
-     *     unsigned int pages_reusable;
-     * } *vm_region_extended_info_t
-     * }
-     */
-    public static final AddressLayout vm_region_extended_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct vm_region_top_info {
-     *     unsigned int obj_id;
-     *     unsigned int ref_count;
-     *     unsigned int private_pages_resident;
-     *     unsigned int shared_pages_resident;
-     *     unsigned char share_mode;
-     * } *vm_region_top_info_t
-     * }
-     */
-    public static final AddressLayout vm_region_top_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct vm_region_submap_info {
-     *     vm_prot_t protection;
-     *     vm_prot_t max_protection;
-     *     vm_inherit_t inheritance;
-     *     uint32_t offset;
-     *     unsigned int user_tag;
-     *     unsigned int pages_resident;
-     *     unsigned int pages_shared_now_private;
-     *     unsigned int pages_swapped_out;
-     *     unsigned int pages_dirtied;
-     *     unsigned int ref_count;
-     *     unsigned short shadow_depth;
-     *     unsigned char external_pager;
-     *     unsigned char share_mode;
-     *     boolean_t is_submap;
-     *     vm_behavior_t behavior;
-     *     vm32_object_id_t object_id;
-     *     unsigned short user_wired_count;
-     * } *vm_region_submap_info_t
-     * }
-     */
-    public static final AddressLayout vm_region_submap_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct vm_region_submap_info_64 {
-     *     vm_prot_t protection;
-     *     vm_prot_t max_protection;
-     *     vm_inherit_t inheritance;
-     *     memory_object_offset_t offset;
-     *     unsigned int user_tag;
-     *     unsigned int pages_resident;
-     *     unsigned int pages_shared_now_private;
-     *     unsigned int pages_swapped_out;
-     *     unsigned int pages_dirtied;
-     *     unsigned int ref_count;
-     *     unsigned short shadow_depth;
-     *     unsigned char external_pager;
-     *     unsigned char share_mode;
-     *     boolean_t is_submap;
-     *     vm_behavior_t behavior;
-     *     vm32_object_id_t object_id;
-     *     unsigned short user_wired_count;
-     *     unsigned int pages_reusable;
-     *     vm_object_id_t object_id_full;
-     * } *vm_region_submap_info_64_t
-     * }
-     */
-    public static final AddressLayout vm_region_submap_info_64_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct vm_region_submap_short_info_64 {
-     *     vm_prot_t protection;
-     *     vm_prot_t max_protection;
-     *     vm_inherit_t inheritance;
-     *     memory_object_offset_t offset;
-     *     unsigned int user_tag;
-     *     unsigned int ref_count;
-     *     unsigned short shadow_depth;
-     *     unsigned char external_pager;
-     *     unsigned char share_mode;
-     *     boolean_t is_submap;
-     *     vm_behavior_t behavior;
-     *     vm32_object_id_t object_id;
-     *     unsigned short user_wired_count;
-     * } *vm_region_submap_short_info_64_t
-     * }
-     */
-    public static final AddressLayout vm_region_submap_short_info_64_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int *vm_page_info_t
-     * }
-     */
-    public static final AddressLayout vm_page_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int vm_page_info_flavor_t
-     * }
-     */
-    public static final OfInt vm_page_info_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef struct vm_page_info_basic {
-     *     int disposition;
-     *     int ref_count;
-     *     vm_object_id_t object_id;
-     *     memory_object_offset_t offset;
-     *     int depth;
-     *     int __pad;
-     * } *vm_page_info_basic_t
-     * }
-     */
-    public static final AddressLayout vm_page_info_basic_t = ObjCRuntime.C_POINTER;
-    private static final int MALLOC_TYPE_CALLSITE_FLAGS_V0_NONE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.MALLOC_TYPE_CALLSITE_FLAGS_V0_NONE = 0
-     * }
-     */
-    public static int MALLOC_TYPE_CALLSITE_FLAGS_V0_NONE() {
-        return MALLOC_TYPE_CALLSITE_FLAGS_V0_NONE;
-    }
-    private static final int MALLOC_TYPE_CALLSITE_FLAGS_V0_FIXED_SIZE = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.MALLOC_TYPE_CALLSITE_FLAGS_V0_FIXED_SIZE = 1
-     * }
-     */
-    public static int MALLOC_TYPE_CALLSITE_FLAGS_V0_FIXED_SIZE() {
-        return MALLOC_TYPE_CALLSITE_FLAGS_V0_FIXED_SIZE;
-    }
-    private static final int MALLOC_TYPE_CALLSITE_FLAGS_V0_ARRAY = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.MALLOC_TYPE_CALLSITE_FLAGS_V0_ARRAY = 2
-     * }
-     */
-    public static int MALLOC_TYPE_CALLSITE_FLAGS_V0_ARRAY() {
-        return MALLOC_TYPE_CALLSITE_FLAGS_V0_ARRAY;
-    }
-    private static final int MALLOC_TYPE_KIND_V0_OTHER = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.MALLOC_TYPE_KIND_V0_OTHER = 0
-     * }
-     */
-    public static int MALLOC_TYPE_KIND_V0_OTHER() {
-        return MALLOC_TYPE_KIND_V0_OTHER;
-    }
-    private static final int MALLOC_TYPE_KIND_V0_OBJC = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.MALLOC_TYPE_KIND_V0_OBJC = 1
-     * }
-     */
-    public static int MALLOC_TYPE_KIND_V0_OBJC() {
-        return MALLOC_TYPE_KIND_V0_OBJC;
-    }
-    private static final int MALLOC_TYPE_KIND_V0_SWIFT = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.MALLOC_TYPE_KIND_V0_SWIFT = 2
-     * }
-     */
-    public static int MALLOC_TYPE_KIND_V0_SWIFT() {
-        return MALLOC_TYPE_KIND_V0_SWIFT;
-    }
-    private static final int MALLOC_TYPE_KIND_V0_CXX = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.MALLOC_TYPE_KIND_V0_CXX = 3
-     * }
-     */
-    public static int MALLOC_TYPE_KIND_V0_CXX() {
-        return MALLOC_TYPE_KIND_V0_CXX;
-    }
-
-    private static class malloc_default_zone {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER    );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_default_zone");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_default_zone()
-     * }
-     */
-    public static FunctionDescriptor malloc_default_zone$descriptor() {
-        return malloc_default_zone.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_default_zone()
-     * }
-     */
-    public static MethodHandle malloc_default_zone$handle() {
-        return malloc_default_zone.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_default_zone()
-     * }
-     */
-    public static MemorySegment malloc_default_zone$address() {
-        return malloc_default_zone.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_default_zone()
-     * }
-     */
-    public static MemorySegment malloc_default_zone() {
-        var mh$ = malloc_default_zone.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_default_zone");
-            }
-            return (MemorySegment)mh$.invokeExact();
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_create_zone {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_INT
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_create_zone");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned int flags)
-     * }
-     */
-    public static FunctionDescriptor malloc_create_zone$descriptor() {
-        return malloc_create_zone.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned int flags)
-     * }
-     */
-    public static MethodHandle malloc_create_zone$handle() {
-        return malloc_create_zone.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned int flags)
-     * }
-     */
-    public static MemorySegment malloc_create_zone$address() {
-        return malloc_create_zone.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned int flags)
-     * }
-     */
-    public static MemorySegment malloc_create_zone(long start_size, int flags) {
-        var mh$ = malloc_create_zone.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_create_zone", start_size, flags);
-            }
-            return (MemorySegment)mh$.invokeExact(start_size, flags);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_destroy_zone {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_destroy_zone");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_destroy_zone(malloc_zone_t *zone)
-     * }
-     */
-    public static FunctionDescriptor malloc_destroy_zone$descriptor() {
-        return malloc_destroy_zone.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_destroy_zone(malloc_zone_t *zone)
-     * }
-     */
-    public static MethodHandle malloc_destroy_zone$handle() {
-        return malloc_destroy_zone.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_destroy_zone(malloc_zone_t *zone)
-     * }
-     */
-    public static MemorySegment malloc_destroy_zone$address() {
-        return malloc_destroy_zone.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_destroy_zone(malloc_zone_t *zone)
-     * }
-     */
-    public static void malloc_destroy_zone(MemorySegment zone) {
-        var mh$ = malloc_destroy_zone.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_destroy_zone", zone);
-            }
-            mh$.invokeExact(zone);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_malloc {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_malloc");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_malloc$descriptor() {
-        return malloc_zone_malloc.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size)
-     * }
-     */
-    public static MethodHandle malloc_zone_malloc$handle() {
-        return malloc_zone_malloc.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_malloc$address() {
-        return malloc_zone_malloc.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_malloc(MemorySegment zone, long size) {
-        var mh$ = malloc_zone_malloc.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_malloc", zone, size);
-            }
-            return (MemorySegment)mh$.invokeExact(zone, size);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_calloc {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_LONG
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_calloc");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_calloc$descriptor() {
-        return malloc_zone_calloc.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
-     * }
-     */
-    public static MethodHandle malloc_zone_calloc$handle() {
-        return malloc_zone_calloc.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_calloc$address() {
-        return malloc_zone_calloc.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_calloc(MemorySegment zone, long num_items, long size) {
-        var mh$ = malloc_zone_calloc.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_calloc", zone, num_items, size);
-            }
-            return (MemorySegment)mh$.invokeExact(zone, num_items, size);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_valloc {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_valloc");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_valloc$descriptor() {
-        return malloc_zone_valloc.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size)
-     * }
-     */
-    public static MethodHandle malloc_zone_valloc$handle() {
-        return malloc_zone_valloc.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_valloc$address() {
-        return malloc_zone_valloc.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_valloc(MemorySegment zone, long size) {
-        var mh$ = malloc_zone_valloc.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_valloc", zone, size);
-            }
-            return (MemorySegment)mh$.invokeExact(zone, size);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_free {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_free");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_free(malloc_zone_t *zone, void *ptr)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_free$descriptor() {
-        return malloc_zone_free.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_free(malloc_zone_t *zone, void *ptr)
-     * }
-     */
-    public static MethodHandle malloc_zone_free$handle() {
-        return malloc_zone_free.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_free(malloc_zone_t *zone, void *ptr)
-     * }
-     */
-    public static MemorySegment malloc_zone_free$address() {
-        return malloc_zone_free.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_free(malloc_zone_t *zone, void *ptr)
-     * }
-     */
-    public static void malloc_zone_free(MemorySegment zone, MemorySegment ptr) {
-        var mh$ = malloc_zone_free.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_free", zone, ptr);
-            }
-            mh$.invokeExact(zone, ptr);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_realloc {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_realloc");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_realloc$descriptor() {
-        return malloc_zone_realloc.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size)
-     * }
-     */
-    public static MethodHandle malloc_zone_realloc$handle() {
-        return malloc_zone_realloc.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_realloc$address() {
-        return malloc_zone_realloc.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_realloc(MemorySegment zone, MemorySegment ptr, long size) {
-        var mh$ = malloc_zone_realloc.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_realloc", zone, ptr, size);
-            }
-            return (MemorySegment)mh$.invokeExact(zone, ptr, size);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_from_ptr {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_from_ptr");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_from_ptr$descriptor() {
-        return malloc_zone_from_ptr.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr)
-     * }
-     */
-    public static MethodHandle malloc_zone_from_ptr$handle() {
-        return malloc_zone_from_ptr.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr)
-     * }
-     */
-    public static MemorySegment malloc_zone_from_ptr$address() {
-        return malloc_zone_from_ptr.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr)
-     * }
-     */
-    public static MemorySegment malloc_zone_from_ptr(MemorySegment ptr) {
-        var mh$ = malloc_zone_from_ptr.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_from_ptr", ptr);
-            }
-            return (MemorySegment)mh$.invokeExact(ptr);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_size {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_size");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern size_t malloc_size(const void *ptr)
-     * }
-     */
-    public static FunctionDescriptor malloc_size$descriptor() {
-        return malloc_size.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern size_t malloc_size(const void *ptr)
-     * }
-     */
-    public static MethodHandle malloc_size$handle() {
-        return malloc_size.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern size_t malloc_size(const void *ptr)
-     * }
-     */
-    public static MemorySegment malloc_size$address() {
-        return malloc_size.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern size_t malloc_size(const void *ptr)
-     * }
-     */
-    public static long malloc_size(MemorySegment ptr) {
-        var mh$ = malloc_size.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_size", ptr);
-            }
-            return (long)mh$.invokeExact(ptr);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_good_size {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_LONG
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_good_size");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern size_t malloc_good_size(size_t size)
-     * }
-     */
-    public static FunctionDescriptor malloc_good_size$descriptor() {
-        return malloc_good_size.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern size_t malloc_good_size(size_t size)
-     * }
-     */
-    public static MethodHandle malloc_good_size$handle() {
-        return malloc_good_size.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern size_t malloc_good_size(size_t size)
-     * }
-     */
-    public static MemorySegment malloc_good_size$address() {
-        return malloc_good_size.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern size_t malloc_good_size(size_t size)
-     * }
-     */
-    public static long malloc_good_size(long size) {
-        var mh$ = malloc_good_size.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_good_size", size);
-            }
-            return (long)mh$.invokeExact(size);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_memalign {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_LONG
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_memalign");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_memalign$descriptor() {
-        return malloc_zone_memalign.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size)
-     * }
-     */
-    public static MethodHandle malloc_zone_memalign$handle() {
-        return malloc_zone_memalign.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_memalign$address() {
-        return malloc_zone_memalign.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size)
-     * }
-     */
-    public static MemorySegment malloc_zone_memalign(MemorySegment zone, long alignment, long size) {
-        var mh$ = malloc_zone_memalign.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_memalign", zone, alignment, size);
-            }
-            return (MemorySegment)mh$.invokeExact(zone, alignment, size);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_batch_malloc {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_INT
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_batch_malloc");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern unsigned int malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned int num_requested)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_batch_malloc$descriptor() {
-        return malloc_zone_batch_malloc.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern unsigned int malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned int num_requested)
-     * }
-     */
-    public static MethodHandle malloc_zone_batch_malloc$handle() {
-        return malloc_zone_batch_malloc.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern unsigned int malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned int num_requested)
-     * }
-     */
-    public static MemorySegment malloc_zone_batch_malloc$address() {
-        return malloc_zone_batch_malloc.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern unsigned int malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned int num_requested)
-     * }
-     */
-    public static int malloc_zone_batch_malloc(MemorySegment zone, long size, MemorySegment results, int num_requested) {
-        var mh$ = malloc_zone_batch_malloc.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_batch_malloc", zone, size, results, num_requested);
-            }
-            return (int)mh$.invokeExact(zone, size, results, num_requested);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_batch_free {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_INT
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_batch_free");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned int num)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_batch_free$descriptor() {
-        return malloc_zone_batch_free.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned int num)
-     * }
-     */
-    public static MethodHandle malloc_zone_batch_free$handle() {
-        return malloc_zone_batch_free.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned int num)
-     * }
-     */
-    public static MemorySegment malloc_zone_batch_free$address() {
-        return malloc_zone_batch_free.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned int num)
-     * }
-     */
-    public static void malloc_zone_batch_free(MemorySegment zone, MemorySegment to_be_freed, int num) {
-        var mh$ = malloc_zone_batch_free.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_batch_free", zone, to_be_freed, num);
-            }
-            mh$.invokeExact(zone, to_be_freed, num);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_default_purgeable_zone {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER    );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_default_purgeable_zone");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_default_purgeable_zone()
-     * }
-     */
-    public static FunctionDescriptor malloc_default_purgeable_zone$descriptor() {
-        return malloc_default_purgeable_zone.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_default_purgeable_zone()
-     * }
-     */
-    public static MethodHandle malloc_default_purgeable_zone$handle() {
-        return malloc_default_purgeable_zone.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_default_purgeable_zone()
-     * }
-     */
-    public static MemorySegment malloc_default_purgeable_zone$address() {
-        return malloc_default_purgeable_zone.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern malloc_zone_t *malloc_default_purgeable_zone()
-     * }
-     */
-    public static MemorySegment malloc_default_purgeable_zone() {
-        var mh$ = malloc_default_purgeable_zone.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_default_purgeable_zone");
-            }
-            return (MemorySegment)mh$.invokeExact();
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_make_purgeable {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_make_purgeable");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_make_purgeable(void *ptr)
-     * }
-     */
-    public static FunctionDescriptor malloc_make_purgeable$descriptor() {
-        return malloc_make_purgeable.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_make_purgeable(void *ptr)
-     * }
-     */
-    public static MethodHandle malloc_make_purgeable$handle() {
-        return malloc_make_purgeable.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_make_purgeable(void *ptr)
-     * }
-     */
-    public static MemorySegment malloc_make_purgeable$address() {
-        return malloc_make_purgeable.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_make_purgeable(void *ptr)
-     * }
-     */
-    public static void malloc_make_purgeable(MemorySegment ptr) {
-        var mh$ = malloc_make_purgeable.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_make_purgeable", ptr);
-            }
-            mh$.invokeExact(ptr);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_make_nonpurgeable {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_make_nonpurgeable");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern int malloc_make_nonpurgeable(void *ptr)
-     * }
-     */
-    public static FunctionDescriptor malloc_make_nonpurgeable$descriptor() {
-        return malloc_make_nonpurgeable.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern int malloc_make_nonpurgeable(void *ptr)
-     * }
-     */
-    public static MethodHandle malloc_make_nonpurgeable$handle() {
-        return malloc_make_nonpurgeable.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern int malloc_make_nonpurgeable(void *ptr)
-     * }
-     */
-    public static MemorySegment malloc_make_nonpurgeable$address() {
-        return malloc_make_nonpurgeable.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern int malloc_make_nonpurgeable(void *ptr)
-     * }
-     */
-    public static int malloc_make_nonpurgeable(MemorySegment ptr) {
-        var mh$ = malloc_make_nonpurgeable.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_make_nonpurgeable", ptr);
-            }
-            return (int)mh$.invokeExact(ptr);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_register {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_register");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_register(malloc_zone_t *zone)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_register$descriptor() {
-        return malloc_zone_register.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_register(malloc_zone_t *zone)
-     * }
-     */
-    public static MethodHandle malloc_zone_register$handle() {
-        return malloc_zone_register.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_register(malloc_zone_t *zone)
-     * }
-     */
-    public static MemorySegment malloc_zone_register$address() {
-        return malloc_zone_register.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_register(malloc_zone_t *zone)
-     * }
-     */
-    public static void malloc_zone_register(MemorySegment zone) {
-        var mh$ = malloc_zone_register.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_register", zone);
-            }
-            mh$.invokeExact(zone);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_unregister {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_unregister");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_unregister(malloc_zone_t *zone)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_unregister$descriptor() {
-        return malloc_zone_unregister.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_unregister(malloc_zone_t *zone)
-     * }
-     */
-    public static MethodHandle malloc_zone_unregister$handle() {
-        return malloc_zone_unregister.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_unregister(malloc_zone_t *zone)
-     * }
-     */
-    public static MemorySegment malloc_zone_unregister$address() {
-        return malloc_zone_unregister.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_unregister(malloc_zone_t *zone)
-     * }
-     */
-    public static void malloc_zone_unregister(MemorySegment zone) {
-        var mh$ = malloc_zone_unregister.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_unregister", zone);
-            }
-            mh$.invokeExact(zone);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_set_zone_name {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_set_zone_name");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name)
-     * }
-     */
-    public static FunctionDescriptor malloc_set_zone_name$descriptor() {
-        return malloc_set_zone_name.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name)
-     * }
-     */
-    public static MethodHandle malloc_set_zone_name$handle() {
-        return malloc_set_zone_name.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name)
-     * }
-     */
-    public static MemorySegment malloc_set_zone_name$address() {
-        return malloc_set_zone_name.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name)
-     * }
-     */
-    public static void malloc_set_zone_name(MemorySegment zone, MemorySegment name) {
-        var mh$ = malloc_set_zone_name.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_set_zone_name", zone, name);
-            }
-            mh$.invokeExact(zone, name);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_get_zone_name {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_get_zone_name");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern const char *malloc_get_zone_name(malloc_zone_t *zone)
-     * }
-     */
-    public static FunctionDescriptor malloc_get_zone_name$descriptor() {
-        return malloc_get_zone_name.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern const char *malloc_get_zone_name(malloc_zone_t *zone)
-     * }
-     */
-    public static MethodHandle malloc_get_zone_name$handle() {
-        return malloc_get_zone_name.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern const char *malloc_get_zone_name(malloc_zone_t *zone)
-     * }
-     */
-    public static MemorySegment malloc_get_zone_name$address() {
-        return malloc_get_zone_name.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern const char *malloc_get_zone_name(malloc_zone_t *zone)
-     * }
-     */
-    public static MemorySegment malloc_get_zone_name(MemorySegment zone) {
-        var mh$ = malloc_get_zone_name.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_get_zone_name", zone);
-            }
-            return (MemorySegment)mh$.invokeExact(zone);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_pressure_relief {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_LONG,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_LONG
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_pressure_relief");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_pressure_relief$descriptor() {
-        return malloc_zone_pressure_relief.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal)
-     * }
-     */
-    public static MethodHandle malloc_zone_pressure_relief$handle() {
-        return malloc_zone_pressure_relief.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal)
-     * }
-     */
-    public static MemorySegment malloc_zone_pressure_relief$address() {
-        return malloc_zone_pressure_relief.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal)
-     * }
-     */
-    public static long malloc_zone_pressure_relief(MemorySegment zone, long goal) {
-        var mh$ = malloc_zone_pressure_relief.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_pressure_relief", zone, goal);
-            }
-            return (long)mh$.invokeExact(zone, goal);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    /**
-     * Variadic invoker class for:
-     * {@snippet lang=c :
-     * extern void malloc_printf(const char *format, ...)
-     * }
-     */
-    public static class malloc_printf {
-        private static final FunctionDescriptor BASE_DESC = FunctionDescriptor.ofVoid(
-                ObjCRuntime.C_POINTER
-            );
-        private static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_printf");
-
-        private final MethodHandle handle;
-        private final FunctionDescriptor descriptor;
-        private final MethodHandle spreader;
-
-        private malloc_printf(MethodHandle handle, FunctionDescriptor descriptor, MethodHandle spreader) {
-            this.handle = handle;
-            this.descriptor = descriptor;
-            this.spreader = spreader;
-        }
-
-        /**
-         * Variadic invoker factory for:
-         * {@snippet lang=c :
-         * extern void malloc_printf(const char *format, ...)
-         * }
-         */
-        public static malloc_printf makeInvoker(MemoryLayout... layouts) {
-            FunctionDescriptor desc$ = BASE_DESC.appendArgumentLayouts(layouts);
-            Linker.Option fva$ = Linker.Option.firstVariadicArg(BASE_DESC.argumentLayouts().size());
-            var mh$ = Linker.nativeLinker().downcallHandle(ADDR, desc$, fva$);
-            var spreader$ = mh$.asSpreader(Object[].class, layouts.length);
-            return new malloc_printf(mh$, desc$, spreader$);
-        }
-
-        /**
-         * {@return the address}
-         */
-        public static MemorySegment address() {
-            return ADDR;
-        }
-
-        /**
-         * {@return the specialized method handle}
-         */
-        public MethodHandle handle() {
-            return handle;
-        }
-
-        /**
-         * {@return the specialized descriptor}
-         */
-        public FunctionDescriptor descriptor() {
-            return descriptor;
-        }
-
-        public void apply(MemorySegment format, Object... x1) {
-            try {
-                if (TRACE_DOWNCALLS) {
-                    traceDowncall("malloc_printf", format, x1);
-                }
-                 spreader.invokeExact(format, x1);
-            } catch(IllegalArgumentException | ClassCastException ex$)  {
-                throw ex$; // rethrow IAE from passing wrong number/type of args
-            } catch (Throwable ex$) {
-               throw new AssertionError("should not reach here", ex$);
-            }
-        }
-    }
-
-    private static class malloc_get_all_zones {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_get_all_zones");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned int *count)
-     * }
-     */
-    public static FunctionDescriptor malloc_get_all_zones$descriptor() {
-        return malloc_get_all_zones.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned int *count)
-     * }
-     */
-    public static MethodHandle malloc_get_all_zones$handle() {
-        return malloc_get_all_zones.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned int *count)
-     * }
-     */
-    public static MemorySegment malloc_get_all_zones$address() {
-        return malloc_get_all_zones.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned int *count)
-     * }
-     */
-    public static int malloc_get_all_zones(int task, MemorySegment reader, MemorySegment addresses, MemorySegment count) {
-        var mh$ = malloc_get_all_zones.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_get_all_zones", task, reader, addresses, count);
-            }
-            return (int)mh$.invokeExact(task, reader, addresses, count);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_print_ptr_info {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_print_ptr_info");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_print_ptr_info(void *ptr)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_print_ptr_info$descriptor() {
-        return malloc_zone_print_ptr_info.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_print_ptr_info(void *ptr)
-     * }
-     */
-    public static MethodHandle malloc_zone_print_ptr_info$handle() {
-        return malloc_zone_print_ptr_info.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_print_ptr_info(void *ptr)
-     * }
-     */
-    public static MemorySegment malloc_zone_print_ptr_info$address() {
-        return malloc_zone_print_ptr_info.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_print_ptr_info(void *ptr)
-     * }
-     */
-    public static void malloc_zone_print_ptr_info(MemorySegment ptr) {
-        var mh$ = malloc_zone_print_ptr_info.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_print_ptr_info", ptr);
-            }
-            mh$.invokeExact(ptr);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_check {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_check");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern boolean_t malloc_zone_check(malloc_zone_t *zone)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_check$descriptor() {
-        return malloc_zone_check.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern boolean_t malloc_zone_check(malloc_zone_t *zone)
-     * }
-     */
-    public static MethodHandle malloc_zone_check$handle() {
-        return malloc_zone_check.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern boolean_t malloc_zone_check(malloc_zone_t *zone)
-     * }
-     */
-    public static MemorySegment malloc_zone_check$address() {
-        return malloc_zone_check.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern boolean_t malloc_zone_check(malloc_zone_t *zone)
-     * }
-     */
-    public static int malloc_zone_check(MemorySegment zone) {
-        var mh$ = malloc_zone_check.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_check", zone);
-            }
-            return (int)mh$.invokeExact(zone);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_print {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_INT
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_print");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_print$descriptor() {
-        return malloc_zone_print.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose)
-     * }
-     */
-    public static MethodHandle malloc_zone_print$handle() {
-        return malloc_zone_print.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose)
-     * }
-     */
-    public static MemorySegment malloc_zone_print$address() {
-        return malloc_zone_print.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose)
-     * }
-     */
-    public static void malloc_zone_print(MemorySegment zone, int verbose) {
-        var mh$ = malloc_zone_print.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_print", zone, verbose);
-            }
-            mh$.invokeExact(zone, verbose);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_statistics {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_statistics");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_statistics$descriptor() {
-        return malloc_zone_statistics.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats)
-     * }
-     */
-    public static MethodHandle malloc_zone_statistics$handle() {
-        return malloc_zone_statistics.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats)
-     * }
-     */
-    public static MemorySegment malloc_zone_statistics$address() {
-        return malloc_zone_statistics.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats)
-     * }
-     */
-    public static void malloc_zone_statistics(MemorySegment zone, MemorySegment stats) {
-        var mh$ = malloc_zone_statistics.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_statistics", zone, stats);
-            }
-            mh$.invokeExact(zone, stats);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_log {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_log");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_log(malloc_zone_t *zone, void *address)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_log$descriptor() {
-        return malloc_zone_log.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_log(malloc_zone_t *zone, void *address)
-     * }
-     */
-    public static MethodHandle malloc_zone_log$handle() {
-        return malloc_zone_log.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_log(malloc_zone_t *zone, void *address)
-     * }
-     */
-    public static MemorySegment malloc_zone_log$address() {
-        return malloc_zone_log.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_log(malloc_zone_t *zone, void *address)
-     * }
-     */
-    public static void malloc_zone_log(MemorySegment zone, MemorySegment address) {
-        var mh$ = malloc_zone_log.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_log", zone, address);
-            }
-            mh$.invokeExact(zone, address);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_enable_discharge_checking {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_enable_discharge_checking");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_enable_discharge_checking$descriptor() {
-        return malloc_zone_enable_discharge_checking.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone)
-     * }
-     */
-    public static MethodHandle malloc_zone_enable_discharge_checking$handle() {
-        return malloc_zone_enable_discharge_checking.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone)
-     * }
-     */
-    public static MemorySegment malloc_zone_enable_discharge_checking$address() {
-        return malloc_zone_enable_discharge_checking.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone)
-     * }
-     */
-    public static int malloc_zone_enable_discharge_checking(MemorySegment zone) {
-        var mh$ = malloc_zone_enable_discharge_checking.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_enable_discharge_checking", zone);
-            }
-            return (int)mh$.invokeExact(zone);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_disable_discharge_checking {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_disable_discharge_checking");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_disable_discharge_checking$descriptor() {
-        return malloc_zone_disable_discharge_checking.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone)
-     * }
-     */
-    public static MethodHandle malloc_zone_disable_discharge_checking$handle() {
-        return malloc_zone_disable_discharge_checking.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone)
-     * }
-     */
-    public static MemorySegment malloc_zone_disable_discharge_checking$address() {
-        return malloc_zone_disable_discharge_checking.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone)
-     * }
-     */
-    public static void malloc_zone_disable_discharge_checking(MemorySegment zone) {
-        var mh$ = malloc_zone_disable_discharge_checking.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_disable_discharge_checking", zone);
-            }
-            mh$.invokeExact(zone);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_discharge {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_discharge");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory)
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_discharge$descriptor() {
-        return malloc_zone_discharge.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory)
-     * }
-     */
-    public static MethodHandle malloc_zone_discharge$handle() {
-        return malloc_zone_discharge.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory)
-     * }
-     */
-    public static MemorySegment malloc_zone_discharge$address() {
-        return malloc_zone_discharge.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory)
-     * }
-     */
-    public static void malloc_zone_discharge(MemorySegment zone, MemorySegment memory) {
-        var mh$ = malloc_zone_discharge.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_discharge", zone, memory);
-            }
-            mh$.invokeExact(zone, memory);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class malloc_zone_enumerate_discharged_pointers {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_enumerate_discharged_pointers");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (^report_discharged)(void *, void *))
-     * }
-     */
-    public static FunctionDescriptor malloc_zone_enumerate_discharged_pointers$descriptor() {
-        return malloc_zone_enumerate_discharged_pointers.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (^report_discharged)(void *, void *))
-     * }
-     */
-    public static MethodHandle malloc_zone_enumerate_discharged_pointers$handle() {
-        return malloc_zone_enumerate_discharged_pointers.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (^report_discharged)(void *, void *))
-     * }
-     */
-    public static MemorySegment malloc_zone_enumerate_discharged_pointers$address() {
-        return malloc_zone_enumerate_discharged_pointers.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (^report_discharged)(void *, void *))
-     * }
-     */
-    public static void malloc_zone_enumerate_discharged_pointers(MemorySegment zone, MemorySegment report_discharged) {
-        var mh$ = malloc_zone_enumerate_discharged_pointers.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("malloc_zone_enumerate_discharged_pointers", zone, report_discharged);
-            }
-            mh$.invokeExact(zone, report_discharged);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-    private static final int OBJC_RATIO_COLLECTION = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.OBJC_RATIO_COLLECTION = 0
-     * }
-     */
-    public static int OBJC_RATIO_COLLECTION() {
-        return OBJC_RATIO_COLLECTION;
-    }
-    private static final int OBJC_GENERATIONAL_COLLECTION = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.OBJC_GENERATIONAL_COLLECTION = 1
-     * }
-     */
-    public static int OBJC_GENERATIONAL_COLLECTION() {
-        return OBJC_GENERATIONAL_COLLECTION;
-    }
-    private static final int OBJC_FULL_COLLECTION = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.OBJC_FULL_COLLECTION = 2
-     * }
-     */
-    public static int OBJC_FULL_COLLECTION() {
-        return OBJC_FULL_COLLECTION;
-    }
-    private static final int OBJC_EXHAUSTIVE_COLLECTION = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.OBJC_EXHAUSTIVE_COLLECTION = 3
-     * }
-     */
-    public static int OBJC_EXHAUSTIVE_COLLECTION() {
-        return OBJC_EXHAUSTIVE_COLLECTION;
-    }
-    private static final int OBJC_COLLECT_IF_NEEDED = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.OBJC_COLLECT_IF_NEEDED = 8
-     * }
-     */
-    public static int OBJC_COLLECT_IF_NEEDED() {
-        return OBJC_COLLECT_IF_NEEDED;
-    }
-    private static final int OBJC_WAIT_UNTIL_DONE = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.OBJC_WAIT_UNTIL_DONE = 16
-     * }
-     */
-    public static int OBJC_WAIT_UNTIL_DONE() {
-        return OBJC_WAIT_UNTIL_DONE;
-    }
-    private static final int OBJC_CLEAR_RESIDENT_STACK = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.OBJC_CLEAR_RESIDENT_STACK = 1
-     * }
-     */
-    public static int OBJC_CLEAR_RESIDENT_STACK() {
-        return OBJC_CLEAR_RESIDENT_STACK;
-    }
-
-    private static class objc_sync_enter {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("objc_sync_enter");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern int objc_sync_enter(id  _Nonnull obj)
-     * }
-     */
-    public static FunctionDescriptor objc_sync_enter$descriptor() {
-        return objc_sync_enter.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern int objc_sync_enter(id  _Nonnull obj)
-     * }
-     */
-    public static MethodHandle objc_sync_enter$handle() {
-        return objc_sync_enter.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern int objc_sync_enter(id  _Nonnull obj)
-     * }
-     */
-    public static MemorySegment objc_sync_enter$address() {
-        return objc_sync_enter.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern int objc_sync_enter(id  _Nonnull obj)
-     * }
-     */
-    public static int objc_sync_enter(MemorySegment obj) {
-        var mh$ = objc_sync_enter.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("objc_sync_enter", obj);
-            }
-            return (int)mh$.invokeExact(obj);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class objc_sync_exit {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("objc_sync_exit");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * extern int objc_sync_exit(id  _Nonnull obj)
-     * }
-     */
-    public static FunctionDescriptor objc_sync_exit$descriptor() {
-        return objc_sync_exit.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * extern int objc_sync_exit(id  _Nonnull obj)
-     * }
-     */
-    public static MethodHandle objc_sync_exit$handle() {
-        return objc_sync_exit.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * extern int objc_sync_exit(id  _Nonnull obj)
-     * }
-     */
-    public static MemorySegment objc_sync_exit$address() {
-        return objc_sync_exit.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * extern int objc_sync_exit(id  _Nonnull obj)
-     * }
-     */
-    public static int objc_sync_exit(MemorySegment obj) {
-        var mh$ = objc_sync_exit.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("objc_sync_exit", obj);
-            }
-            return (int)mh$.invokeExact(obj);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-    private static final int OBJC_SYNC_SUCCESS = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.OBJC_SYNC_SUCCESS = 0
-     * }
-     */
-    public static int OBJC_SYNC_SUCCESS() {
-        return OBJC_SYNC_SUCCESS;
-    }
-    private static final int OBJC_SYNC_NOT_OWNING_THREAD_ERROR = (int)-1L;
-    /**
-     * {@snippet lang=c :
-     * enum <anonymous>.OBJC_SYNC_NOT_OWNING_THREAD_ERROR = -1
-     * }
-     */
-    public static int OBJC_SYNC_NOT_OWNING_THREAD_ERROR() {
-        return OBJC_SYNC_NOT_OWNING_THREAD_ERROR;
-    }
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_SUF_EXTSN "$DARWIN_EXTSN"
-     * }
-     */
-    public static MemorySegment __DARWIN_SUF_EXTSN() {
-        class Holder {
-            static final MemorySegment __DARWIN_SUF_EXTSN
-                = ObjCRuntime.LIBRARY_ARENA.allocateFrom("$DARWIN_EXTSN");
-        }
-        return Holder.__DARWIN_SUF_EXTSN;
-    }
-    private static final long __DARWIN_C_ANSI = 4096L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_C_ANSI 4096
-     * }
-     */
-    public static long __DARWIN_C_ANSI() {
-        return __DARWIN_C_ANSI;
-    }
-    private static final long __DARWIN_C_FULL = 900000L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_C_FULL 900000
-     * }
-     */
-    public static long __DARWIN_C_FULL() {
-        return __DARWIN_C_FULL;
-    }
-    private static final long __DARWIN_C_LEVEL = 900000L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_C_LEVEL 900000
-     * }
-     */
-    public static long __DARWIN_C_LEVEL() {
-        return __DARWIN_C_LEVEL;
-    }
-    private static final MemorySegment __DARWIN_NULL = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_NULL (void*) 0
-     * }
-     */
-    public static MemorySegment __DARWIN_NULL() {
-        return __DARWIN_NULL;
-    }
-    private static final int NSIG = (int)32L;
-    /**
-     * {@snippet lang=c :
-     * #define NSIG 32
-     * }
-     */
-    public static int NSIG() {
-        return NSIG;
-    }
-    private static final int SIGIOT = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define SIGIOT 6
-     * }
-     */
-    public static int SIGIOT() {
-        return SIGIOT;
-    }
-    private static final MemorySegment SIG_DFL = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define SIG_DFL (void*) 0
-     * }
-     */
-    public static MemorySegment SIG_DFL() {
-        return SIG_DFL;
-    }
-    private static final MemorySegment SIG_IGN = MemorySegment.ofAddress(1L);
-    /**
-     * {@snippet lang=c :
-     * #define SIG_IGN (void*) 1
-     * }
-     */
-    public static MemorySegment SIG_IGN() {
-        return SIG_IGN;
-    }
-    private static final MemorySegment SIG_HOLD = MemorySegment.ofAddress(5L);
-    /**
-     * {@snippet lang=c :
-     * #define SIG_HOLD (void*) 5
-     * }
-     */
-    public static MemorySegment SIG_HOLD() {
-        return SIG_HOLD;
-    }
-    private static final MemorySegment SIG_ERR = MemorySegment.ofAddress(-1L);
-    /**
-     * {@snippet lang=c :
-     * #define SIG_ERR (void*) -1
-     * }
-     */
-    public static MemorySegment SIG_ERR() {
-        return SIG_ERR;
-    }
-    private static final int SA_USERSPACE_MASK = (int)127L;
-    /**
-     * {@snippet lang=c :
-     * #define SA_USERSPACE_MASK 127
-     * }
-     */
-    public static int SA_USERSPACE_MASK() {
-        return SA_USERSPACE_MASK;
-    }
-    private static final int SV_ONSTACK = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define SV_ONSTACK 1
-     * }
-     */
-    public static int SV_ONSTACK() {
-        return SV_ONSTACK;
-    }
-    private static final int SV_INTERRUPT = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define SV_INTERRUPT 2
-     * }
-     */
-    public static int SV_INTERRUPT() {
-        return SV_INTERRUPT;
-    }
-    private static final int SV_RESETHAND = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define SV_RESETHAND 4
-     * }
-     */
-    public static int SV_RESETHAND() {
-        return SV_RESETHAND;
-    }
-    private static final int SV_NODEFER = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define SV_NODEFER 16
-     * }
-     */
-    public static int SV_NODEFER() {
-        return SV_NODEFER;
-    }
-    private static final int SV_NOCLDSTOP = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define SV_NOCLDSTOP 8
-     * }
-     */
-    public static int SV_NOCLDSTOP() {
-        return SV_NOCLDSTOP;
-    }
-    private static final int SV_SIGINFO = (int)64L;
-    /**
-     * {@snippet lang=c :
-     * #define SV_SIGINFO 64
-     * }
-     */
-    public static int SV_SIGINFO() {
-        return SV_SIGINFO;
-    }
-    private static final MemorySegment BADSIG = MemorySegment.ofAddress(-1L);
-    /**
-     * {@snippet lang=c :
-     * #define BADSIG (void*) -1
-     * }
-     */
-    public static MemorySegment BADSIG() {
-        return BADSIG;
-    }
-    private static final long INT64_MAX = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define INT64_MAX 9223372036854775807
-     * }
-     */
-    public static long INT64_MAX() {
-        return INT64_MAX;
-    }
-    private static final int INT8_MIN = (int)-128L;
-    /**
-     * {@snippet lang=c :
-     * #define INT8_MIN -128
-     * }
-     */
-    public static int INT8_MIN() {
-        return INT8_MIN;
-    }
-    private static final int INT16_MIN = (int)-32768L;
-    /**
-     * {@snippet lang=c :
-     * #define INT16_MIN -32768
-     * }
-     */
-    public static int INT16_MIN() {
-        return INT16_MIN;
-    }
-    private static final int INT32_MIN = (int)-2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define INT32_MIN -2147483648
-     * }
-     */
-    public static int INT32_MIN() {
-        return INT32_MIN;
-    }
-    private static final long INT64_MIN = -9223372036854775808L;
-    /**
-     * {@snippet lang=c :
-     * #define INT64_MIN -9223372036854775808
-     * }
-     */
-    public static long INT64_MIN() {
-        return INT64_MIN;
-    }
-    private static final int UINT32_MAX = (int)4294967295L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT32_MAX 4294967295
-     * }
-     */
-    public static int UINT32_MAX() {
-        return UINT32_MAX;
-    }
-    private static final long UINT64_MAX = -1L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT64_MAX -1
-     * }
-     */
-    public static long UINT64_MAX() {
-        return UINT64_MAX;
-    }
-    private static final int INT_LEAST8_MIN = (int)-128L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_LEAST8_MIN -128
-     * }
-     */
-    public static int INT_LEAST8_MIN() {
-        return INT_LEAST8_MIN;
-    }
-    private static final int INT_LEAST16_MIN = (int)-32768L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_LEAST16_MIN -32768
-     * }
-     */
-    public static int INT_LEAST16_MIN() {
-        return INT_LEAST16_MIN;
-    }
-    private static final int INT_LEAST32_MIN = (int)-2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_LEAST32_MIN -2147483648
-     * }
-     */
-    public static int INT_LEAST32_MIN() {
-        return INT_LEAST32_MIN;
-    }
-    private static final long INT_LEAST64_MIN = -9223372036854775808L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_LEAST64_MIN -9223372036854775808
-     * }
-     */
-    public static long INT_LEAST64_MIN() {
-        return INT_LEAST64_MIN;
-    }
-    private static final int INT_LEAST8_MAX = (int)127L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_LEAST8_MAX 127
-     * }
-     */
-    public static int INT_LEAST8_MAX() {
-        return INT_LEAST8_MAX;
-    }
-    private static final int INT_LEAST16_MAX = (int)32767L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_LEAST16_MAX 32767
-     * }
-     */
-    public static int INT_LEAST16_MAX() {
-        return INT_LEAST16_MAX;
-    }
-    private static final int INT_LEAST32_MAX = (int)2147483647L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_LEAST32_MAX 2147483647
-     * }
-     */
-    public static int INT_LEAST32_MAX() {
-        return INT_LEAST32_MAX;
-    }
-    private static final long INT_LEAST64_MAX = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_LEAST64_MAX 9223372036854775807
-     * }
-     */
-    public static long INT_LEAST64_MAX() {
-        return INT_LEAST64_MAX;
-    }
-    private static final int UINT_LEAST8_MAX = (int)255L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT_LEAST8_MAX 255
-     * }
-     */
-    public static int UINT_LEAST8_MAX() {
-        return UINT_LEAST8_MAX;
-    }
-    private static final int UINT_LEAST16_MAX = (int)65535L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT_LEAST16_MAX 65535
-     * }
-     */
-    public static int UINT_LEAST16_MAX() {
-        return UINT_LEAST16_MAX;
-    }
-    private static final int UINT_LEAST32_MAX = (int)4294967295L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT_LEAST32_MAX 4294967295
-     * }
-     */
-    public static int UINT_LEAST32_MAX() {
-        return UINT_LEAST32_MAX;
-    }
-    private static final long UINT_LEAST64_MAX = -1L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT_LEAST64_MAX -1
-     * }
-     */
-    public static long UINT_LEAST64_MAX() {
-        return UINT_LEAST64_MAX;
-    }
-    private static final int INT_FAST8_MIN = (int)-128L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_FAST8_MIN -128
-     * }
-     */
-    public static int INT_FAST8_MIN() {
-        return INT_FAST8_MIN;
-    }
-    private static final int INT_FAST16_MIN = (int)-32768L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_FAST16_MIN -32768
-     * }
-     */
-    public static int INT_FAST16_MIN() {
-        return INT_FAST16_MIN;
-    }
-    private static final int INT_FAST32_MIN = (int)-2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_FAST32_MIN -2147483648
-     * }
-     */
-    public static int INT_FAST32_MIN() {
-        return INT_FAST32_MIN;
-    }
-    private static final long INT_FAST64_MIN = -9223372036854775808L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_FAST64_MIN -9223372036854775808
-     * }
-     */
-    public static long INT_FAST64_MIN() {
-        return INT_FAST64_MIN;
-    }
-    private static final int INT_FAST8_MAX = (int)127L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_FAST8_MAX 127
-     * }
-     */
-    public static int INT_FAST8_MAX() {
-        return INT_FAST8_MAX;
-    }
-    private static final int INT_FAST16_MAX = (int)32767L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_FAST16_MAX 32767
-     * }
-     */
-    public static int INT_FAST16_MAX() {
-        return INT_FAST16_MAX;
-    }
-    private static final int INT_FAST32_MAX = (int)2147483647L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_FAST32_MAX 2147483647
-     * }
-     */
-    public static int INT_FAST32_MAX() {
-        return INT_FAST32_MAX;
-    }
-    private static final long INT_FAST64_MAX = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define INT_FAST64_MAX 9223372036854775807
-     * }
-     */
-    public static long INT_FAST64_MAX() {
-        return INT_FAST64_MAX;
-    }
-    private static final int UINT_FAST8_MAX = (int)255L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT_FAST8_MAX 255
-     * }
-     */
-    public static int UINT_FAST8_MAX() {
-        return UINT_FAST8_MAX;
-    }
-    private static final int UINT_FAST16_MAX = (int)65535L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT_FAST16_MAX 65535
-     * }
-     */
-    public static int UINT_FAST16_MAX() {
-        return UINT_FAST16_MAX;
-    }
-    private static final int UINT_FAST32_MAX = (int)4294967295L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT_FAST32_MAX 4294967295
-     * }
-     */
-    public static int UINT_FAST32_MAX() {
-        return UINT_FAST32_MAX;
-    }
-    private static final long UINT_FAST64_MAX = -1L;
-    /**
-     * {@snippet lang=c :
-     * #define UINT_FAST64_MAX -1
-     * }
-     */
-    public static long UINT_FAST64_MAX() {
-        return UINT_FAST64_MAX;
-    }
-    private static final long INTPTR_MAX = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define INTPTR_MAX 9223372036854775807
-     * }
-     */
-    public static long INTPTR_MAX() {
-        return INTPTR_MAX;
-    }
-    private static final long INTPTR_MIN = -9223372036854775808L;
-    /**
-     * {@snippet lang=c :
-     * #define INTPTR_MIN -9223372036854775808
-     * }
-     */
-    public static long INTPTR_MIN() {
-        return INTPTR_MIN;
-    }
-    private static final long UINTPTR_MAX = -1L;
-    /**
-     * {@snippet lang=c :
-     * #define UINTPTR_MAX -1
-     * }
-     */
-    public static long UINTPTR_MAX() {
-        return UINTPTR_MAX;
-    }
-    private static final long INTMAX_MAX = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define INTMAX_MAX 9223372036854775807
-     * }
-     */
-    public static long INTMAX_MAX() {
-        return INTMAX_MAX;
-    }
-    private static final long UINTMAX_MAX = -1L;
-    /**
-     * {@snippet lang=c :
-     * #define UINTMAX_MAX -1
-     * }
-     */
-    public static long UINTMAX_MAX() {
-        return UINTMAX_MAX;
-    }
-    private static final long INTMAX_MIN = -9223372036854775808L;
-    /**
-     * {@snippet lang=c :
-     * #define INTMAX_MIN -9223372036854775808
-     * }
-     */
-    public static long INTMAX_MIN() {
-        return INTMAX_MIN;
-    }
-    private static final long PTRDIFF_MIN = -9223372036854775808L;
-    /**
-     * {@snippet lang=c :
-     * #define PTRDIFF_MIN -9223372036854775808
-     * }
-     */
-    public static long PTRDIFF_MIN() {
-        return PTRDIFF_MIN;
-    }
-    private static final long PTRDIFF_MAX = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define PTRDIFF_MAX 9223372036854775807
-     * }
-     */
-    public static long PTRDIFF_MAX() {
-        return PTRDIFF_MAX;
-    }
-    private static final long SIZE_MAX = -1L;
-    /**
-     * {@snippet lang=c :
-     * #define SIZE_MAX -1
-     * }
-     */
-    public static long SIZE_MAX() {
-        return SIZE_MAX;
-    }
-    private static final long RSIZE_MAX = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define RSIZE_MAX 9223372036854775807
-     * }
-     */
-    public static long RSIZE_MAX() {
-        return RSIZE_MAX;
-    }
-    private static final int WCHAR_MAX = (int)2147483647L;
-    /**
-     * {@snippet lang=c :
-     * #define WCHAR_MAX 2147483647
-     * }
-     */
-    public static int WCHAR_MAX() {
-        return WCHAR_MAX;
-    }
-    private static final int WCHAR_MIN = (int)-2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define WCHAR_MIN -2147483648
-     * }
-     */
-    public static int WCHAR_MIN() {
-        return WCHAR_MIN;
-    }
-    private static final int WINT_MIN = (int)-2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define WINT_MIN -2147483648
-     * }
-     */
-    public static int WINT_MIN() {
-        return WINT_MIN;
-    }
-    private static final int WINT_MAX = (int)2147483647L;
-    /**
-     * {@snippet lang=c :
-     * #define WINT_MAX 2147483647
-     * }
-     */
-    public static int WINT_MAX() {
-        return WINT_MAX;
-    }
-    private static final int SIG_ATOMIC_MIN = (int)-2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define SIG_ATOMIC_MIN -2147483648
-     * }
-     */
-    public static int SIG_ATOMIC_MIN() {
-        return SIG_ATOMIC_MIN;
-    }
-    private static final int SIG_ATOMIC_MAX = (int)2147483647L;
-    /**
-     * {@snippet lang=c :
-     * #define SIG_ATOMIC_MAX 2147483647
-     * }
-     */
-    public static int SIG_ATOMIC_MAX() {
-        return SIG_ATOMIC_MAX;
-    }
-    private static final int PRIO_MIN = (int)-20L;
-    /**
-     * {@snippet lang=c :
-     * #define PRIO_MIN -20
-     * }
-     */
-    public static int PRIO_MIN() {
-        return PRIO_MIN;
-    }
-    private static final int RUSAGE_CHILDREN = (int)-1L;
-    /**
-     * {@snippet lang=c :
-     * #define RUSAGE_CHILDREN -1
-     * }
-     */
-    public static int RUSAGE_CHILDREN() {
-        return RUSAGE_CHILDREN;
-    }
-    private static final int RUSAGE_INFO_CURRENT = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define RUSAGE_INFO_CURRENT 6
-     * }
-     */
-    public static int RUSAGE_INFO_CURRENT() {
-        return RUSAGE_INFO_CURRENT;
-    }
-    private static final long RLIM_INFINITY = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define RLIM_INFINITY 9223372036854775807
-     * }
-     */
-    public static long RLIM_INFINITY() {
-        return RLIM_INFINITY;
-    }
-    private static final long RLIM_SAVED_MAX = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define RLIM_SAVED_MAX 9223372036854775807
-     * }
-     */
-    public static long RLIM_SAVED_MAX() {
-        return RLIM_SAVED_MAX;
-    }
-    private static final long RLIM_SAVED_CUR = 9223372036854775807L;
-    /**
-     * {@snippet lang=c :
-     * #define RLIM_SAVED_CUR 9223372036854775807
-     * }
-     */
-    public static long RLIM_SAVED_CUR() {
-        return RLIM_SAVED_CUR;
-    }
-    private static final int RLIMIT_RSS = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define RLIMIT_RSS 5
-     * }
-     */
-    public static int RLIMIT_RSS() {
-        return RLIMIT_RSS;
-    }
-    private static final int IOPOL_APPLICATION = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define IOPOL_APPLICATION 5
-     * }
-     */
-    public static int IOPOL_APPLICATION() {
-        return IOPOL_APPLICATION;
-    }
-    private static final int IOPOL_NORMAL = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define IOPOL_NORMAL 1
-     * }
-     */
-    public static int IOPOL_NORMAL() {
-        return IOPOL_NORMAL;
-    }
-    private static final int WAIT_ANY = (int)-1L;
-    /**
-     * {@snippet lang=c :
-     * #define WAIT_ANY -1
-     * }
-     */
-    public static int WAIT_ANY() {
-        return WAIT_ANY;
-    }
-    private static final int LITTLE_ENDIAN = (int)1234L;
-    /**
-     * {@snippet lang=c :
-     * #define LITTLE_ENDIAN 1234
-     * }
-     */
-    public static int LITTLE_ENDIAN() {
-        return LITTLE_ENDIAN;
-    }
-    private static final int BIG_ENDIAN = (int)4321L;
-    /**
-     * {@snippet lang=c :
-     * #define BIG_ENDIAN 4321
-     * }
-     */
-    public static int BIG_ENDIAN() {
-        return BIG_ENDIAN;
-    }
-    private static final int PDP_ENDIAN = (int)3412L;
-    /**
-     * {@snippet lang=c :
-     * #define PDP_ENDIAN 3412
-     * }
-     */
-    public static int PDP_ENDIAN() {
-        return PDP_ENDIAN;
-    }
-    private static final int __DARWIN_BYTE_ORDER = (int)1234L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_BYTE_ORDER 1234
-     * }
-     */
-    public static int __DARWIN_BYTE_ORDER() {
-        return __DARWIN_BYTE_ORDER;
-    }
-    private static final int BYTE_ORDER = (int)1234L;
-    /**
-     * {@snippet lang=c :
-     * #define BYTE_ORDER 1234
-     * }
-     */
-    public static int BYTE_ORDER() {
-        return BYTE_ORDER;
-    }
-    private static final MemorySegment NULL = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define NULL (void*) 0
-     * }
-     */
-    public static MemorySegment NULL() {
-        return NULL;
-    }
-    private static final long __DARWIN_NFDBITS = 32L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_NFDBITS 32
-     * }
-     */
-    public static long __DARWIN_NFDBITS() {
-        return __DARWIN_NFDBITS;
-    }
-    private static final int NBBY = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define NBBY 8
-     * }
-     */
-    public static int NBBY() {
-        return NBBY;
-    }
-    private static final long NFDBITS = 32L;
-    /**
-     * {@snippet lang=c :
-     * #define NFDBITS 32
-     * }
-     */
-    public static long NFDBITS() {
-        return NFDBITS;
-    }
-    private static final int FD_SETSIZE = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define FD_SETSIZE 1024
-     * }
-     */
-    public static int FD_SETSIZE() {
-        return FD_SETSIZE;
-    }
-    private static final boolean YES = true;
-    /**
-     * {@snippet lang=c :
-     * #define YES 1
-     * }
-     */
-    public static boolean YES() {
-        return YES;
-    }
-    private static final boolean NO = false;
-    /**
-     * {@snippet lang=c :
-     * #define NO 0
-     * }
-     */
-    public static boolean NO() {
-        return NO;
-    }
-    private static final MemorySegment Nil = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define Nil (void*) 0
-     * }
-     */
-    public static MemorySegment Nil() {
-        return Nil;
-    }
-    private static final MemorySegment nil = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define nil (void*) 0
-     * }
-     */
-    public static MemorySegment nil() {
-        return nil;
-    }
-    private static final MemorySegment OBJC_DYNAMIC_CLASSES = MemorySegment.ofAddress(-1L);
-    /**
-     * {@snippet lang=c :
-     * #define OBJC_DYNAMIC_CLASSES (void*) -1
-     * }
-     */
-    public static MemorySegment OBJC_DYNAMIC_CLASSES() {
-        return OBJC_DYNAMIC_CLASSES;
-    }
-    private static final int _C_ID = (int)64L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_ID 64
-     * }
-     */
-    public static int _C_ID() {
-        return _C_ID;
-    }
-    private static final int _C_CLASS = (int)35L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_CLASS 35
-     * }
-     */
-    public static int _C_CLASS() {
-        return _C_CLASS;
-    }
-    private static final int _C_SEL = (int)58L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_SEL 58
-     * }
-     */
-    public static int _C_SEL() {
-        return _C_SEL;
-    }
-    private static final int _C_CHR = (int)99L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_CHR 99
-     * }
-     */
-    public static int _C_CHR() {
-        return _C_CHR;
-    }
-    private static final int _C_UCHR = (int)67L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_UCHR 67
-     * }
-     */
-    public static int _C_UCHR() {
-        return _C_UCHR;
-    }
-    private static final int _C_SHT = (int)115L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_SHT 115
-     * }
-     */
-    public static int _C_SHT() {
-        return _C_SHT;
-    }
-    private static final int _C_USHT = (int)83L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_USHT 83
-     * }
-     */
-    public static int _C_USHT() {
-        return _C_USHT;
-    }
-    private static final int _C_INT = (int)105L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_INT 105
-     * }
-     */
-    public static int _C_INT() {
-        return _C_INT;
-    }
-    private static final int _C_UINT = (int)73L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_UINT 73
-     * }
-     */
-    public static int _C_UINT() {
-        return _C_UINT;
-    }
-    private static final int _C_LNG = (int)108L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_LNG 108
-     * }
-     */
-    public static int _C_LNG() {
-        return _C_LNG;
-    }
-    private static final int _C_ULNG = (int)76L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_ULNG 76
-     * }
-     */
-    public static int _C_ULNG() {
-        return _C_ULNG;
-    }
-    private static final int _C_LNG_LNG = (int)113L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_LNG_LNG 113
-     * }
-     */
-    public static int _C_LNG_LNG() {
-        return _C_LNG_LNG;
-    }
-    private static final int _C_ULNG_LNG = (int)81L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_ULNG_LNG 81
-     * }
-     */
-    public static int _C_ULNG_LNG() {
-        return _C_ULNG_LNG;
-    }
-    private static final int _C_INT128 = (int)116L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_INT128 116
-     * }
-     */
-    public static int _C_INT128() {
-        return _C_INT128;
-    }
-    private static final int _C_UINT128 = (int)84L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_UINT128 84
-     * }
-     */
-    public static int _C_UINT128() {
-        return _C_UINT128;
-    }
-    private static final int _C_FLT = (int)102L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_FLT 102
-     * }
-     */
-    public static int _C_FLT() {
-        return _C_FLT;
-    }
-    private static final int _C_DBL = (int)100L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_DBL 100
-     * }
-     */
-    public static int _C_DBL() {
-        return _C_DBL;
-    }
-    private static final int _C_LNG_DBL = (int)68L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_LNG_DBL 68
-     * }
-     */
-    public static int _C_LNG_DBL() {
-        return _C_LNG_DBL;
-    }
-    private static final int _C_BFLD = (int)98L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_BFLD 98
-     * }
-     */
-    public static int _C_BFLD() {
-        return _C_BFLD;
-    }
-    private static final int _C_BOOL = (int)66L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_BOOL 66
-     * }
-     */
-    public static int _C_BOOL() {
-        return _C_BOOL;
-    }
-    private static final int _C_VOID = (int)118L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_VOID 118
-     * }
-     */
-    public static int _C_VOID() {
-        return _C_VOID;
-    }
-    private static final int _C_UNDEF = (int)63L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_UNDEF 63
-     * }
-     */
-    public static int _C_UNDEF() {
-        return _C_UNDEF;
-    }
-    private static final int _C_PTR = (int)94L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_PTR 94
-     * }
-     */
-    public static int _C_PTR() {
-        return _C_PTR;
-    }
-    private static final int _C_CHARPTR = (int)42L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_CHARPTR 42
-     * }
-     */
-    public static int _C_CHARPTR() {
-        return _C_CHARPTR;
-    }
-    private static final int _C_ATOM = (int)37L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_ATOM 37
-     * }
-     */
-    public static int _C_ATOM() {
-        return _C_ATOM;
-    }
-    private static final int _C_ARY_B = (int)91L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_ARY_B 91
-     * }
-     */
-    public static int _C_ARY_B() {
-        return _C_ARY_B;
-    }
-    private static final int _C_ARY_E = (int)93L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_ARY_E 93
-     * }
-     */
-    public static int _C_ARY_E() {
-        return _C_ARY_E;
-    }
-    private static final int _C_UNION_B = (int)40L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_UNION_B 40
-     * }
-     */
-    public static int _C_UNION_B() {
-        return _C_UNION_B;
-    }
-    private static final int _C_UNION_E = (int)41L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_UNION_E 41
-     * }
-     */
-    public static int _C_UNION_E() {
-        return _C_UNION_E;
-    }
-    private static final int _C_STRUCT_B = (int)123L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_STRUCT_B 123
-     * }
-     */
-    public static int _C_STRUCT_B() {
-        return _C_STRUCT_B;
-    }
-    private static final int _C_STRUCT_E = (int)125L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_STRUCT_E 125
-     * }
-     */
-    public static int _C_STRUCT_E() {
-        return _C_STRUCT_E;
-    }
-    private static final int _C_VECTOR = (int)33L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_VECTOR 33
-     * }
-     */
-    public static int _C_VECTOR() {
-        return _C_VECTOR;
-    }
-    private static final int _C_COMPLEX = (int)106L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_COMPLEX 106
-     * }
-     */
-    public static int _C_COMPLEX() {
-        return _C_COMPLEX;
-    }
-    private static final int _C_ATOMIC = (int)65L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_ATOMIC 65
-     * }
-     */
-    public static int _C_ATOMIC() {
-        return _C_ATOMIC;
-    }
-    private static final int _C_CONST = (int)114L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_CONST 114
-     * }
-     */
-    public static int _C_CONST() {
-        return _C_CONST;
-    }
-    private static final int _C_IN = (int)110L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_IN 110
-     * }
-     */
-    public static int _C_IN() {
-        return _C_IN;
-    }
-    private static final int _C_INOUT = (int)78L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_INOUT 78
-     * }
-     */
-    public static int _C_INOUT() {
-        return _C_INOUT;
-    }
-    private static final int _C_OUT = (int)111L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_OUT 111
-     * }
-     */
-    public static int _C_OUT() {
-        return _C_OUT;
-    }
-    private static final int _C_BYCOPY = (int)79L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_BYCOPY 79
-     * }
-     */
-    public static int _C_BYCOPY() {
-        return _C_BYCOPY;
-    }
-    private static final int _C_BYREF = (int)82L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_BYREF 82
-     * }
-     */
-    public static int _C_BYREF() {
-        return _C_BYREF;
-    }
-    private static final int _C_ONEWAY = (int)86L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_ONEWAY 86
-     * }
-     */
-    public static int _C_ONEWAY() {
-        return _C_ONEWAY;
-    }
-    private static final int _C_GNUREGISTER = (int)43L;
-    /**
-     * {@snippet lang=c :
-     * #define _C_GNUREGISTER 43
-     * }
-     */
-    public static int _C_GNUREGISTER() {
-        return _C_GNUREGISTER;
-    }
-    private static final int MACH_PORT_DEAD = (int)4294967295L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_DEAD 4294967295
-     * }
-     */
-    public static int MACH_PORT_DEAD() {
-        return MACH_PORT_DEAD;
-    }
-    private static final int MACH_PORT_RIGHT_SEND = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_RIGHT_SEND 0
-     * }
-     */
-    public static int MACH_PORT_RIGHT_SEND() {
-        return MACH_PORT_RIGHT_SEND;
-    }
-    private static final int MACH_PORT_RIGHT_RECEIVE = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_RIGHT_RECEIVE 1
-     * }
-     */
-    public static int MACH_PORT_RIGHT_RECEIVE() {
-        return MACH_PORT_RIGHT_RECEIVE;
-    }
-    private static final int MACH_PORT_RIGHT_SEND_ONCE = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_RIGHT_SEND_ONCE 2
-     * }
-     */
-    public static int MACH_PORT_RIGHT_SEND_ONCE() {
-        return MACH_PORT_RIGHT_SEND_ONCE;
-    }
-    private static final int MACH_PORT_RIGHT_PORT_SET = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_RIGHT_PORT_SET 3
-     * }
-     */
-    public static int MACH_PORT_RIGHT_PORT_SET() {
-        return MACH_PORT_RIGHT_PORT_SET;
-    }
-    private static final int MACH_PORT_RIGHT_DEAD_NAME = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_RIGHT_DEAD_NAME 4
-     * }
-     */
-    public static int MACH_PORT_RIGHT_DEAD_NAME() {
-        return MACH_PORT_RIGHT_DEAD_NAME;
-    }
-    private static final int MACH_PORT_RIGHT_LABELH = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_RIGHT_LABELH 5
-     * }
-     */
-    public static int MACH_PORT_RIGHT_LABELH() {
-        return MACH_PORT_RIGHT_LABELH;
-    }
-    private static final int MACH_PORT_RIGHT_NUMBER = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_RIGHT_NUMBER 6
-     * }
-     */
-    public static int MACH_PORT_RIGHT_NUMBER() {
-        return MACH_PORT_RIGHT_NUMBER;
-    }
-    private static final int MACH_PORT_TYPE_NONE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_NONE 0
-     * }
-     */
-    public static int MACH_PORT_TYPE_NONE() {
-        return MACH_PORT_TYPE_NONE;
-    }
-    private static final int MACH_PORT_TYPE_SEND = (int)65536L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_SEND 65536
-     * }
-     */
-    public static int MACH_PORT_TYPE_SEND() {
-        return MACH_PORT_TYPE_SEND;
-    }
-    private static final int MACH_PORT_TYPE_RECEIVE = (int)131072L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_RECEIVE 131072
-     * }
-     */
-    public static int MACH_PORT_TYPE_RECEIVE() {
-        return MACH_PORT_TYPE_RECEIVE;
-    }
-    private static final int MACH_PORT_TYPE_SEND_ONCE = (int)262144L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_SEND_ONCE 262144
-     * }
-     */
-    public static int MACH_PORT_TYPE_SEND_ONCE() {
-        return MACH_PORT_TYPE_SEND_ONCE;
-    }
-    private static final int MACH_PORT_TYPE_PORT_SET = (int)524288L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_PORT_SET 524288
-     * }
-     */
-    public static int MACH_PORT_TYPE_PORT_SET() {
-        return MACH_PORT_TYPE_PORT_SET;
-    }
-    private static final int MACH_PORT_TYPE_DEAD_NAME = (int)1048576L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_DEAD_NAME 1048576
-     * }
-     */
-    public static int MACH_PORT_TYPE_DEAD_NAME() {
-        return MACH_PORT_TYPE_DEAD_NAME;
-    }
-    private static final int MACH_PORT_TYPE_LABELH = (int)2097152L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_LABELH 2097152
-     * }
-     */
-    public static int MACH_PORT_TYPE_LABELH() {
-        return MACH_PORT_TYPE_LABELH;
-    }
-    private static final int MACH_PORT_TYPE_DNREQUEST = (int)2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_DNREQUEST 2147483648
-     * }
-     */
-    public static int MACH_PORT_TYPE_DNREQUEST() {
-        return MACH_PORT_TYPE_DNREQUEST;
-    }
-    private static final int MACH_PORT_TYPE_SEND_RECEIVE = (int)196608L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_SEND_RECEIVE 196608
-     * }
-     */
-    public static int MACH_PORT_TYPE_SEND_RECEIVE() {
-        return MACH_PORT_TYPE_SEND_RECEIVE;
-    }
-    private static final int MACH_PORT_TYPE_SEND_RIGHTS = (int)327680L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_SEND_RIGHTS 327680
-     * }
-     */
-    public static int MACH_PORT_TYPE_SEND_RIGHTS() {
-        return MACH_PORT_TYPE_SEND_RIGHTS;
-    }
-    private static final int MACH_PORT_TYPE_PORT_RIGHTS = (int)458752L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_PORT_RIGHTS 458752
-     * }
-     */
-    public static int MACH_PORT_TYPE_PORT_RIGHTS() {
-        return MACH_PORT_TYPE_PORT_RIGHTS;
-    }
-    private static final int MACH_PORT_TYPE_PORT_OR_DEAD = (int)1507328L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_PORT_OR_DEAD 1507328
-     * }
-     */
-    public static int MACH_PORT_TYPE_PORT_OR_DEAD() {
-        return MACH_PORT_TYPE_PORT_OR_DEAD;
-    }
-    private static final int MACH_PORT_TYPE_ALL_RIGHTS = (int)2031616L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_TYPE_ALL_RIGHTS 2031616
-     * }
-     */
-    public static int MACH_PORT_TYPE_ALL_RIGHTS() {
-        return MACH_PORT_TYPE_ALL_RIGHTS;
-    }
-    private static final int MACH_PORT_QLIMIT_ZERO = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_QLIMIT_ZERO 0
-     * }
-     */
-    public static int MACH_PORT_QLIMIT_ZERO() {
-        return MACH_PORT_QLIMIT_ZERO;
-    }
-    private static final int MACH_PORT_QLIMIT_BASIC = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_QLIMIT_BASIC 5
-     * }
-     */
-    public static int MACH_PORT_QLIMIT_BASIC() {
-        return MACH_PORT_QLIMIT_BASIC;
-    }
-    private static final int MACH_PORT_QLIMIT_SMALL = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_QLIMIT_SMALL 16
-     * }
-     */
-    public static int MACH_PORT_QLIMIT_SMALL() {
-        return MACH_PORT_QLIMIT_SMALL;
-    }
-    private static final int MACH_PORT_QLIMIT_LARGE = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_QLIMIT_LARGE 1024
-     * }
-     */
-    public static int MACH_PORT_QLIMIT_LARGE() {
-        return MACH_PORT_QLIMIT_LARGE;
-    }
-    private static final int MACH_PORT_QLIMIT_KERNEL = (int)65534L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_QLIMIT_KERNEL 65534
-     * }
-     */
-    public static int MACH_PORT_QLIMIT_KERNEL() {
-        return MACH_PORT_QLIMIT_KERNEL;
-    }
-    private static final int MACH_PORT_QLIMIT_MIN = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_QLIMIT_MIN 0
-     * }
-     */
-    public static int MACH_PORT_QLIMIT_MIN() {
-        return MACH_PORT_QLIMIT_MIN;
-    }
-    private static final int MACH_PORT_QLIMIT_DEFAULT = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_QLIMIT_DEFAULT 5
-     * }
-     */
-    public static int MACH_PORT_QLIMIT_DEFAULT() {
-        return MACH_PORT_QLIMIT_DEFAULT;
-    }
-    private static final int MACH_PORT_QLIMIT_MAX = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_QLIMIT_MAX 1024
-     * }
-     */
-    public static int MACH_PORT_QLIMIT_MAX() {
-        return MACH_PORT_QLIMIT_MAX;
-    }
-    private static final int MACH_PORT_LIMITS_INFO_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_LIMITS_INFO_COUNT 1
-     * }
-     */
-    public static int MACH_PORT_LIMITS_INFO_COUNT() {
-        return MACH_PORT_LIMITS_INFO_COUNT;
-    }
-    private static final int MACH_PORT_RECEIVE_STATUS_COUNT = (int)10L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_RECEIVE_STATUS_COUNT 10
-     * }
-     */
-    public static int MACH_PORT_RECEIVE_STATUS_COUNT() {
-        return MACH_PORT_RECEIVE_STATUS_COUNT;
-    }
-    private static final int MACH_PORT_INFO_EXT_COUNT = (int)17L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_INFO_EXT_COUNT 17
-     * }
-     */
-    public static int MACH_PORT_INFO_EXT_COUNT() {
-        return MACH_PORT_INFO_EXT_COUNT;
-    }
-    private static final int MACH_PORT_GUARD_INFO_COUNT = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_PORT_GUARD_INFO_COUNT 2
-     * }
-     */
-    public static int MACH_PORT_GUARD_INFO_COUNT() {
-        return MACH_PORT_GUARD_INFO_COUNT;
-    }
-    private static final byte MACH_SERVICE_PORT_INFO_COUNT = (byte)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_SERVICE_PORT_INFO_COUNT 0
-     * }
-     */
-    public static byte MACH_SERVICE_PORT_INFO_COUNT() {
-        return MACH_SERVICE_PORT_INFO_COUNT;
-    }
-    private static final int MAX_FATAL_kGUARD_EXC_CODE = (int)128L;
-    /**
-     * {@snippet lang=c :
-     * #define MAX_FATAL_kGUARD_EXC_CODE 128
-     * }
-     */
-    public static int MAX_FATAL_kGUARD_EXC_CODE() {
-        return MAX_FATAL_kGUARD_EXC_CODE;
-    }
-    private static final long MPG_FLAGS_NONE = 0L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_NONE 0
-     * }
-     */
-    public static long MPG_FLAGS_NONE() {
-        return MPG_FLAGS_NONE;
-    }
-    private static final int MAX_OPTIONAL_kGUARD_EXC_CODE = (int)524288L;
-    /**
-     * {@snippet lang=c :
-     * #define MAX_OPTIONAL_kGUARD_EXC_CODE 524288
-     * }
-     */
-    public static int MAX_OPTIONAL_kGUARD_EXC_CODE() {
-        return MAX_OPTIONAL_kGUARD_EXC_CODE;
-    }
-    private static final long MPG_FLAGS_STRICT_REPLY_INVALID_REPLY_DISP = 72057594037927936L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_STRICT_REPLY_INVALID_REPLY_DISP 72057594037927936
-     * }
-     */
-    public static long MPG_FLAGS_STRICT_REPLY_INVALID_REPLY_DISP() {
-        return MPG_FLAGS_STRICT_REPLY_INVALID_REPLY_DISP;
-    }
-    private static final long MPG_FLAGS_STRICT_REPLY_INVALID_REPLY_PORT = 144115188075855872L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_STRICT_REPLY_INVALID_REPLY_PORT 144115188075855872
-     * }
-     */
-    public static long MPG_FLAGS_STRICT_REPLY_INVALID_REPLY_PORT() {
-        return MPG_FLAGS_STRICT_REPLY_INVALID_REPLY_PORT;
-    }
-    private static final long MPG_FLAGS_STRICT_REPLY_INVALID_VOUCHER = 288230376151711744L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_STRICT_REPLY_INVALID_VOUCHER 288230376151711744
-     * }
-     */
-    public static long MPG_FLAGS_STRICT_REPLY_INVALID_VOUCHER() {
-        return MPG_FLAGS_STRICT_REPLY_INVALID_VOUCHER;
-    }
-    private static final long MPG_FLAGS_STRICT_REPLY_NO_BANK_ATTR = 576460752303423488L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_STRICT_REPLY_NO_BANK_ATTR 576460752303423488
-     * }
-     */
-    public static long MPG_FLAGS_STRICT_REPLY_NO_BANK_ATTR() {
-        return MPG_FLAGS_STRICT_REPLY_NO_BANK_ATTR;
-    }
-    private static final long MPG_FLAGS_STRICT_REPLY_MISMATCHED_PERSONA = 1152921504606846976L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_STRICT_REPLY_MISMATCHED_PERSONA 1152921504606846976
-     * }
-     */
-    public static long MPG_FLAGS_STRICT_REPLY_MISMATCHED_PERSONA() {
-        return MPG_FLAGS_STRICT_REPLY_MISMATCHED_PERSONA;
-    }
-    private static final long MPG_FLAGS_STRICT_REPLY_MASK = -72057594037927936L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_STRICT_REPLY_MASK -72057594037927936
-     * }
-     */
-    public static long MPG_FLAGS_STRICT_REPLY_MASK() {
-        return MPG_FLAGS_STRICT_REPLY_MASK;
-    }
-    private static final long MPG_FLAGS_MOD_REFS_PINNED_DEALLOC = 72057594037927936L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_MOD_REFS_PINNED_DEALLOC 72057594037927936
-     * }
-     */
-    public static long MPG_FLAGS_MOD_REFS_PINNED_DEALLOC() {
-        return MPG_FLAGS_MOD_REFS_PINNED_DEALLOC;
-    }
-    private static final long MPG_FLAGS_MOD_REFS_PINNED_DESTROY = 144115188075855872L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_MOD_REFS_PINNED_DESTROY 144115188075855872
-     * }
-     */
-    public static long MPG_FLAGS_MOD_REFS_PINNED_DESTROY() {
-        return MPG_FLAGS_MOD_REFS_PINNED_DESTROY;
-    }
-    private static final long MPG_FLAGS_MOD_REFS_PINNED_COPYIN = 288230376151711744L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_MOD_REFS_PINNED_COPYIN 288230376151711744
-     * }
-     */
-    public static long MPG_FLAGS_MOD_REFS_PINNED_COPYIN() {
-        return MPG_FLAGS_MOD_REFS_PINNED_COPYIN;
-    }
-    private static final long MPG_FLAGS_IMMOVABLE_PINNED = 72057594037927936L;
-    /**
-     * {@snippet lang=c :
-     * #define MPG_FLAGS_IMMOVABLE_PINNED 72057594037927936
-     * }
-     */
-    public static long MPG_FLAGS_IMMOVABLE_PINNED() {
-        return MPG_FLAGS_IMMOVABLE_PINNED;
-    }
-    private static final int MACH_MSG_TIMEOUT_NONE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_TIMEOUT_NONE 0
-     * }
-     */
-    public static int MACH_MSG_TIMEOUT_NONE() {
-        return MACH_MSG_TIMEOUT_NONE;
-    }
-    private static final int MACH_MSGH_BITS_PORTS_MASK = (int)2039583L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSGH_BITS_PORTS_MASK 2039583
-     * }
-     */
-    public static int MACH_MSGH_BITS_PORTS_MASK() {
-        return MACH_MSGH_BITS_PORTS_MASK;
-    }
-    private static final int MACH_MSGH_BITS_COMPLEX = (int)2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSGH_BITS_COMPLEX 2147483648
-     * }
-     */
-    public static int MACH_MSGH_BITS_COMPLEX() {
-        return MACH_MSGH_BITS_COMPLEX;
-    }
-    private static final int MACH_MSGH_BITS_USER = (int)2149523231L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSGH_BITS_USER 2149523231
-     * }
-     */
-    public static int MACH_MSGH_BITS_USER() {
-        return MACH_MSGH_BITS_USER;
-    }
-    private static final int MACH_MSGH_BITS_RAISEIMP = (int)536870912L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSGH_BITS_RAISEIMP 536870912
-     * }
-     */
-    public static int MACH_MSGH_BITS_RAISEIMP() {
-        return MACH_MSGH_BITS_RAISEIMP;
-    }
-    private static final int MACH_MSGH_BITS_DENAP = (int)536870912L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSGH_BITS_DENAP 536870912
-     * }
-     */
-    public static int MACH_MSGH_BITS_DENAP() {
-        return MACH_MSGH_BITS_DENAP;
-    }
-    private static final int MACH_MSGH_BITS_IMPHOLDASRT = (int)268435456L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSGH_BITS_IMPHOLDASRT 268435456
-     * }
-     */
-    public static int MACH_MSGH_BITS_IMPHOLDASRT() {
-        return MACH_MSGH_BITS_IMPHOLDASRT;
-    }
-    private static final int MACH_MSGH_BITS_DENAPHOLDASRT = (int)268435456L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSGH_BITS_DENAPHOLDASRT 268435456
-     * }
-     */
-    public static int MACH_MSGH_BITS_DENAPHOLDASRT() {
-        return MACH_MSGH_BITS_DENAPHOLDASRT;
-    }
-    private static final int MACH_MSGH_BITS_CIRCULAR = (int)268435456L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSGH_BITS_CIRCULAR 268435456
-     * }
-     */
-    public static int MACH_MSGH_BITS_CIRCULAR() {
-        return MACH_MSGH_BITS_CIRCULAR;
-    }
-    private static final int MACH_MSGH_BITS_USED = (int)2954829599L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSGH_BITS_USED 2954829599
-     * }
-     */
-    public static int MACH_MSGH_BITS_USED() {
-        return MACH_MSGH_BITS_USED;
-    }
-    private static final MemorySegment MACH_MSG_SIZE_NULL = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_SIZE_NULL (void*) 0
-     * }
-     */
-    public static MemorySegment MACH_MSG_SIZE_NULL() {
-        return MACH_MSG_SIZE_NULL;
-    }
-    private static final int MACH_MSG_PRIORITY_UNSPECIFIED = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_PRIORITY_UNSPECIFIED 0
-     * }
-     */
-    public static int MACH_MSG_PRIORITY_UNSPECIFIED() {
-        return MACH_MSG_PRIORITY_UNSPECIFIED;
-    }
-    private static final int MACH_MSG_DESCRIPTOR_MAX = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_DESCRIPTOR_MAX 4
-     * }
-     */
-    public static int MACH_MSG_DESCRIPTOR_MAX() {
-        return MACH_MSG_DESCRIPTOR_MAX;
-    }
-    private static final MemorySegment MACH_MSG_BODY_NULL = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_BODY_NULL (void*) 0
-     * }
-     */
-    public static MemorySegment MACH_MSG_BODY_NULL() {
-        return MACH_MSG_BODY_NULL;
-    }
-    private static final MemorySegment MACH_MSG_DESCRIPTOR_NULL = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_DESCRIPTOR_NULL (void*) 0
-     * }
-     */
-    public static MemorySegment MACH_MSG_DESCRIPTOR_NULL() {
-        return MACH_MSG_DESCRIPTOR_NULL;
-    }
-    private static final MemorySegment MACH_MSG_NULL = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_NULL (void*) 0
-     * }
-     */
-    public static MemorySegment MACH_MSG_NULL() {
-        return MACH_MSG_NULL;
-    }
-    private static final int MACH_MSG_FILTER_POLICY_ALLOW = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_FILTER_POLICY_ALLOW 0
-     * }
-     */
-    public static int MACH_MSG_FILTER_POLICY_ALLOW() {
-        return MACH_MSG_FILTER_POLICY_ALLOW;
-    }
-    private static final long MACH_MSG_TRAILER_MINIMUM_SIZE = 8L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_TRAILER_MINIMUM_SIZE 8
-     * }
-     */
-    public static long MACH_MSG_TRAILER_MINIMUM_SIZE() {
-        return MACH_MSG_TRAILER_MINIMUM_SIZE;
-    }
-    private static final int MAX_TRAILER_SIZE = (int)68L;
-    /**
-     * {@snippet lang=c :
-     * #define MAX_TRAILER_SIZE 68
-     * }
-     */
-    public static int MAX_TRAILER_SIZE() {
-        return MAX_TRAILER_SIZE;
-    }
-    private static final long MACH_MSG_TRAILER_FORMAT_0_SIZE = 20L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_TRAILER_FORMAT_0_SIZE 20
-     * }
-     */
-    public static long MACH_MSG_TRAILER_FORMAT_0_SIZE() {
-        return MACH_MSG_TRAILER_FORMAT_0_SIZE;
-    }
-    private static final int MACH_MSG_SIZE_MAX = (int)4294967295L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_SIZE_MAX 4294967295
-     * }
-     */
-    public static int MACH_MSG_SIZE_MAX() {
-        return MACH_MSG_SIZE_MAX;
-    }
-    private static final int MACH_MSG_SIZE_RELIABLE = (int)262144L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_SIZE_RELIABLE 262144
-     * }
-     */
-    public static int MACH_MSG_SIZE_RELIABLE() {
-        return MACH_MSG_SIZE_RELIABLE;
-    }
-    private static final int MACH_MSG_TYPE_PORT_RECEIVE = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_TYPE_PORT_RECEIVE 16
-     * }
-     */
-    public static int MACH_MSG_TYPE_PORT_RECEIVE() {
-        return MACH_MSG_TYPE_PORT_RECEIVE;
-    }
-    private static final int MACH_MSG_TYPE_PORT_SEND = (int)17L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_TYPE_PORT_SEND 17
-     * }
-     */
-    public static int MACH_MSG_TYPE_PORT_SEND() {
-        return MACH_MSG_TYPE_PORT_SEND;
-    }
-    private static final int MACH_MSG_TYPE_PORT_SEND_ONCE = (int)18L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_TYPE_PORT_SEND_ONCE 18
-     * }
-     */
-    public static int MACH_MSG_TYPE_PORT_SEND_ONCE() {
-        return MACH_MSG_TYPE_PORT_SEND_ONCE;
-    }
-    private static final int MACH_MSG_TYPE_POLYMORPHIC = (int)4294967295L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_MSG_TYPE_POLYMORPHIC 4294967295
-     * }
-     */
-    public static int MACH_MSG_TYPE_POLYMORPHIC() {
-        return MACH_MSG_TYPE_POLYMORPHIC;
-    }
-    private static final int MACH_SEND_NODENAP = (int)262144L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_SEND_NODENAP 262144
-     * }
-     */
-    public static int MACH_SEND_NODENAP() {
-        return MACH_SEND_NODENAP;
-    }
-    private static final int MACH_SEND_SYNC_USE_THRPRI = (int)2097152L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_SEND_SYNC_USE_THRPRI 2097152
-     * }
-     */
-    public static int MACH_SEND_SYNC_USE_THRPRI() {
-        return MACH_SEND_SYNC_USE_THRPRI;
-    }
-    private static final int MACH_RCV_TRAILER_MASK = (int)251658240L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_RCV_TRAILER_MASK 251658240
-     * }
-     */
-    public static int MACH_RCV_TRAILER_MASK() {
-        return MACH_RCV_TRAILER_MASK;
-    }
-    private static final int VM_FLAGS_ALIAS_MASK = (int)4278190080L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_FLAGS_ALIAS_MASK 4278190080
-     * }
-     */
-    public static int VM_FLAGS_ALIAS_MASK() {
-        return VM_FLAGS_ALIAS_MASK;
-    }
-    private static final int VM_FLAGS_HW = (int)4096L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_FLAGS_HW 4096
-     * }
-     */
-    public static int VM_FLAGS_HW() {
-        return VM_FLAGS_HW;
-    }
-    private static final int VM_FLAGS_USER_ALLOCATE = (int)4278669471L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_FLAGS_USER_ALLOCATE 4278669471
-     * }
-     */
-    public static int VM_FLAGS_USER_ALLOCATE() {
-        return VM_FLAGS_USER_ALLOCATE;
-    }
-    private static final int VM_FLAGS_USER_MAP = (int)4288106655L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_FLAGS_USER_MAP 4288106655
-     * }
-     */
-    public static int VM_FLAGS_USER_MAP() {
-        return VM_FLAGS_USER_MAP;
-    }
-    private static final int VM_FLAGS_USER_REMAP = (int)1065065L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_FLAGS_USER_REMAP 1065065
-     * }
-     */
-    public static int VM_FLAGS_USER_REMAP() {
-        return VM_FLAGS_USER_REMAP;
-    }
-    private static final int VM_FLAGS_SUPERPAGE_NONE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_FLAGS_SUPERPAGE_NONE 0
-     * }
-     */
-    public static int VM_FLAGS_SUPERPAGE_NONE() {
-        return VM_FLAGS_SUPERPAGE_NONE;
-    }
-    private static final int VM_FLAGS_SUPERPAGE_SIZE_ANY = (int)65536L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_FLAGS_SUPERPAGE_SIZE_ANY 65536
-     * }
-     */
-    public static int VM_FLAGS_SUPERPAGE_SIZE_ANY() {
-        return VM_FLAGS_SUPERPAGE_SIZE_ANY;
-    }
-    private static final int VM_FLAGS_SUPERPAGE_SIZE_2MB = (int)131072L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_FLAGS_SUPERPAGE_SIZE_2MB 131072
-     * }
-     */
-    public static int VM_FLAGS_SUPERPAGE_SIZE_2MB() {
-        return VM_FLAGS_SUPERPAGE_SIZE_2MB;
-    }
-    private static final int VM_LEDGER_TAG_UNCHANGED = (int)-1L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_LEDGER_TAG_UNCHANGED -1
-     * }
-     */
-    public static int VM_LEDGER_TAG_UNCHANGED() {
-        return VM_LEDGER_TAG_UNCHANGED;
-    }
-    private static final int VM_LEDGER_FLAG_NO_FOOTPRINT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_LEDGER_FLAG_NO_FOOTPRINT 1
-     * }
-     */
-    public static int VM_LEDGER_FLAG_NO_FOOTPRINT() {
-        return VM_LEDGER_FLAG_NO_FOOTPRINT;
-    }
-    private static final int VM_LEDGER_FLAG_NO_FOOTPRINT_FOR_DEBUG = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_LEDGER_FLAG_NO_FOOTPRINT_FOR_DEBUG 2
-     * }
-     */
-    public static int VM_LEDGER_FLAG_NO_FOOTPRINT_FOR_DEBUG() {
-        return VM_LEDGER_FLAG_NO_FOOTPRINT_FOR_DEBUG;
-    }
-    private static final int VM_LEDGER_FLAG_FROM_KERNEL = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_LEDGER_FLAG_FROM_KERNEL 4
-     * }
-     */
-    public static int VM_LEDGER_FLAG_FROM_KERNEL() {
-        return VM_LEDGER_FLAG_FROM_KERNEL;
-    }
-    private static final int VM_LEDGER_FLAGS_USER = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_LEDGER_FLAGS_USER 3
-     * }
-     */
-    public static int VM_LEDGER_FLAGS_USER() {
-        return VM_LEDGER_FLAGS_USER;
-    }
-    private static final int VM_LEDGER_FLAGS_ALL = (int)7L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_LEDGER_FLAGS_ALL 7
-     * }
-     */
-    public static int VM_LEDGER_FLAGS_ALL() {
-        return VM_LEDGER_FLAGS_ALL;
-    }
-    private static final int VM_MEMORY_CARBON = (int)43L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_MEMORY_CARBON 43
-     * }
-     */
-    public static int VM_MEMORY_CARBON() {
-        return VM_MEMORY_CARBON;
-    }
-    private static final int VM_MEMORY_COREGRAPHICS_MISC = (int)42L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_MEMORY_COREGRAPHICS_MISC 42
-     * }
-     */
-    public static int VM_MEMORY_COREGRAPHICS_MISC() {
-        return VM_MEMORY_COREGRAPHICS_MISC;
-    }
-    private static final int VM_MEMORY_WEBASSEMBLY = (int)63L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_MEMORY_WEBASSEMBLY 63
-     * }
-     */
-    public static int VM_MEMORY_WEBASSEMBLY() {
-        return VM_MEMORY_WEBASSEMBLY;
-    }
-    private static final int TIME_MICROS_MAX = (int)1000000L;
-    /**
-     * {@snippet lang=c :
-     * #define TIME_MICROS_MAX 1000000
-     * }
-     */
-    public static int TIME_MICROS_MAX() {
-        return TIME_MICROS_MAX;
-    }
-    private static final int VM_PROT_NONE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_NONE 0
-     * }
-     */
-    public static int VM_PROT_NONE() {
-        return VM_PROT_NONE;
-    }
-    private static final int VM_PROT_READ = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_READ 1
-     * }
-     */
-    public static int VM_PROT_READ() {
-        return VM_PROT_READ;
-    }
-    private static final int VM_PROT_WRITE = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_WRITE 2
-     * }
-     */
-    public static int VM_PROT_WRITE() {
-        return VM_PROT_WRITE;
-    }
-    private static final int VM_PROT_EXECUTE = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_EXECUTE 4
-     * }
-     */
-    public static int VM_PROT_EXECUTE() {
-        return VM_PROT_EXECUTE;
-    }
-    private static final int VM_PROT_DEFAULT = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_DEFAULT 3
-     * }
-     */
-    public static int VM_PROT_DEFAULT() {
-        return VM_PROT_DEFAULT;
-    }
-    private static final int VM_PROT_ALL = (int)7L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_ALL 7
-     * }
-     */
-    public static int VM_PROT_ALL() {
-        return VM_PROT_ALL;
-    }
-    private static final int VM_PROT_RORW_TP = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_RORW_TP 4
-     * }
-     */
-    public static int VM_PROT_RORW_TP() {
-        return VM_PROT_RORW_TP;
-    }
-    private static final int VM_PROT_NO_CHANGE_LEGACY = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_NO_CHANGE_LEGACY 8
-     * }
-     */
-    public static int VM_PROT_NO_CHANGE_LEGACY() {
-        return VM_PROT_NO_CHANGE_LEGACY;
-    }
-    private static final int VM_PROT_NO_CHANGE = (int)16777216L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_NO_CHANGE 16777216
-     * }
-     */
-    public static int VM_PROT_NO_CHANGE() {
-        return VM_PROT_NO_CHANGE;
-    }
-    private static final int VM_PROT_COPY = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_COPY 16
-     * }
-     */
-    public static int VM_PROT_COPY() {
-        return VM_PROT_COPY;
-    }
-    private static final int VM_PROT_WANTS_COPY = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_WANTS_COPY 16
-     * }
-     */
-    public static int VM_PROT_WANTS_COPY() {
-        return VM_PROT_WANTS_COPY;
-    }
-    private static final int VM_PROT_IS_MASK = (int)64L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_IS_MASK 64
-     * }
-     */
-    public static int VM_PROT_IS_MASK() {
-        return VM_PROT_IS_MASK;
-    }
-    private static final int VM_PROT_STRIP_READ = (int)128L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_STRIP_READ 128
-     * }
-     */
-    public static int VM_PROT_STRIP_READ() {
-        return VM_PROT_STRIP_READ;
-    }
-    private static final int VM_PROT_EXECUTE_ONLY = (int)132L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_EXECUTE_ONLY 132
-     * }
-     */
-    public static int VM_PROT_EXECUTE_ONLY() {
-        return VM_PROT_EXECUTE_ONLY;
-    }
-    private static final int VM_PROT_TPRO = (int)512L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_TPRO 512
-     * }
-     */
-    public static int VM_PROT_TPRO() {
-        return VM_PROT_TPRO;
-    }
-    private static final int VM_PROT_ALLEXEC = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PROT_ALLEXEC 4
-     * }
-     */
-    public static int VM_PROT_ALLEXEC() {
-        return VM_PROT_ALLEXEC;
-    }
-    private static final int VM_SYNC_ASYNCHRONOUS = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_SYNC_ASYNCHRONOUS 1
-     * }
-     */
-    public static int VM_SYNC_ASYNCHRONOUS() {
-        return VM_SYNC_ASYNCHRONOUS;
-    }
-    private static final int VM_SYNC_SYNCHRONOUS = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_SYNC_SYNCHRONOUS 2
-     * }
-     */
-    public static int VM_SYNC_SYNCHRONOUS() {
-        return VM_SYNC_SYNCHRONOUS;
-    }
-    private static final int VM_SYNC_INVALIDATE = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_SYNC_INVALIDATE 4
-     * }
-     */
-    public static int VM_SYNC_INVALIDATE() {
-        return VM_SYNC_INVALIDATE;
-    }
-    private static final int VM_SYNC_KILLPAGES = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_SYNC_KILLPAGES 8
-     * }
-     */
-    public static int VM_SYNC_KILLPAGES() {
-        return VM_SYNC_KILLPAGES;
-    }
-    private static final int VM_SYNC_DEACTIVATE = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_SYNC_DEACTIVATE 16
-     * }
-     */
-    public static int VM_SYNC_DEACTIVATE() {
-        return VM_SYNC_DEACTIVATE;
-    }
-    private static final int VM_SYNC_CONTIGUOUS = (int)32L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_SYNC_CONTIGUOUS 32
-     * }
-     */
-    public static int VM_SYNC_CONTIGUOUS() {
-        return VM_SYNC_CONTIGUOUS;
-    }
-    private static final int VM_SYNC_REUSABLEPAGES = (int)64L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_SYNC_REUSABLEPAGES 64
-     * }
-     */
-    public static int VM_SYNC_REUSABLEPAGES() {
-        return VM_SYNC_REUSABLEPAGES;
-    }
-    private static final int PPNUM_MAX = (int)4294967295L;
-    /**
-     * {@snippet lang=c :
-     * #define PPNUM_MAX 4294967295
-     * }
-     */
-    public static int PPNUM_MAX() {
-        return PPNUM_MAX;
-    }
-    private static final int VM_MAP_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_MAP_NULL 0
-     * }
-     */
-    public static int VM_MAP_NULL() {
-        return VM_MAP_NULL;
-    }
-    private static final int VM_MAP_INSPECT_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_MAP_INSPECT_NULL 0
-     * }
-     */
-    public static int VM_MAP_INSPECT_NULL() {
-        return VM_MAP_INSPECT_NULL;
-    }
-    private static final int VM_MAP_READ_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_MAP_READ_NULL 0
-     * }
-     */
-    public static int VM_MAP_READ_NULL() {
-        return VM_MAP_READ_NULL;
-    }
-    private static final int UPL_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define UPL_NULL 0
-     * }
-     */
-    public static int UPL_NULL() {
-        return UPL_NULL;
-    }
-    private static final int VM_NAMED_ENTRY_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_NAMED_ENTRY_NULL 0
-     * }
-     */
-    public static int VM_NAMED_ENTRY_NULL() {
-        return VM_NAMED_ENTRY_NULL;
-    }
-    private static final int MACH_VM_RANGE_FLAVOR_DEFAULT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_VM_RANGE_FLAVOR_DEFAULT 1
-     * }
-     */
-    public static int MACH_VM_RANGE_FLAVOR_DEFAULT() {
-        return MACH_VM_RANGE_FLAVOR_DEFAULT;
-    }
-    private static final int MEMORY_OBJECT_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MEMORY_OBJECT_NULL 0
-     * }
-     */
-    public static int MEMORY_OBJECT_NULL() {
-        return MEMORY_OBJECT_NULL;
-    }
-    private static final int MEMORY_OBJECT_CONTROL_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MEMORY_OBJECT_CONTROL_NULL 0
-     * }
-     */
-    public static int MEMORY_OBJECT_CONTROL_NULL() {
-        return MEMORY_OBJECT_CONTROL_NULL;
-    }
-    private static final int MEMORY_OBJECT_NAME_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MEMORY_OBJECT_NAME_NULL 0
-     * }
-     */
-    public static int MEMORY_OBJECT_NAME_NULL() {
-        return MEMORY_OBJECT_NAME_NULL;
-    }
-    private static final int MEMORY_OBJECT_DEFAULT_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define MEMORY_OBJECT_DEFAULT_NULL 0
-     * }
-     */
-    public static int MEMORY_OBJECT_DEFAULT_NULL() {
-        return MEMORY_OBJECT_DEFAULT_NULL;
-    }
-    private static final int MEMORY_OBJECT_INFO_MAX = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define MEMORY_OBJECT_INFO_MAX 1024
-     * }
-     */
-    public static int MEMORY_OBJECT_INFO_MAX() {
-        return MEMORY_OBJECT_INFO_MAX;
-    }
-    private static final int MEMORY_OBJECT_BEHAVE_INFO_COUNT = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define MEMORY_OBJECT_BEHAVE_INFO_COUNT 5
-     * }
-     */
-    public static int MEMORY_OBJECT_BEHAVE_INFO_COUNT() {
-        return MEMORY_OBJECT_BEHAVE_INFO_COUNT;
-    }
-    private static final int MEMORY_OBJECT_PERF_INFO_COUNT = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define MEMORY_OBJECT_PERF_INFO_COUNT 2
-     * }
-     */
-    public static int MEMORY_OBJECT_PERF_INFO_COUNT() {
-        return MEMORY_OBJECT_PERF_INFO_COUNT;
-    }
-    private static final int MEMORY_OBJECT_ATTR_INFO_COUNT = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define MEMORY_OBJECT_ATTR_INFO_COUNT 4
-     * }
-     */
-    public static int MEMORY_OBJECT_ATTR_INFO_COUNT() {
-        return MEMORY_OBJECT_ATTR_INFO_COUNT;
-    }
-    private static final int MAP_MEM_FLAGS_USER = (int)16769024L;
-    /**
-     * {@snippet lang=c :
-     * #define MAP_MEM_FLAGS_USER 16769024
-     * }
-     */
-    public static int MAP_MEM_FLAGS_USER() {
-        return MAP_MEM_FLAGS_USER;
-    }
-    private static final int MAP_MEM_FLAGS_ALL = (int)16769024L;
-    /**
-     * {@snippet lang=c :
-     * #define MAP_MEM_FLAGS_ALL 16769024
-     * }
-     */
-    public static int MAP_MEM_FLAGS_ALL() {
-        return MAP_MEM_FLAGS_ALL;
-    }
-    private static final int MACH_EXCEPTION_CODES = (int)2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_EXCEPTION_CODES 2147483648
-     * }
-     */
-    public static int MACH_EXCEPTION_CODES() {
-        return MACH_EXCEPTION_CODES;
-    }
-    private static final int MACH_EXCEPTION_MASK = (int)3758096384L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_EXCEPTION_MASK 3758096384
-     * }
-     */
-    public static int MACH_EXCEPTION_MASK() {
-        return MACH_EXCEPTION_MASK;
-    }
-    private static final int EXC_MASK_BAD_ACCESS = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_BAD_ACCESS 2
-     * }
-     */
-    public static int EXC_MASK_BAD_ACCESS() {
-        return EXC_MASK_BAD_ACCESS;
-    }
-    private static final int EXC_MASK_BAD_INSTRUCTION = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_BAD_INSTRUCTION 4
-     * }
-     */
-    public static int EXC_MASK_BAD_INSTRUCTION() {
-        return EXC_MASK_BAD_INSTRUCTION;
-    }
-    private static final int EXC_MASK_ARITHMETIC = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_ARITHMETIC 8
-     * }
-     */
-    public static int EXC_MASK_ARITHMETIC() {
-        return EXC_MASK_ARITHMETIC;
-    }
-    private static final int EXC_MASK_EMULATION = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_EMULATION 16
-     * }
-     */
-    public static int EXC_MASK_EMULATION() {
-        return EXC_MASK_EMULATION;
-    }
-    private static final int EXC_MASK_SOFTWARE = (int)32L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_SOFTWARE 32
-     * }
-     */
-    public static int EXC_MASK_SOFTWARE() {
-        return EXC_MASK_SOFTWARE;
-    }
-    private static final int EXC_MASK_BREAKPOINT = (int)64L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_BREAKPOINT 64
-     * }
-     */
-    public static int EXC_MASK_BREAKPOINT() {
-        return EXC_MASK_BREAKPOINT;
-    }
-    private static final int EXC_MASK_SYSCALL = (int)128L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_SYSCALL 128
-     * }
-     */
-    public static int EXC_MASK_SYSCALL() {
-        return EXC_MASK_SYSCALL;
-    }
-    private static final int EXC_MASK_MACH_SYSCALL = (int)256L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_MACH_SYSCALL 256
-     * }
-     */
-    public static int EXC_MASK_MACH_SYSCALL() {
-        return EXC_MASK_MACH_SYSCALL;
-    }
-    private static final int EXC_MASK_RPC_ALERT = (int)512L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_RPC_ALERT 512
-     * }
-     */
-    public static int EXC_MASK_RPC_ALERT() {
-        return EXC_MASK_RPC_ALERT;
-    }
-    private static final int EXC_MASK_CRASH = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_CRASH 1024
-     * }
-     */
-    public static int EXC_MASK_CRASH() {
-        return EXC_MASK_CRASH;
-    }
-    private static final int EXC_MASK_RESOURCE = (int)2048L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_RESOURCE 2048
-     * }
-     */
-    public static int EXC_MASK_RESOURCE() {
-        return EXC_MASK_RESOURCE;
-    }
-    private static final int EXC_MASK_GUARD = (int)4096L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_GUARD 4096
-     * }
-     */
-    public static int EXC_MASK_GUARD() {
-        return EXC_MASK_GUARD;
-    }
-    private static final int EXC_MASK_CORPSE_NOTIFY = (int)8192L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_CORPSE_NOTIFY 8192
-     * }
-     */
-    public static int EXC_MASK_CORPSE_NOTIFY() {
-        return EXC_MASK_CORPSE_NOTIFY;
-    }
-    private static final int EXC_MASK_ALL = (int)7166L;
-    /**
-     * {@snippet lang=c :
-     * #define EXC_MASK_ALL 7166
-     * }
-     */
-    public static int EXC_MASK_ALL() {
-        return EXC_MASK_ALL;
-    }
-    private static final int PROCESSOR_CPU_STAT_COUNT = (int)9L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_CPU_STAT_COUNT 9
-     * }
-     */
-    public static int PROCESSOR_CPU_STAT_COUNT() {
-        return PROCESSOR_CPU_STAT_COUNT;
-    }
-    private static final int PROCESSOR_CPU_STAT64_COUNT = (int)20L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_CPU_STAT64_COUNT 20
-     * }
-     */
-    public static int PROCESSOR_CPU_STAT64_COUNT() {
-        return PROCESSOR_CPU_STAT64_COUNT;
-    }
-    private static final int PROCESSOR_INFO_MAX = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_INFO_MAX 1024
-     * }
-     */
-    public static int PROCESSOR_INFO_MAX() {
-        return PROCESSOR_INFO_MAX;
-    }
-    private static final int PROCESSOR_SET_INFO_MAX = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_SET_INFO_MAX 1024
-     * }
-     */
-    public static int PROCESSOR_SET_INFO_MAX() {
-        return PROCESSOR_SET_INFO_MAX;
-    }
-    private static final int PROCESSOR_BASIC_INFO_COUNT = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_BASIC_INFO_COUNT 5
-     * }
-     */
-    public static int PROCESSOR_BASIC_INFO_COUNT() {
-        return PROCESSOR_BASIC_INFO_COUNT;
-    }
-    private static final int PROCESSOR_CPU_LOAD_INFO_COUNT = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_CPU_LOAD_INFO_COUNT 4
-     * }
-     */
-    public static int PROCESSOR_CPU_LOAD_INFO_COUNT() {
-        return PROCESSOR_CPU_LOAD_INFO_COUNT;
-    }
-    private static final int PROCESSOR_SET_BASIC_INFO_COUNT = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_SET_BASIC_INFO_COUNT 2
-     * }
-     */
-    public static int PROCESSOR_SET_BASIC_INFO_COUNT() {
-        return PROCESSOR_SET_BASIC_INFO_COUNT;
-    }
-    private static final int PROCESSOR_SET_LOAD_INFO_COUNT = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_SET_LOAD_INFO_COUNT 4
-     * }
-     */
-    public static int PROCESSOR_SET_LOAD_INFO_COUNT() {
-        return PROCESSOR_SET_LOAD_INFO_COUNT;
-    }
-    private static final int POLICYCLASS_FIXEDPRI = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICYCLASS_FIXEDPRI 6
-     * }
-     */
-    public static int POLICYCLASS_FIXEDPRI() {
-        return POLICYCLASS_FIXEDPRI;
-    }
-    private static final int POLICY_TIMESHARE_BASE_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_TIMESHARE_BASE_COUNT 1
-     * }
-     */
-    public static int POLICY_TIMESHARE_BASE_COUNT() {
-        return POLICY_TIMESHARE_BASE_COUNT;
-    }
-    private static final int POLICY_TIMESHARE_LIMIT_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_TIMESHARE_LIMIT_COUNT 1
-     * }
-     */
-    public static int POLICY_TIMESHARE_LIMIT_COUNT() {
-        return POLICY_TIMESHARE_LIMIT_COUNT;
-    }
-    private static final int POLICY_TIMESHARE_INFO_COUNT = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_TIMESHARE_INFO_COUNT 5
-     * }
-     */
-    public static int POLICY_TIMESHARE_INFO_COUNT() {
-        return POLICY_TIMESHARE_INFO_COUNT;
-    }
-    private static final int POLICY_RR_BASE_COUNT = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_RR_BASE_COUNT 2
-     * }
-     */
-    public static int POLICY_RR_BASE_COUNT() {
-        return POLICY_RR_BASE_COUNT;
-    }
-    private static final int POLICY_RR_LIMIT_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_RR_LIMIT_COUNT 1
-     * }
-     */
-    public static int POLICY_RR_LIMIT_COUNT() {
-        return POLICY_RR_LIMIT_COUNT;
-    }
-    private static final int POLICY_RR_INFO_COUNT = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_RR_INFO_COUNT 5
-     * }
-     */
-    public static int POLICY_RR_INFO_COUNT() {
-        return POLICY_RR_INFO_COUNT;
-    }
-    private static final int POLICY_FIFO_BASE_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_FIFO_BASE_COUNT 1
-     * }
-     */
-    public static int POLICY_FIFO_BASE_COUNT() {
-        return POLICY_FIFO_BASE_COUNT;
-    }
-    private static final int POLICY_FIFO_LIMIT_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_FIFO_LIMIT_COUNT 1
-     * }
-     */
-    public static int POLICY_FIFO_LIMIT_COUNT() {
-        return POLICY_FIFO_LIMIT_COUNT;
-    }
-    private static final int POLICY_FIFO_INFO_COUNT = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_FIFO_INFO_COUNT 4
-     * }
-     */
-    public static int POLICY_FIFO_INFO_COUNT() {
-        return POLICY_FIFO_INFO_COUNT;
-    }
-    private static final int TASK_INFO_MAX = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_INFO_MAX 1024
-     * }
-     */
-    public static int TASK_INFO_MAX() {
-        return TASK_INFO_MAX;
-    }
-    private static final long TASK_BASIC_INFO_32_COUNT = 8L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_BASIC_INFO_32_COUNT 8
-     * }
-     */
-    public static long TASK_BASIC_INFO_32_COUNT() {
-        return TASK_BASIC_INFO_32_COUNT;
-    }
-    private static final int TASK_BASIC_INFO_64 = (int)18L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_BASIC_INFO_64 18
-     * }
-     */
-    public static int TASK_BASIC_INFO_64() {
-        return TASK_BASIC_INFO_64;
-    }
-    private static final long TASK_BASIC_INFO_64_COUNT = 10L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_BASIC_INFO_64_COUNT 10
-     * }
-     */
-    public static long TASK_BASIC_INFO_64_COUNT() {
-        return TASK_BASIC_INFO_64_COUNT;
-    }
-    private static final long TASK_BASIC_INFO_COUNT = 10L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_BASIC_INFO_COUNT 10
-     * }
-     */
-    public static long TASK_BASIC_INFO_COUNT() {
-        return TASK_BASIC_INFO_COUNT;
-    }
-    private static final int TASK_BASIC_INFO = (int)18L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_BASIC_INFO 18
-     * }
-     */
-    public static int TASK_BASIC_INFO() {
-        return TASK_BASIC_INFO;
-    }
-    private static final int TASK_EVENTS_INFO_COUNT = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_EVENTS_INFO_COUNT 8
-     * }
-     */
-    public static int TASK_EVENTS_INFO_COUNT() {
-        return TASK_EVENTS_INFO_COUNT;
-    }
-    private static final int TASK_THREAD_TIMES_INFO_COUNT = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_THREAD_TIMES_INFO_COUNT 4
-     * }
-     */
-    public static int TASK_THREAD_TIMES_INFO_COUNT() {
-        return TASK_THREAD_TIMES_INFO_COUNT;
-    }
-    private static final int TASK_ABSOLUTETIME_INFO_COUNT = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_ABSOLUTETIME_INFO_COUNT 8
-     * }
-     */
-    public static int TASK_ABSOLUTETIME_INFO_COUNT() {
-        return TASK_ABSOLUTETIME_INFO_COUNT;
-    }
-    private static final int TASK_KERNELMEMORY_INFO_COUNT = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_KERNELMEMORY_INFO_COUNT 8
-     * }
-     */
-    public static int TASK_KERNELMEMORY_INFO_COUNT() {
-        return TASK_KERNELMEMORY_INFO_COUNT;
-    }
-    private static final int TASK_SECURITY_TOKEN_COUNT = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_SECURITY_TOKEN_COUNT 2
-     * }
-     */
-    public static int TASK_SECURITY_TOKEN_COUNT() {
-        return TASK_SECURITY_TOKEN_COUNT;
-    }
-    private static final long TASK_AUDIT_TOKEN_COUNT = 8L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_AUDIT_TOKEN_COUNT 8
-     * }
-     */
-    public static long TASK_AUDIT_TOKEN_COUNT() {
-        return TASK_AUDIT_TOKEN_COUNT;
-    }
-    private static final long TASK_AFFINITY_TAG_INFO_COUNT = 4L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_AFFINITY_TAG_INFO_COUNT 4
-     * }
-     */
-    public static long TASK_AFFINITY_TAG_INFO_COUNT() {
-        return TASK_AFFINITY_TAG_INFO_COUNT;
-    }
-    private static final long TASK_DYLD_INFO_COUNT = 5L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_DYLD_INFO_COUNT 5
-     * }
-     */
-    public static long TASK_DYLD_INFO_COUNT() {
-        return TASK_DYLD_INFO_COUNT;
-    }
-    private static final long TASK_BASIC_INFO_64_2_COUNT = 10L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_BASIC_INFO_64_2_COUNT 10
-     * }
-     */
-    public static long TASK_BASIC_INFO_64_2_COUNT() {
-        return TASK_BASIC_INFO_64_2_COUNT;
-    }
-    private static final long TASK_EXTMOD_INFO_COUNT = 16L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_EXTMOD_INFO_COUNT 16
-     * }
-     */
-    public static long TASK_EXTMOD_INFO_COUNT() {
-        return TASK_EXTMOD_INFO_COUNT;
-    }
-    private static final long MACH_TASK_BASIC_INFO_COUNT = 12L;
-    /**
-     * {@snippet lang=c :
-     * #define MACH_TASK_BASIC_INFO_COUNT 12
-     * }
-     */
-    public static long MACH_TASK_BASIC_INFO_COUNT() {
-        return MACH_TASK_BASIC_INFO_COUNT;
-    }
-    private static final int TASK_POWER_INFO_COUNT = (int)12L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_POWER_INFO_COUNT 12
-     * }
-     */
-    public static int TASK_POWER_INFO_COUNT() {
-        return TASK_POWER_INFO_COUNT;
-    }
-    private static final int TASK_VM_INFO_COUNT = (int)93L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_VM_INFO_COUNT 93
-     * }
-     */
-    public static int TASK_VM_INFO_COUNT() {
-        return TASK_VM_INFO_COUNT;
-    }
-    private static final int TASK_VM_INFO_REV7_COUNT = (int)93L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_VM_INFO_REV7_COUNT 93
-     * }
-     */
-    public static int TASK_VM_INFO_REV7_COUNT() {
-        return TASK_VM_INFO_REV7_COUNT;
-    }
-    private static final int TASK_VM_INFO_REV6_COUNT = (int)89L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_VM_INFO_REV6_COUNT 89
-     * }
-     */
-    public static int TASK_VM_INFO_REV6_COUNT() {
-        return TASK_VM_INFO_REV6_COUNT;
-    }
-    private static final int TASK_VM_INFO_REV5_COUNT = (int)87L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_VM_INFO_REV5_COUNT 87
-     * }
-     */
-    public static int TASK_VM_INFO_REV5_COUNT() {
-        return TASK_VM_INFO_REV5_COUNT;
-    }
-    private static final int TASK_VM_INFO_REV4_COUNT = (int)86L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_VM_INFO_REV4_COUNT 86
-     * }
-     */
-    public static int TASK_VM_INFO_REV4_COUNT() {
-        return TASK_VM_INFO_REV4_COUNT;
-    }
-    private static final int TASK_VM_INFO_REV3_COUNT = (int)84L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_VM_INFO_REV3_COUNT 84
-     * }
-     */
-    public static int TASK_VM_INFO_REV3_COUNT() {
-        return TASK_VM_INFO_REV3_COUNT;
-    }
-    private static final int TASK_VM_INFO_REV2_COUNT = (int)42L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_VM_INFO_REV2_COUNT 42
-     * }
-     */
-    public static int TASK_VM_INFO_REV2_COUNT() {
-        return TASK_VM_INFO_REV2_COUNT;
-    }
-    private static final int TASK_VM_INFO_REV1_COUNT = (int)38L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_VM_INFO_REV1_COUNT 38
-     * }
-     */
-    public static int TASK_VM_INFO_REV1_COUNT() {
-        return TASK_VM_INFO_REV1_COUNT;
-    }
-    private static final int TASK_VM_INFO_REV0_COUNT = (int)36L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_VM_INFO_REV0_COUNT 36
-     * }
-     */
-    public static int TASK_VM_INFO_REV0_COUNT() {
-        return TASK_VM_INFO_REV0_COUNT;
-    }
-    private static final int TASK_TRACE_MEMORY_INFO_COUNT = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_TRACE_MEMORY_INFO_COUNT 6
-     * }
-     */
-    public static int TASK_TRACE_MEMORY_INFO_COUNT() {
-        return TASK_TRACE_MEMORY_INFO_COUNT;
-    }
-    private static final int TASK_WAIT_STATE_INFO_COUNT = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_WAIT_STATE_INFO_COUNT 8
-     * }
-     */
-    public static int TASK_WAIT_STATE_INFO_COUNT() {
-        return TASK_WAIT_STATE_INFO_COUNT;
-    }
-    private static final long TASK_POWER_INFO_V2_COUNT_OLD = 22L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_POWER_INFO_V2_COUNT_OLD 22
-     * }
-     */
-    public static long TASK_POWER_INFO_V2_COUNT_OLD() {
-        return TASK_POWER_INFO_V2_COUNT_OLD;
-    }
-    private static final int TASK_POWER_INFO_V2_COUNT = (int)26L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_POWER_INFO_V2_COUNT 26
-     * }
-     */
-    public static int TASK_POWER_INFO_V2_COUNT() {
-        return TASK_POWER_INFO_V2_COUNT;
-    }
-    private static final int TASK_FLAGS_INFO_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_FLAGS_INFO_COUNT 1
-     * }
-     */
-    public static int TASK_FLAGS_INFO_COUNT() {
-        return TASK_FLAGS_INFO_COUNT;
-    }
-    private static final long TASK_INSPECT_BASIC_COUNTS_COUNT = 4L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_INSPECT_BASIC_COUNTS_COUNT 4
-     * }
-     */
-    public static long TASK_INSPECT_BASIC_COUNTS_COUNT() {
-        return TASK_INSPECT_BASIC_COUNTS_COUNT;
-    }
-    private static final int TASK_CATEGORY_POLICY_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_CATEGORY_POLICY_COUNT 1
-     * }
-     */
-    public static int TASK_CATEGORY_POLICY_COUNT() {
-        return TASK_CATEGORY_POLICY_COUNT;
-    }
-    private static final int LATENCY_QOS_LAUNCH_DEFAULT_TIER = (int)16711684L;
-    /**
-     * {@snippet lang=c :
-     * #define LATENCY_QOS_LAUNCH_DEFAULT_TIER 16711684
-     * }
-     */
-    public static int LATENCY_QOS_LAUNCH_DEFAULT_TIER() {
-        return LATENCY_QOS_LAUNCH_DEFAULT_TIER;
-    }
-    private static final int THROUGHPUT_QOS_LAUNCH_DEFAULT_TIER = (int)16646148L;
-    /**
-     * {@snippet lang=c :
-     * #define THROUGHPUT_QOS_LAUNCH_DEFAULT_TIER 16646148
-     * }
-     */
-    public static int THROUGHPUT_QOS_LAUNCH_DEFAULT_TIER() {
-        return THROUGHPUT_QOS_LAUNCH_DEFAULT_TIER;
-    }
-    private static final int TASK_QOS_POLICY_COUNT = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_QOS_POLICY_COUNT 2
-     * }
-     */
-    public static int TASK_QOS_POLICY_COUNT() {
-        return TASK_QOS_POLICY_COUNT;
-    }
-    private static final int PROC_FLAG_IOS_APPLICATION = (int)16777216L;
-    /**
-     * {@snippet lang=c :
-     * #define PROC_FLAG_IOS_APPLICATION 16777216
-     * }
-     */
-    public static int PROC_FLAG_IOS_APPLICATION() {
-        return PROC_FLAG_IOS_APPLICATION;
-    }
-    private static final int TASK_MAX_SPECIAL_PORT = (int)11L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_MAX_SPECIAL_PORT 11
-     * }
-     */
-    public static int TASK_MAX_SPECIAL_PORT() {
-        return TASK_MAX_SPECIAL_PORT;
-    }
-    private static final int THREAD_INFO_MAX = (int)32L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_INFO_MAX 32
-     * }
-     */
-    public static int THREAD_INFO_MAX() {
-        return THREAD_INFO_MAX;
-    }
-    private static final int THREAD_BASIC_INFO_COUNT = (int)10L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_BASIC_INFO_COUNT 10
-     * }
-     */
-    public static int THREAD_BASIC_INFO_COUNT() {
-        return THREAD_BASIC_INFO_COUNT;
-    }
-    private static final int THREAD_IDENTIFIER_INFO_COUNT = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_IDENTIFIER_INFO_COUNT 6
-     * }
-     */
-    public static int THREAD_IDENTIFIER_INFO_COUNT() {
-        return THREAD_IDENTIFIER_INFO_COUNT;
-    }
-    private static final int THREAD_EXTENDED_INFO_COUNT = (int)28L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_EXTENDED_INFO_COUNT 28
-     * }
-     */
-    public static int THREAD_EXTENDED_INFO_COUNT() {
-        return THREAD_EXTENDED_INFO_COUNT;
-    }
-    private static final int THREAD_EXTENDED_POLICY_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_EXTENDED_POLICY_COUNT 1
-     * }
-     */
-    public static int THREAD_EXTENDED_POLICY_COUNT() {
-        return THREAD_EXTENDED_POLICY_COUNT;
-    }
-    private static final int THREAD_TIME_CONSTRAINT_POLICY_COUNT = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_TIME_CONSTRAINT_POLICY_COUNT 4
-     * }
-     */
-    public static int THREAD_TIME_CONSTRAINT_POLICY_COUNT() {
-        return THREAD_TIME_CONSTRAINT_POLICY_COUNT;
-    }
-    private static final int THREAD_PRECEDENCE_POLICY_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_PRECEDENCE_POLICY_COUNT 1
-     * }
-     */
-    public static int THREAD_PRECEDENCE_POLICY_COUNT() {
-        return THREAD_PRECEDENCE_POLICY_COUNT;
-    }
-    private static final int THREAD_AFFINITY_POLICY_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_AFFINITY_POLICY_COUNT 1
-     * }
-     */
-    public static int THREAD_AFFINITY_POLICY_COUNT() {
-        return THREAD_AFFINITY_POLICY_COUNT;
-    }
-    private static final int THREAD_BACKGROUND_POLICY_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_BACKGROUND_POLICY_COUNT 1
-     * }
-     */
-    public static int THREAD_BACKGROUND_POLICY_COUNT() {
-        return THREAD_BACKGROUND_POLICY_COUNT;
-    }
-    private static final int THREAD_LATENCY_QOS_POLICY_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_LATENCY_QOS_POLICY_COUNT 1
-     * }
-     */
-    public static int THREAD_LATENCY_QOS_POLICY_COUNT() {
-        return THREAD_LATENCY_QOS_POLICY_COUNT;
-    }
-    private static final int THREAD_THROUGHPUT_QOS_POLICY_COUNT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_THROUGHPUT_QOS_POLICY_COUNT 1
-     * }
-     */
-    public static int THREAD_THROUGHPUT_QOS_POLICY_COUNT() {
-        return THREAD_THROUGHPUT_QOS_POLICY_COUNT;
-    }
-    private static final int THREAD_MAX_SPECIAL_PORT = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_MAX_SPECIAL_PORT 3
-     * }
-     */
-    public static int THREAD_MAX_SPECIAL_PORT() {
-        return THREAD_MAX_SPECIAL_PORT;
-    }
-    private static final int VM_INHERIT_SHARE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_INHERIT_SHARE 0
-     * }
-     */
-    public static int VM_INHERIT_SHARE() {
-        return VM_INHERIT_SHARE;
-    }
-    private static final int VM_INHERIT_COPY = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_INHERIT_COPY 1
-     * }
-     */
-    public static int VM_INHERIT_COPY() {
-        return VM_INHERIT_COPY;
-    }
-    private static final int VM_INHERIT_NONE = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_INHERIT_NONE 2
-     * }
-     */
-    public static int VM_INHERIT_NONE() {
-        return VM_INHERIT_NONE;
-    }
-    private static final int VM_INHERIT_DONATE_COPY = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_INHERIT_DONATE_COPY 3
-     * }
-     */
-    public static int VM_INHERIT_DONATE_COPY() {
-        return VM_INHERIT_DONATE_COPY;
-    }
-    private static final int VM_INHERIT_DEFAULT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_INHERIT_DEFAULT 1
-     * }
-     */
-    public static int VM_INHERIT_DEFAULT() {
-        return VM_INHERIT_DEFAULT;
-    }
-    private static final int VM_INHERIT_LAST_VALID = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_INHERIT_LAST_VALID 2
-     * }
-     */
-    public static int VM_INHERIT_LAST_VALID() {
-        return VM_INHERIT_LAST_VALID;
-    }
-    private static final int VM_PURGABLE_SET_STATE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_SET_STATE 0
-     * }
-     */
-    public static int VM_PURGABLE_SET_STATE() {
-        return VM_PURGABLE_SET_STATE;
-    }
-    private static final int VM_PURGABLE_GET_STATE = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_GET_STATE 1
-     * }
-     */
-    public static int VM_PURGABLE_GET_STATE() {
-        return VM_PURGABLE_GET_STATE;
-    }
-    private static final int VM_PURGABLE_PURGE_ALL = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_PURGE_ALL 2
-     * }
-     */
-    public static int VM_PURGABLE_PURGE_ALL() {
-        return VM_PURGABLE_PURGE_ALL;
-    }
-    private static final int VM_PURGABLE_SET_STATE_FROM_KERNEL = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_SET_STATE_FROM_KERNEL 3
-     * }
-     */
-    public static int VM_PURGABLE_SET_STATE_FROM_KERNEL() {
-        return VM_PURGABLE_SET_STATE_FROM_KERNEL;
-    }
-    private static final int VM_PURGABLE_NO_AGING_MASK = (int)65536L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_NO_AGING_MASK 65536
-     * }
-     */
-    public static int VM_PURGABLE_NO_AGING_MASK() {
-        return VM_PURGABLE_NO_AGING_MASK;
-    }
-    private static final int VM_PURGABLE_NO_AGING = (int)65536L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_NO_AGING 65536
-     * }
-     */
-    public static int VM_PURGABLE_NO_AGING() {
-        return VM_PURGABLE_NO_AGING;
-    }
-    private static final int VM_PURGABLE_DEBUG_MASK = (int)12288L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_DEBUG_MASK 12288
-     * }
-     */
-    public static int VM_PURGABLE_DEBUG_MASK() {
-        return VM_PURGABLE_DEBUG_MASK;
-    }
-    private static final int VM_PURGABLE_DEBUG_EMPTY = (int)4096L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_DEBUG_EMPTY 4096
-     * }
-     */
-    public static int VM_PURGABLE_DEBUG_EMPTY() {
-        return VM_PURGABLE_DEBUG_EMPTY;
-    }
-    private static final int VM_PURGABLE_DEBUG_FAULT = (int)8192L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_DEBUG_FAULT 8192
-     * }
-     */
-    public static int VM_PURGABLE_DEBUG_FAULT() {
-        return VM_PURGABLE_DEBUG_FAULT;
-    }
-    private static final int VM_VOLATILE_GROUP_MASK = (int)1792L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_MASK 1792
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_MASK() {
-        return VM_VOLATILE_GROUP_MASK;
-    }
-    private static final int VM_VOLATILE_GROUP_DEFAULT = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_DEFAULT 0
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_DEFAULT() {
-        return VM_VOLATILE_GROUP_DEFAULT;
-    }
-    private static final int VM_VOLATILE_GROUP_0 = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_0 0
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_0() {
-        return VM_VOLATILE_GROUP_0;
-    }
-    private static final int VM_VOLATILE_GROUP_1 = (int)256L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_1 256
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_1() {
-        return VM_VOLATILE_GROUP_1;
-    }
-    private static final int VM_VOLATILE_GROUP_2 = (int)512L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_2 512
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_2() {
-        return VM_VOLATILE_GROUP_2;
-    }
-    private static final int VM_VOLATILE_GROUP_3 = (int)768L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_3 768
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_3() {
-        return VM_VOLATILE_GROUP_3;
-    }
-    private static final int VM_VOLATILE_GROUP_4 = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_4 1024
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_4() {
-        return VM_VOLATILE_GROUP_4;
-    }
-    private static final int VM_VOLATILE_GROUP_5 = (int)1280L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_5 1280
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_5() {
-        return VM_VOLATILE_GROUP_5;
-    }
-    private static final int VM_VOLATILE_GROUP_6 = (int)1536L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_6 1536
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_6() {
-        return VM_VOLATILE_GROUP_6;
-    }
-    private static final int VM_VOLATILE_GROUP_7 = (int)1792L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_GROUP_7 1792
-     * }
-     */
-    public static int VM_VOLATILE_GROUP_7() {
-        return VM_VOLATILE_GROUP_7;
-    }
-    private static final int VM_PURGABLE_BEHAVIOR_MASK = (int)64L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_BEHAVIOR_MASK 64
-     * }
-     */
-    public static int VM_PURGABLE_BEHAVIOR_MASK() {
-        return VM_PURGABLE_BEHAVIOR_MASK;
-    }
-    private static final int VM_PURGABLE_BEHAVIOR_FIFO = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_BEHAVIOR_FIFO 0
-     * }
-     */
-    public static int VM_PURGABLE_BEHAVIOR_FIFO() {
-        return VM_PURGABLE_BEHAVIOR_FIFO;
-    }
-    private static final int VM_PURGABLE_BEHAVIOR_LIFO = (int)64L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_BEHAVIOR_LIFO 64
-     * }
-     */
-    public static int VM_PURGABLE_BEHAVIOR_LIFO() {
-        return VM_PURGABLE_BEHAVIOR_LIFO;
-    }
-    private static final int VM_PURGABLE_ORDERING_MASK = (int)32L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_ORDERING_MASK 32
-     * }
-     */
-    public static int VM_PURGABLE_ORDERING_MASK() {
-        return VM_PURGABLE_ORDERING_MASK;
-    }
-    private static final int VM_PURGABLE_ORDERING_OBSOLETE = (int)32L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_ORDERING_OBSOLETE 32
-     * }
-     */
-    public static int VM_PURGABLE_ORDERING_OBSOLETE() {
-        return VM_PURGABLE_ORDERING_OBSOLETE;
-    }
-    private static final int VM_PURGABLE_ORDERING_NORMAL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_ORDERING_NORMAL 0
-     * }
-     */
-    public static int VM_PURGABLE_ORDERING_NORMAL() {
-        return VM_PURGABLE_ORDERING_NORMAL;
-    }
-    private static final int VM_VOLATILE_ORDER_MASK = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_ORDER_MASK 16
-     * }
-     */
-    public static int VM_VOLATILE_ORDER_MASK() {
-        return VM_VOLATILE_ORDER_MASK;
-    }
-    private static final int VM_VOLATILE_MAKE_FIRST_IN_GROUP = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_MAKE_FIRST_IN_GROUP 16
-     * }
-     */
-    public static int VM_VOLATILE_MAKE_FIRST_IN_GROUP() {
-        return VM_VOLATILE_MAKE_FIRST_IN_GROUP;
-    }
-    private static final int VM_VOLATILE_MAKE_LAST_IN_GROUP = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_VOLATILE_MAKE_LAST_IN_GROUP 0
-     * }
-     */
-    public static int VM_VOLATILE_MAKE_LAST_IN_GROUP() {
-        return VM_VOLATILE_MAKE_LAST_IN_GROUP;
-    }
-    private static final int VM_PURGABLE_ALL_MASKS = (int)79731L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_PURGABLE_ALL_MASKS 79731
-     * }
-     */
-    public static int VM_PURGABLE_ALL_MASKS() {
-        return VM_PURGABLE_ALL_MASKS;
-    }
-    private static final int VM_BEHAVIOR_DEFAULT = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_DEFAULT 0
-     * }
-     */
-    public static int VM_BEHAVIOR_DEFAULT() {
-        return VM_BEHAVIOR_DEFAULT;
-    }
-    private static final int VM_BEHAVIOR_RANDOM = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_RANDOM 1
-     * }
-     */
-    public static int VM_BEHAVIOR_RANDOM() {
-        return VM_BEHAVIOR_RANDOM;
-    }
-    private static final int VM_BEHAVIOR_SEQUENTIAL = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_SEQUENTIAL 2
-     * }
-     */
-    public static int VM_BEHAVIOR_SEQUENTIAL() {
-        return VM_BEHAVIOR_SEQUENTIAL;
-    }
-    private static final int VM_BEHAVIOR_RSEQNTL = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_RSEQNTL 3
-     * }
-     */
-    public static int VM_BEHAVIOR_RSEQNTL() {
-        return VM_BEHAVIOR_RSEQNTL;
-    }
-    private static final int VM_BEHAVIOR_WILLNEED = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_WILLNEED 4
-     * }
-     */
-    public static int VM_BEHAVIOR_WILLNEED() {
-        return VM_BEHAVIOR_WILLNEED;
-    }
-    private static final int VM_BEHAVIOR_DONTNEED = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_DONTNEED 5
-     * }
-     */
-    public static int VM_BEHAVIOR_DONTNEED() {
-        return VM_BEHAVIOR_DONTNEED;
-    }
-    private static final int VM_BEHAVIOR_FREE = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_FREE 6
-     * }
-     */
-    public static int VM_BEHAVIOR_FREE() {
-        return VM_BEHAVIOR_FREE;
-    }
-    private static final int VM_BEHAVIOR_ZERO_WIRED_PAGES = (int)7L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_ZERO_WIRED_PAGES 7
-     * }
-     */
-    public static int VM_BEHAVIOR_ZERO_WIRED_PAGES() {
-        return VM_BEHAVIOR_ZERO_WIRED_PAGES;
-    }
-    private static final int VM_BEHAVIOR_REUSABLE = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_REUSABLE 8
-     * }
-     */
-    public static int VM_BEHAVIOR_REUSABLE() {
-        return VM_BEHAVIOR_REUSABLE;
-    }
-    private static final int VM_BEHAVIOR_REUSE = (int)9L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_REUSE 9
-     * }
-     */
-    public static int VM_BEHAVIOR_REUSE() {
-        return VM_BEHAVIOR_REUSE;
-    }
-    private static final int VM_BEHAVIOR_CAN_REUSE = (int)10L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_CAN_REUSE 10
-     * }
-     */
-    public static int VM_BEHAVIOR_CAN_REUSE() {
-        return VM_BEHAVIOR_CAN_REUSE;
-    }
-    private static final int VM_BEHAVIOR_PAGEOUT = (int)11L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_PAGEOUT 11
-     * }
-     */
-    public static int VM_BEHAVIOR_PAGEOUT() {
-        return VM_BEHAVIOR_PAGEOUT;
-    }
-    private static final int VM_BEHAVIOR_ZERO = (int)12L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_BEHAVIOR_ZERO 12
-     * }
-     */
-    public static int VM_BEHAVIOR_ZERO() {
-        return VM_BEHAVIOR_ZERO;
-    }
-    private static final int VM_REGION_INFO_MAX = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_INFO_MAX 1024
-     * }
-     */
-    public static int VM_REGION_INFO_MAX() {
-        return VM_REGION_INFO_MAX;
-    }
-    private static final int VM_REGION_BASIC_INFO_COUNT_64 = (int)9L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_BASIC_INFO_COUNT_64 9
-     * }
-     */
-    public static int VM_REGION_BASIC_INFO_COUNT_64() {
-        return VM_REGION_BASIC_INFO_COUNT_64;
-    }
-    private static final int VM_REGION_BASIC_INFO_COUNT = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_BASIC_INFO_COUNT 8
-     * }
-     */
-    public static int VM_REGION_BASIC_INFO_COUNT() {
-        return VM_REGION_BASIC_INFO_COUNT;
-    }
-    private static final int VM_REGION_EXTENDED_INFO_COUNT = (int)9L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_EXTENDED_INFO_COUNT 9
-     * }
-     */
-    public static int VM_REGION_EXTENDED_INFO_COUNT() {
-        return VM_REGION_EXTENDED_INFO_COUNT;
-    }
-    private static final int VM_REGION_TOP_INFO_COUNT = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_TOP_INFO_COUNT 5
-     * }
-     */
-    public static int VM_REGION_TOP_INFO_COUNT() {
-        return VM_REGION_TOP_INFO_COUNT;
-    }
-    private static final int VM_REGION_SUBMAP_INFO_COUNT = (int)15L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_SUBMAP_INFO_COUNT 15
-     * }
-     */
-    public static int VM_REGION_SUBMAP_INFO_COUNT() {
-        return VM_REGION_SUBMAP_INFO_COUNT;
-    }
-    private static final long VM_REGION_SUBMAP_INFO_V2_SIZE = 76L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_SUBMAP_INFO_V2_SIZE 76
-     * }
-     */
-    public static long VM_REGION_SUBMAP_INFO_V2_SIZE() {
-        return VM_REGION_SUBMAP_INFO_V2_SIZE;
-    }
-    private static final long VM_REGION_SUBMAP_INFO_V1_SIZE = 68L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_SUBMAP_INFO_V1_SIZE 68
-     * }
-     */
-    public static long VM_REGION_SUBMAP_INFO_V1_SIZE() {
-        return VM_REGION_SUBMAP_INFO_V1_SIZE;
-    }
-    private static final long VM_REGION_SUBMAP_INFO_V0_SIZE = 64L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_SUBMAP_INFO_V0_SIZE 64
-     * }
-     */
-    public static long VM_REGION_SUBMAP_INFO_V0_SIZE() {
-        return VM_REGION_SUBMAP_INFO_V0_SIZE;
-    }
-    private static final int VM_REGION_SUBMAP_INFO_V2_COUNT_64 = (int)19L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_SUBMAP_INFO_V2_COUNT_64 19
-     * }
-     */
-    public static int VM_REGION_SUBMAP_INFO_V2_COUNT_64() {
-        return VM_REGION_SUBMAP_INFO_V2_COUNT_64;
-    }
-    private static final int VM_REGION_SUBMAP_INFO_V1_COUNT_64 = (int)17L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_SUBMAP_INFO_V1_COUNT_64 17
-     * }
-     */
-    public static int VM_REGION_SUBMAP_INFO_V1_COUNT_64() {
-        return VM_REGION_SUBMAP_INFO_V1_COUNT_64;
-    }
-    private static final int VM_REGION_SUBMAP_INFO_V0_COUNT_64 = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define VM_REGION_SUBMAP_INFO_V0_COUNT_64 16
-     * }
-     */
-    public static int VM_REGION_SUBMAP_INFO_V0_COUNT_64() {
-        return VM_REGION_SUBMAP_INFO_V0_COUNT_64;
-    }
 }
 
