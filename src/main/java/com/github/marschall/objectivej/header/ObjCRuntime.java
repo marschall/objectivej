@@ -422,12 +422,6 @@ public class ObjCRuntime {
     public static final OfLong intptr_t = ObjCRuntime.C_LONG;
     /**
      * {@snippet lang=c :
-     * typedef unsigned long uintptr_t
-     * }
-     */
-    public static final OfLong uintptr_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
      * typedef __darwin_size_t size_t
      * }
      */
@@ -7390,12 +7384,6 @@ public class ObjCRuntime {
      * }
      */
     public static final OfLong time_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_useconds_t useconds_t
-     * }
-     */
-    public static final OfInt useconds_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
      * typedef int errno_t

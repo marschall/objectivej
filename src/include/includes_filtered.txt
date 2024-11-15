@@ -699,14 +699,6 @@
 
 --include-typedef u_short  # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_short.h
 
-#### Extracted from: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_uintptr_t.h
-
---include-typedef uintptr_t  # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_uintptr_t.h
-
-#### Extracted from: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_useconds_t.h
-
---include-typedef useconds_t  # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_useconds_t.h
-
 #### Extracted from: /Users/marschall/Hacking/jextract/jextract-22/runtime/conf/jextract/stdarg.h
 
 --include-typedef __gnuc_va_list  # header: /Users/marschall/Hacking/jextract/jextract-22/runtime/conf/jextract/stdarg.h
