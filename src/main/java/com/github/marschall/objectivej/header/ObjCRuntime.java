@@ -213,96 +213,6 @@ public class ObjCRuntime {
     public static int __has_ptrcheck() {
         return __has_ptrcheck;
     }
-    private static final int USE_CLANG_TYPES = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define USE_CLANG_TYPES 0
-     * }
-     */
-    public static int USE_CLANG_TYPES() {
-        return USE_CLANG_TYPES;
-    }
-    private static final int __PTHREAD_SIZE__ = (int)8176L;
-    /**
-     * {@snippet lang=c :
-     * #define __PTHREAD_SIZE__ 8176
-     * }
-     */
-    public static int __PTHREAD_SIZE__() {
-        return __PTHREAD_SIZE__;
-    }
-    private static final int __PTHREAD_ATTR_SIZE__ = (int)56L;
-    /**
-     * {@snippet lang=c :
-     * #define __PTHREAD_ATTR_SIZE__ 56
-     * }
-     */
-    public static int __PTHREAD_ATTR_SIZE__() {
-        return __PTHREAD_ATTR_SIZE__;
-    }
-    private static final int __PTHREAD_MUTEXATTR_SIZE__ = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define __PTHREAD_MUTEXATTR_SIZE__ 8
-     * }
-     */
-    public static int __PTHREAD_MUTEXATTR_SIZE__() {
-        return __PTHREAD_MUTEXATTR_SIZE__;
-    }
-    private static final int __PTHREAD_MUTEX_SIZE__ = (int)56L;
-    /**
-     * {@snippet lang=c :
-     * #define __PTHREAD_MUTEX_SIZE__ 56
-     * }
-     */
-    public static int __PTHREAD_MUTEX_SIZE__() {
-        return __PTHREAD_MUTEX_SIZE__;
-    }
-    private static final int __PTHREAD_CONDATTR_SIZE__ = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define __PTHREAD_CONDATTR_SIZE__ 8
-     * }
-     */
-    public static int __PTHREAD_CONDATTR_SIZE__() {
-        return __PTHREAD_CONDATTR_SIZE__;
-    }
-    private static final int __PTHREAD_COND_SIZE__ = (int)40L;
-    /**
-     * {@snippet lang=c :
-     * #define __PTHREAD_COND_SIZE__ 40
-     * }
-     */
-    public static int __PTHREAD_COND_SIZE__() {
-        return __PTHREAD_COND_SIZE__;
-    }
-    private static final int __PTHREAD_ONCE_SIZE__ = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define __PTHREAD_ONCE_SIZE__ 8
-     * }
-     */
-    public static int __PTHREAD_ONCE_SIZE__() {
-        return __PTHREAD_ONCE_SIZE__;
-    }
-    private static final int __PTHREAD_RWLOCK_SIZE__ = (int)192L;
-    /**
-     * {@snippet lang=c :
-     * #define __PTHREAD_RWLOCK_SIZE__ 192
-     * }
-     */
-    public static int __PTHREAD_RWLOCK_SIZE__() {
-        return __PTHREAD_RWLOCK_SIZE__;
-    }
-    private static final int __PTHREAD_RWLOCKATTR_SIZE__ = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define __PTHREAD_RWLOCKATTR_SIZE__ 16
-     * }
-     */
-    public static int __PTHREAD_RWLOCKATTR_SIZE__() {
-        return __PTHREAD_RWLOCKATTR_SIZE__;
-    }
     private static final int __DARWIN_NSIG = (int)32L;
     /**
      * {@snippet lang=c :
@@ -2094,24 +2004,6 @@ public class ObjCRuntime {
     public static int RAND_MAX() {
         return RAND_MAX;
     }
-    private static final int __DARWIN_FD_SETSIZE = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_FD_SETSIZE 1024
-     * }
-     */
-    public static int __DARWIN_FD_SETSIZE() {
-        return __DARWIN_FD_SETSIZE;
-    }
-    private static final int __DARWIN_NBBY = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_NBBY 8
-     * }
-     */
-    public static int __DARWIN_NBBY() {
-        return __DARWIN_NBBY;
-    }
     private static final int OBJC_API_VERSION = (int)0L;
     /**
      * {@snippet lang=c :
@@ -2238,24 +2130,6 @@ public class ObjCRuntime {
     public static int OBJC_REALIZECLASSFROMSWIFT_DEFINED() {
         return OBJC_REALIZECLASSFROMSWIFT_DEFINED;
     }
-    private static final int _USE_FORTIFY_LEVEL = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define _USE_FORTIFY_LEVEL 2
-     * }
-     */
-    public static int _USE_FORTIFY_LEVEL() {
-        return _USE_FORTIFY_LEVEL;
-    }
-    private static final int __HAS_FIXED_CHK_PROTOTYPES = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define __HAS_FIXED_CHK_PROTOTYPES 1
-     * }
-     */
-    public static int __HAS_FIXED_CHK_PROTOTYPES() {
-        return __HAS_FIXED_CHK_PROTOTYPES;
-    }
     private static final int FALSE = (int)0L;
     /**
      * {@snippet lang=c :
@@ -2273,69 +2147,6 @@ public class ObjCRuntime {
      */
     public static int __DARWIN_CLK_TCK() {
         return __DARWIN_CLK_TCK;
-    }
-    private static final int API_TO_BE_DEPRECATED = (int)100000L;
-    /**
-     * {@snippet lang=c :
-     * #define API_TO_BE_DEPRECATED 100000
-     * }
-     */
-    public static int API_TO_BE_DEPRECATED() {
-        return API_TO_BE_DEPRECATED;
-    }
-    private static final int API_TO_BE_DEPRECATED_MACOS = (int)100000L;
-    /**
-     * {@snippet lang=c :
-     * #define API_TO_BE_DEPRECATED_MACOS 100000
-     * }
-     */
-    public static int API_TO_BE_DEPRECATED_MACOS() {
-        return API_TO_BE_DEPRECATED_MACOS;
-    }
-    private static final int API_TO_BE_DEPRECATED_IOS = (int)100000L;
-    /**
-     * {@snippet lang=c :
-     * #define API_TO_BE_DEPRECATED_IOS 100000
-     * }
-     */
-    public static int API_TO_BE_DEPRECATED_IOS() {
-        return API_TO_BE_DEPRECATED_IOS;
-    }
-    private static final int API_TO_BE_DEPRECATED_TVOS = (int)100000L;
-    /**
-     * {@snippet lang=c :
-     * #define API_TO_BE_DEPRECATED_TVOS 100000
-     * }
-     */
-    public static int API_TO_BE_DEPRECATED_TVOS() {
-        return API_TO_BE_DEPRECATED_TVOS;
-    }
-    private static final int API_TO_BE_DEPRECATED_WATCHOS = (int)100000L;
-    /**
-     * {@snippet lang=c :
-     * #define API_TO_BE_DEPRECATED_WATCHOS 100000
-     * }
-     */
-    public static int API_TO_BE_DEPRECATED_WATCHOS() {
-        return API_TO_BE_DEPRECATED_WATCHOS;
-    }
-    private static final int API_TO_BE_DEPRECATED_DRIVERKIT = (int)100000L;
-    /**
-     * {@snippet lang=c :
-     * #define API_TO_BE_DEPRECATED_DRIVERKIT 100000
-     * }
-     */
-    public static int API_TO_BE_DEPRECATED_DRIVERKIT() {
-        return API_TO_BE_DEPRECATED_DRIVERKIT;
-    }
-    private static final int API_TO_BE_DEPRECATED_VISIONOS = (int)100000L;
-    /**
-     * {@snippet lang=c :
-     * #define API_TO_BE_DEPRECATED_VISIONOS 100000
-     * }
-     */
-    public static int API_TO_BE_DEPRECATED_VISIONOS() {
-        return API_TO_BE_DEPRECATED_VISIONOS;
     }
     private static final int MALLOC_PTR_IN_USE_RANGE_TYPE = (int)1L;
     /**
@@ -2382,130 +2193,6 @@ public class ObjCRuntime {
     public static int MALLOC_VERBOSE_PRINT_LEVEL() {
         return MALLOC_VERBOSE_PRINT_LEVEL;
     }
-    /**
-     * {@snippet lang=c :
-     * typedef __int64_t __darwin_blkcnt_t
-     * }
-     */
-    public static final OfLong __darwin_blkcnt_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __int32_t __darwin_blksize_t
-     * }
-     */
-    public static final OfInt __darwin_blksize_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __int32_t __darwin_dev_t
-     * }
-     */
-    public static final OfInt __darwin_dev_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int __darwin_fsblkcnt_t
-     * }
-     */
-    public static final OfInt __darwin_fsblkcnt_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int __darwin_fsfilcnt_t
-     * }
-     */
-    public static final OfInt __darwin_fsfilcnt_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_gid_t
-     * }
-     */
-    public static final OfInt __darwin_gid_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_id_t
-     * }
-     */
-    public static final OfInt __darwin_id_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint64_t __darwin_ino64_t
-     * }
-     */
-    public static final OfLong __darwin_ino64_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_ino64_t __darwin_ino_t
-     * }
-     */
-    public static final OfLong __darwin_ino_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_natural_t __darwin_mach_port_name_t
-     * }
-     */
-    public static final OfInt __darwin_mach_port_name_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_mach_port_name_t __darwin_mach_port_t
-     * }
-     */
-    public static final OfInt __darwin_mach_port_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint16_t __darwin_mode_t
-     * }
-     */
-    public static final OfShort __darwin_mode_t = ObjCRuntime.C_SHORT;
-    /**
-     * {@snippet lang=c :
-     * typedef __int64_t __darwin_off_t
-     * }
-     */
-    public static final OfLong __darwin_off_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __int32_t __darwin_pid_t
-     * }
-     */
-    public static final OfInt __darwin_pid_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_sigset_t
-     * }
-     */
-    public static final OfInt __darwin_sigset_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __int32_t __darwin_suseconds_t
-     * }
-     */
-    public static final OfInt __darwin_suseconds_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_uid_t
-     * }
-     */
-    public static final OfInt __darwin_uid_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_useconds_t
-     * }
-     */
-    public static final OfInt __darwin_useconds_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned long __darwin_pthread_key_t
-     * }
-     */
-    public static final OfLong __darwin_pthread_key_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef struct _opaque_pthread_t {
-     *     long __sig;
-     *     struct __darwin_pthread_handler_rec *__cleanup_stack;
-     *     char __opaque[8176];
-     * } *__darwin_pthread_t
-     * }
-     */
-    public static final AddressLayout __darwin_pthread_t = ObjCRuntime.C_POINTER;
     private static final int P_ALL = (int)0L;
     /**
      * {@snippet lang=c :
@@ -2533,18 +2220,6 @@ public class ObjCRuntime {
     public static int P_PGID() {
         return P_PGID;
     }
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_pid_t pid_t
-     * }
-     */
-    public static final OfInt pid_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_id_t id_t
-     * }
-     */
-    public static final OfInt id_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
      * typedef signed char int8_t
@@ -2605,12 +2280,6 @@ public class ObjCRuntime {
      * }
      */
     public static final OfLong uintptr_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_sigset_t sigset_t
-     * }
-     */
-    public static final OfInt sigset_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
      * typedef __darwin_size_t size_t
@@ -3541,18 +3210,6 @@ public class ObjCRuntime {
            throw new AssertionError("should not reach here", ex$);
         }
     }
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_ct_rune_t ct_rune_t
-     * }
-     */
-    public static final OfInt ct_rune_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_rune_t rune_t
-     * }
-     */
-    public static final OfInt rune_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
      * typedef __darwin_wchar_t wchar_t
@@ -7811,18 +7468,6 @@ public class ObjCRuntime {
            throw new AssertionError("should not reach here", ex$);
         }
     }
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_dev_t dev_t
-     * }
-     */
-    public static final OfInt dev_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_mode_t mode_t
-     * }
-     */
-    public static final OfShort mode_t = ObjCRuntime.C_SHORT;
 
     private static class arc4random {
         public static final FunctionDescriptor DESC = FunctionDescriptor.of(
@@ -10359,12 +10004,6 @@ public class ObjCRuntime {
     public static final AddressLayout qaddr_t = ObjCRuntime.C_POINTER;
     /**
      * {@snippet lang=c :
-     * typedef char *caddr_t
-     * }
-     */
-    public static final AddressLayout caddr_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
      * typedef int32_t daddr_t
      * }
      */
@@ -10375,60 +10014,6 @@ public class ObjCRuntime {
      * }
      */
     public static final OfInt fixpt_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_blkcnt_t blkcnt_t
-     * }
-     */
-    public static final OfLong blkcnt_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_blksize_t blksize_t
-     * }
-     */
-    public static final OfInt blksize_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_gid_t gid_t
-     * }
-     */
-    public static final OfInt gid_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t in_addr_t
-     * }
-     */
-    public static final OfInt in_addr_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint16_t in_port_t
-     * }
-     */
-    public static final OfShort in_port_t = ObjCRuntime.C_SHORT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_ino_t ino_t
-     * }
-     */
-    public static final OfLong ino_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_ino64_t ino64_t
-     * }
-     */
-    public static final OfLong ino64_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __int32_t key_t
-     * }
-     */
-    public static final OfInt key_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint16_t nlink_t
-     * }
-     */
-    public static final OfShort nlink_t = ObjCRuntime.C_SHORT;
     /**
      * {@snippet lang=c :
      * typedef __darwin_off_t off_t
@@ -10449,12 +10034,6 @@ public class ObjCRuntime {
     public static final OfInt swblk_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
-     * typedef __darwin_clock_t clock_t
-     * }
-     */
-    public static final OfLong clock_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
      * typedef __darwin_ssize_t ssize_t
      * }
      */
@@ -10473,106 +10052,16 @@ public class ObjCRuntime {
     public static final OfInt useconds_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
-     * typedef __darwin_suseconds_t suseconds_t
-     * }
-     */
-    public static final OfInt suseconds_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
      * typedef int errno_t
      * }
      */
     public static final OfInt errno_t = ObjCRuntime.C_INT;
-
-    private static class __darwin_check_fd_set_overflow {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_INT
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("__darwin_check_fd_set_overflow");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int __darwin_check_fd_set_overflow(int, const void *, int)
-     * }
-     */
-    public static FunctionDescriptor __darwin_check_fd_set_overflow$descriptor() {
-        return __darwin_check_fd_set_overflow.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int __darwin_check_fd_set_overflow(int, const void *, int)
-     * }
-     */
-    public static MethodHandle __darwin_check_fd_set_overflow$handle() {
-        return __darwin_check_fd_set_overflow.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int __darwin_check_fd_set_overflow(int, const void *, int)
-     * }
-     */
-    public static MemorySegment __darwin_check_fd_set_overflow$address() {
-        return __darwin_check_fd_set_overflow.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int __darwin_check_fd_set_overflow(int, const void *, int)
-     * }
-     */
-    public static int __darwin_check_fd_set_overflow(int x0, MemorySegment x1, int x2) {
-        var mh$ = __darwin_check_fd_set_overflow.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("__darwin_check_fd_set_overflow", x0, x1, x2);
-            }
-            return (int)mh$.invokeExact(x0, x1, x2);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
     /**
      * {@snippet lang=c :
      * typedef __int32_t fd_mask
      * }
      */
     public static final OfInt fd_mask = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_pthread_t pthread_t
-     * }
-     */
-    public static final AddressLayout pthread_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_pthread_key_t pthread_key_t
-     * }
-     */
-    public static final OfLong pthread_key_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_fsblkcnt_t fsblkcnt_t
-     * }
-     */
-    public static final OfInt fsblkcnt_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_fsfilcnt_t fsfilcnt_t
-     * }
-     */
-    public static final OfInt fsfilcnt_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
      * typedef struct objc_class *Class
@@ -21691,12 +21180,6 @@ public class ObjCRuntime {
      * }
      */
     public static final OfInt boolean_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_mach_port_t mach_port_t
-     * }
-     */
-    public static final OfInt mach_port_t = ObjCRuntime.C_INT;
     private static final int MALLOC_TYPE_CALLSITE_FLAGS_V0_NONE = (int)0L;
     /**
      * {@snippet lang=c :
@@ -23930,15 +23413,6 @@ public class ObjCRuntime {
     public static long __DARWIN_C_LEVEL() {
         return __DARWIN_C_LEVEL;
     }
-    private static final MemorySegment __DARWIN_NULL = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_NULL (void*) 0
-     * }
-     */
-    public static MemorySegment __DARWIN_NULL() {
-        return __DARWIN_NULL;
-    }
     private static final int NSIG = (int)32L;
     /**
      * {@snippet lang=c :
@@ -24632,15 +24106,6 @@ public class ObjCRuntime {
     public static MemorySegment NULL() {
         return NULL;
     }
-    private static final long __DARWIN_NFDBITS = 32L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_NFDBITS 32
-     * }
-     */
-    public static long __DARWIN_NFDBITS() {
-        return __DARWIN_NFDBITS;
-    }
     private static final int NBBY = (int)8L;
     /**
      * {@snippet lang=c :
@@ -24658,15 +24123,6 @@ public class ObjCRuntime {
      */
     public static long NFDBITS() {
         return NFDBITS;
-    }
-    private static final int FD_SETSIZE = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define FD_SETSIZE 1024
-     * }
-     */
-    public static int FD_SETSIZE() {
-        return FD_SETSIZE;
     }
     private static final boolean YES = true;
     /**
