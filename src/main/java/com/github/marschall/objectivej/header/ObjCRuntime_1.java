@@ -17,384 +17,6 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
     ObjCRuntime_1() {
         // Should not be called directly
     }
-    private static final int THREAD_STATE_NONE = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_STATE_NONE 5
-     * }
-     */
-    public static int THREAD_STATE_NONE() {
-        return THREAD_STATE_NONE;
-    }
-    private static final int ARM_THREAD_STATE64 = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_THREAD_STATE64 6
-     * }
-     */
-    public static int ARM_THREAD_STATE64() {
-        return ARM_THREAD_STATE64;
-    }
-    private static final int ARM_EXCEPTION_STATE64 = (int)7L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_EXCEPTION_STATE64 7
-     * }
-     */
-    public static int ARM_EXCEPTION_STATE64() {
-        return ARM_EXCEPTION_STATE64;
-    }
-    private static final int ARM_THREAD_STATE32 = (int)9L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_THREAD_STATE32 9
-     * }
-     */
-    public static int ARM_THREAD_STATE32() {
-        return ARM_THREAD_STATE32;
-    }
-    private static final int ARM_EXCEPTION_STATE64_V2 = (int)10L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_EXCEPTION_STATE64_V2 10
-     * }
-     */
-    public static int ARM_EXCEPTION_STATE64_V2() {
-        return ARM_EXCEPTION_STATE64_V2;
-    }
-    private static final int ARM_DEBUG_STATE32 = (int)14L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_DEBUG_STATE32 14
-     * }
-     */
-    public static int ARM_DEBUG_STATE32() {
-        return ARM_DEBUG_STATE32;
-    }
-    private static final int ARM_DEBUG_STATE64 = (int)15L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_DEBUG_STATE64 15
-     * }
-     */
-    public static int ARM_DEBUG_STATE64() {
-        return ARM_DEBUG_STATE64;
-    }
-    private static final int ARM_NEON_STATE = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_NEON_STATE 16
-     * }
-     */
-    public static int ARM_NEON_STATE() {
-        return ARM_NEON_STATE;
-    }
-    private static final int ARM_NEON_STATE64 = (int)17L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_NEON_STATE64 17
-     * }
-     */
-    public static int ARM_NEON_STATE64() {
-        return ARM_NEON_STATE64;
-    }
-    private static final int ARM_CPMU_STATE64 = (int)18L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_CPMU_STATE64 18
-     * }
-     */
-    public static int ARM_CPMU_STATE64() {
-        return ARM_CPMU_STATE64;
-    }
-    private static final int ARM_PAGEIN_STATE = (int)27L;
-    /**
-     * {@snippet lang=c :
-     * #define ARM_PAGEIN_STATE 27
-     * }
-     */
-    public static int ARM_PAGEIN_STATE() {
-        return ARM_PAGEIN_STATE;
-    }
-    private static final int THREAD_STATE_FLAVORS = (int)29L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_STATE_FLAVORS 29
-     * }
-     */
-    public static int THREAD_STATE_FLAVORS() {
-        return THREAD_STATE_FLAVORS;
-    }
-    private static final int THREAD_STATE_FLAVOR_LIST = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_STATE_FLAVOR_LIST 0
-     * }
-     */
-    public static int THREAD_STATE_FLAVOR_LIST() {
-        return THREAD_STATE_FLAVOR_LIST;
-    }
-    private static final int THREAD_STATE_FLAVOR_LIST_NEW = (int)128L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_STATE_FLAVOR_LIST_NEW 128
-     * }
-     */
-    public static int THREAD_STATE_FLAVOR_LIST_NEW() {
-        return THREAD_STATE_FLAVOR_LIST_NEW;
-    }
-    private static final int THREAD_STATE_FLAVOR_LIST_10_9 = (int)129L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_STATE_FLAVOR_LIST_10_9 129
-     * }
-     */
-    public static int THREAD_STATE_FLAVOR_LIST_10_9() {
-        return THREAD_STATE_FLAVOR_LIST_10_9;
-    }
-    private static final int THREAD_STATE_FLAVOR_LIST_10_13 = (int)130L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_STATE_FLAVOR_LIST_10_13 130
-     * }
-     */
-    public static int THREAD_STATE_FLAVOR_LIST_10_13() {
-        return THREAD_STATE_FLAVOR_LIST_10_13;
-    }
-    private static final int THREAD_STATE_FLAVOR_LIST_10_15 = (int)131L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_STATE_FLAVOR_LIST_10_15 131
-     * }
-     */
-    public static int THREAD_STATE_FLAVOR_LIST_10_15() {
-        return THREAD_STATE_FLAVOR_LIST_10_15;
-    }
-    private static final int THREAD_CONVERT_THREAD_STATE_TO_SELF = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_CONVERT_THREAD_STATE_TO_SELF 1
-     * }
-     */
-    public static int THREAD_CONVERT_THREAD_STATE_TO_SELF() {
-        return THREAD_CONVERT_THREAD_STATE_TO_SELF;
-    }
-    private static final int THREAD_CONVERT_THREAD_STATE_FROM_SELF = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define THREAD_CONVERT_THREAD_STATE_FROM_SELF 2
-     * }
-     */
-    public static int THREAD_CONVERT_THREAD_STATE_FROM_SELF() {
-        return THREAD_CONVERT_THREAD_STATE_FROM_SELF;
-    }
-    private static final int PROCESSOR_CPU_STAT = (int)268435459L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_CPU_STAT 268435459
-     * }
-     */
-    public static int PROCESSOR_CPU_STAT() {
-        return PROCESSOR_CPU_STAT;
-    }
-    private static final int PROCESSOR_CPU_STAT64 = (int)268435460L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_CPU_STAT64 268435460
-     * }
-     */
-    public static int PROCESSOR_CPU_STAT64() {
-        return PROCESSOR_CPU_STAT64;
-    }
-    private static final int PROCESSOR_BASIC_INFO = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_BASIC_INFO 1
-     * }
-     */
-    public static int PROCESSOR_BASIC_INFO() {
-        return PROCESSOR_BASIC_INFO;
-    }
-    private static final int PROCESSOR_CPU_LOAD_INFO = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_CPU_LOAD_INFO 2
-     * }
-     */
-    public static int PROCESSOR_CPU_LOAD_INFO() {
-        return PROCESSOR_CPU_LOAD_INFO;
-    }
-    private static final int PROCESSOR_PM_REGS_INFO = (int)268435457L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_PM_REGS_INFO 268435457
-     * }
-     */
-    public static int PROCESSOR_PM_REGS_INFO() {
-        return PROCESSOR_PM_REGS_INFO;
-    }
-    private static final int PROCESSOR_TEMPERATURE = (int)268435458L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_TEMPERATURE 268435458
-     * }
-     */
-    public static int PROCESSOR_TEMPERATURE() {
-        return PROCESSOR_TEMPERATURE;
-    }
-    private static final int LOAD_SCALE = (int)1000L;
-    /**
-     * {@snippet lang=c :
-     * #define LOAD_SCALE 1000
-     * }
-     */
-    public static int LOAD_SCALE() {
-        return LOAD_SCALE;
-    }
-    private static final int PROCESSOR_SET_BASIC_INFO = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_SET_BASIC_INFO 5
-     * }
-     */
-    public static int PROCESSOR_SET_BASIC_INFO() {
-        return PROCESSOR_SET_BASIC_INFO;
-    }
-    private static final int PROCESSOR_SET_LOAD_INFO = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define PROCESSOR_SET_LOAD_INFO 4
-     * }
-     */
-    public static int PROCESSOR_SET_LOAD_INFO() {
-        return PROCESSOR_SET_LOAD_INFO;
-    }
-    private static final int POLICY_NULL = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_NULL 0
-     * }
-     */
-    public static int POLICY_NULL() {
-        return POLICY_NULL;
-    }
-    private static final int POLICY_TIMESHARE = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_TIMESHARE 1
-     * }
-     */
-    public static int POLICY_TIMESHARE() {
-        return POLICY_TIMESHARE;
-    }
-    private static final int POLICY_RR = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_RR 2
-     * }
-     */
-    public static int POLICY_RR() {
-        return POLICY_RR;
-    }
-    private static final int POLICY_FIFO = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define POLICY_FIFO 4
-     * }
-     */
-    public static int POLICY_FIFO() {
-        return POLICY_FIFO;
-    }
-    private static final int TASK_BASIC_INFO_32 = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_BASIC_INFO_32 4
-     * }
-     */
-    public static int TASK_BASIC_INFO_32() {
-        return TASK_BASIC_INFO_32;
-    }
-    private static final int TASK_BASIC2_INFO_32 = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_BASIC2_INFO_32 6
-     * }
-     */
-    public static int TASK_BASIC2_INFO_32() {
-        return TASK_BASIC2_INFO_32;
-    }
-    private static final int TASK_EVENTS_INFO = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_EVENTS_INFO 2
-     * }
-     */
-    public static int TASK_EVENTS_INFO() {
-        return TASK_EVENTS_INFO;
-    }
-    private static final int TASK_THREAD_TIMES_INFO = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_THREAD_TIMES_INFO 3
-     * }
-     */
-    public static int TASK_THREAD_TIMES_INFO() {
-        return TASK_THREAD_TIMES_INFO;
-    }
-    private static final int TASK_ABSOLUTETIME_INFO = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_ABSOLUTETIME_INFO 1
-     * }
-     */
-    public static int TASK_ABSOLUTETIME_INFO() {
-        return TASK_ABSOLUTETIME_INFO;
-    }
-    private static final int TASK_KERNELMEMORY_INFO = (int)7L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_KERNELMEMORY_INFO 7
-     * }
-     */
-    public static int TASK_KERNELMEMORY_INFO() {
-        return TASK_KERNELMEMORY_INFO;
-    }
-    private static final int TASK_SECURITY_TOKEN = (int)13L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_SECURITY_TOKEN 13
-     * }
-     */
-    public static int TASK_SECURITY_TOKEN() {
-        return TASK_SECURITY_TOKEN;
-    }
-    private static final int TASK_AUDIT_TOKEN = (int)15L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_AUDIT_TOKEN 15
-     * }
-     */
-    public static int TASK_AUDIT_TOKEN() {
-        return TASK_AUDIT_TOKEN;
-    }
-    private static final int TASK_AFFINITY_TAG_INFO = (int)16L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_AFFINITY_TAG_INFO 16
-     * }
-     */
-    public static int TASK_AFFINITY_TAG_INFO() {
-        return TASK_AFFINITY_TAG_INFO;
-    }
-    private static final int TASK_DYLD_INFO = (int)17L;
-    /**
-     * {@snippet lang=c :
-     * #define TASK_DYLD_INFO 17
-     * }
-     */
-    public static int TASK_DYLD_INFO() {
-        return TASK_DYLD_INFO;
-    }
     private static final int TASK_DYLD_ALL_IMAGE_INFO_32 = (int)0L;
     /**
      * {@snippet lang=c :
@@ -1205,96 +827,6 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
     public static int THREAD_READ_PORT() {
         return THREAD_READ_PORT;
     }
-    private static final int SYSTEM_CLOCK = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define SYSTEM_CLOCK 0
-     * }
-     */
-    public static int SYSTEM_CLOCK() {
-        return SYSTEM_CLOCK;
-    }
-    private static final int CALENDAR_CLOCK = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define CALENDAR_CLOCK 1
-     * }
-     */
-    public static int CALENDAR_CLOCK() {
-        return CALENDAR_CLOCK;
-    }
-    private static final int REALTIME_CLOCK = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define REALTIME_CLOCK 0
-     * }
-     */
-    public static int REALTIME_CLOCK() {
-        return REALTIME_CLOCK;
-    }
-    private static final int CLOCK_GET_TIME_RES = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define CLOCK_GET_TIME_RES 1
-     * }
-     */
-    public static int CLOCK_GET_TIME_RES() {
-        return CLOCK_GET_TIME_RES;
-    }
-    private static final int CLOCK_ALARM_CURRES = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define CLOCK_ALARM_CURRES 3
-     * }
-     */
-    public static int CLOCK_ALARM_CURRES() {
-        return CLOCK_ALARM_CURRES;
-    }
-    private static final int CLOCK_ALARM_MINRES = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define CLOCK_ALARM_MINRES 4
-     * }
-     */
-    public static int CLOCK_ALARM_MINRES() {
-        return CLOCK_ALARM_MINRES;
-    }
-    private static final int CLOCK_ALARM_MAXRES = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define CLOCK_ALARM_MAXRES 5
-     * }
-     */
-    public static int CLOCK_ALARM_MAXRES() {
-        return CLOCK_ALARM_MAXRES;
-    }
-    private static final int ALRMTYPE = (int)255L;
-    /**
-     * {@snippet lang=c :
-     * #define ALRMTYPE 255
-     * }
-     */
-    public static int ALRMTYPE() {
-        return ALRMTYPE;
-    }
-    private static final int TIME_ABSOLUTE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TIME_ABSOLUTE 0
-     * }
-     */
-    public static int TIME_ABSOLUTE() {
-        return TIME_ABSOLUTE;
-    }
-    private static final int TIME_RELATIVE = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TIME_RELATIVE 1
-     * }
-     */
-    public static int TIME_RELATIVE() {
-        return TIME_RELATIVE;
-    }
     private static final int MATTR_CACHE = (int)1L;
     /**
      * {@snippet lang=c :
@@ -1510,42 +1042,6 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
      */
     public static int VM_PURGABLE_DENY() {
         return VM_PURGABLE_DENY;
-    }
-    private static final int BYTE_SIZE = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define BYTE_SIZE 8
-     * }
-     */
-    public static int BYTE_SIZE() {
-        return BYTE_SIZE;
-    }
-    private static final int PAGE_MAX_SHIFT = (int)14L;
-    /**
-     * {@snippet lang=c :
-     * #define PAGE_MAX_SHIFT 14
-     * }
-     */
-    public static int PAGE_MAX_SHIFT() {
-        return PAGE_MAX_SHIFT;
-    }
-    private static final int PAGE_MIN_SHIFT = (int)12L;
-    /**
-     * {@snippet lang=c :
-     * #define PAGE_MIN_SHIFT 12
-     * }
-     */
-    public static int PAGE_MIN_SHIFT() {
-        return PAGE_MIN_SHIFT;
-    }
-    private static final int SWI_SYSCALL = (int)128L;
-    /**
-     * {@snippet lang=c :
-     * #define SWI_SYSCALL 128
-     * }
-     */
-    public static int SWI_SYSCALL() {
-        return SWI_SYSCALL;
     }
     private static final int VM_REGION_BASIC_INFO_64 = (int)9L;
     /**
@@ -24257,90 +23753,6 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
     public static final OfInt kern_return_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
-     * typedef __darwin_natural_t natural_t
-     * }
-     */
-    public static final OfInt natural_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int integer_t
-     * }
-     */
-    public static final OfInt integer_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef uintptr_t vm_offset_t
-     * }
-     */
-    public static final OfLong vm_offset_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef uintptr_t vm_size_t
-     * }
-     */
-    public static final OfLong vm_size_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef uint64_t mach_vm_address_t
-     * }
-     */
-    public static final OfLong mach_vm_address_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef uint64_t mach_vm_offset_t
-     * }
-     */
-    public static final OfLong mach_vm_offset_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef uint64_t mach_vm_size_t
-     * }
-     */
-    public static final OfLong mach_vm_size_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef uint64_t vm_map_offset_t
-     * }
-     */
-    public static final OfLong vm_map_offset_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef uint64_t vm_map_address_t
-     * }
-     */
-    public static final OfLong vm_map_address_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef uint64_t vm_map_size_t
-     * }
-     */
-    public static final OfLong vm_map_size_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef uint32_t vm32_offset_t
-     * }
-     */
-    public static final OfInt vm32_offset_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef uint32_t vm32_address_t
-     * }
-     */
-    public static final OfInt vm32_address_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef uint32_t vm32_size_t
-     * }
-     */
-    public static final OfInt vm32_size_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef vm_offset_t mach_port_context_t
-     * }
-     */
-    public static final OfLong mach_port_context_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
      * typedef natural_t mach_port_name_t
      * }
      */
@@ -25230,122 +24642,6 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
     public static int kGUARD_EXC_RECLAIM_DEALLOCATE_FAILURE() {
         return kGUARD_EXC_RECLAIM_DEALLOCATE_FAILURE;
     }
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *host_info_t
-     * }
-     */
-    public static final AddressLayout host_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t *host_info64_t
-     * }
-     */
-    public static final AddressLayout host_info64_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef integer_t host_flavor_t
-     * }
-     */
-    public static final OfInt host_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef struct host_can_has_debugger_info {
-     *     boolean_t can_has_debugger;
-     * } *host_can_has_debugger_info_t
-     * }
-     */
-    public static final AddressLayout host_can_has_debugger_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct host_basic_info {
-     *     integer_t max_cpus;
-     *     integer_t avail_cpus;
-     *     natural_t memory_size;
-     *     cpu_type_t cpu_type;
-     *     cpu_subtype_t cpu_subtype;
-     *     cpu_threadtype_t cpu_threadtype;
-     *     integer_t physical_cpu;
-     *     integer_t physical_cpu_max;
-     *     integer_t logical_cpu;
-     *     integer_t logical_cpu_max;
-     *     uint64_t max_mem;
-     * } *host_basic_info_t
-     * }
-     */
-    public static final AddressLayout host_basic_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct host_sched_info {
-     *     integer_t min_timeout;
-     *     integer_t min_quantum;
-     * } *host_sched_info_t
-     * }
-     */
-    public static final AddressLayout host_sched_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct kernel_resource_sizes {
-     *     natural_t task;
-     *     natural_t thread;
-     *     natural_t port;
-     *     natural_t memory_region;
-     *     natural_t memory_object;
-     * } *kernel_resource_sizes_t
-     * }
-     */
-    public static final AddressLayout kernel_resource_sizes_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct host_priority_info {
-     *     integer_t kernel_priority;
-     *     integer_t system_priority;
-     *     integer_t server_priority;
-     *     integer_t user_priority;
-     *     integer_t depress_priority;
-     *     integer_t idle_priority;
-     *     integer_t minimum_priority;
-     *     integer_t maximum_priority;
-     * } *host_priority_info_t
-     * }
-     */
-    public static final AddressLayout host_priority_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct host_load_info {
-     *     integer_t avenrun[3];
-     *     integer_t mach_factor[3];
-     * } *host_load_info_t
-     * }
-     */
-    public static final AddressLayout host_load_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct vm_purgeable_info {
-     *     vm_purgeable_stat_t fifo_data[8];
-     *     vm_purgeable_stat_t obsolete_data;
-     *     vm_purgeable_stat_t lifo_data[8];
-     * } *host_purgable_info_t
-     * }
-     */
-    public static final AddressLayout host_purgable_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct host_cpu_load_info {
-     *     natural_t cpu_ticks[4];
-     * } *host_cpu_load_info_t
-     * }
-     */
-    public static final AddressLayout host_cpu_load_info_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef struct host_preferred_user_arch {
-     *     cpu_type_t cpu_type;
-     *     cpu_subtype_t cpu_subtype;
-     * } *host_preferred_user_arch_t
-     * }
-     */
-    public static final AddressLayout host_preferred_user_arch_t = ObjCRuntime.C_POINTER;
     /**
      * {@snippet lang=c :
      * typedef int vm_prot_t
@@ -26664,42 +25960,6 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
     public static final AddressLayout thread_throughput_qos_policy_t = ObjCRuntime.C_POINTER;
     /**
      * {@snippet lang=c :
-     * typedef int alarm_type_t
-     * }
-     */
-    public static final OfInt alarm_type_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int sleep_type_t
-     * }
-     */
-    public static final OfInt sleep_type_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int clock_id_t
-     * }
-     */
-    public static final OfInt clock_id_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int clock_flavor_t
-     * }
-     */
-    public static final OfInt clock_flavor_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int *clock_attr_t
-     * }
-     */
-    public static final AddressLayout clock_attr_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int clock_res_t
-     * }
-     */
-    public static final OfInt clock_res_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
      * typedef unsigned int vm_machine_attribute_t
      * }
      */
@@ -27010,5 +26270,2585 @@ public class ObjCRuntime_1 extends ObjCRuntime_2 {
      * }
      */
     public static final AddressLayout vm_region_info_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef int *vm_region_info_64_t
+     * }
+     */
+    public static final AddressLayout vm_region_info_64_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef int *vm_region_recurse_info_t
+     * }
+     */
+    public static final AddressLayout vm_region_recurse_info_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef int *vm_region_recurse_info_64_t
+     * }
+     */
+    public static final AddressLayout vm_region_recurse_info_64_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef int vm_region_flavor_t
+     * }
+     */
+    public static final OfInt vm_region_flavor_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef struct vm_region_basic_info_64 {
+     *     vm_prot_t protection;
+     *     vm_prot_t max_protection;
+     *     vm_inherit_t inheritance;
+     *     boolean_t shared;
+     *     boolean_t reserved;
+     *     memory_object_offset_t offset;
+     *     vm_behavior_t behavior;
+     *     unsigned short user_wired_count;
+     * } *vm_region_basic_info_64_t
+     * }
+     */
+    public static final AddressLayout vm_region_basic_info_64_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef struct vm_region_basic_info {
+     *     vm_prot_t protection;
+     *     vm_prot_t max_protection;
+     *     vm_inherit_t inheritance;
+     *     boolean_t shared;
+     *     boolean_t reserved;
+     *     uint32_t offset;
+     *     vm_behavior_t behavior;
+     *     unsigned short user_wired_count;
+     * } *vm_region_basic_info_t
+     * }
+     */
+    public static final AddressLayout vm_region_basic_info_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef struct vm_region_extended_info {
+     *     vm_prot_t protection;
+     *     unsigned int user_tag;
+     *     unsigned int pages_resident;
+     *     unsigned int pages_shared_now_private;
+     *     unsigned int pages_swapped_out;
+     *     unsigned int pages_dirtied;
+     *     unsigned int ref_count;
+     *     unsigned short shadow_depth;
+     *     unsigned char external_pager;
+     *     unsigned char share_mode;
+     *     unsigned int pages_reusable;
+     * } *vm_region_extended_info_t
+     * }
+     */
+    public static final AddressLayout vm_region_extended_info_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef struct vm_region_top_info {
+     *     unsigned int obj_id;
+     *     unsigned int ref_count;
+     *     unsigned int private_pages_resident;
+     *     unsigned int shared_pages_resident;
+     *     unsigned char share_mode;
+     * } *vm_region_top_info_t
+     * }
+     */
+    public static final AddressLayout vm_region_top_info_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef struct vm_region_submap_info {
+     *     vm_prot_t protection;
+     *     vm_prot_t max_protection;
+     *     vm_inherit_t inheritance;
+     *     uint32_t offset;
+     *     unsigned int user_tag;
+     *     unsigned int pages_resident;
+     *     unsigned int pages_shared_now_private;
+     *     unsigned int pages_swapped_out;
+     *     unsigned int pages_dirtied;
+     *     unsigned int ref_count;
+     *     unsigned short shadow_depth;
+     *     unsigned char external_pager;
+     *     unsigned char share_mode;
+     *     boolean_t is_submap;
+     *     vm_behavior_t behavior;
+     *     vm32_object_id_t object_id;
+     *     unsigned short user_wired_count;
+     * } *vm_region_submap_info_t
+     * }
+     */
+    public static final AddressLayout vm_region_submap_info_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef struct vm_region_submap_info_64 {
+     *     vm_prot_t protection;
+     *     vm_prot_t max_protection;
+     *     vm_inherit_t inheritance;
+     *     memory_object_offset_t offset;
+     *     unsigned int user_tag;
+     *     unsigned int pages_resident;
+     *     unsigned int pages_shared_now_private;
+     *     unsigned int pages_swapped_out;
+     *     unsigned int pages_dirtied;
+     *     unsigned int ref_count;
+     *     unsigned short shadow_depth;
+     *     unsigned char external_pager;
+     *     unsigned char share_mode;
+     *     boolean_t is_submap;
+     *     vm_behavior_t behavior;
+     *     vm32_object_id_t object_id;
+     *     unsigned short user_wired_count;
+     *     unsigned int pages_reusable;
+     *     vm_object_id_t object_id_full;
+     * } *vm_region_submap_info_64_t
+     * }
+     */
+    public static final AddressLayout vm_region_submap_info_64_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef struct vm_region_submap_short_info_64 {
+     *     vm_prot_t protection;
+     *     vm_prot_t max_protection;
+     *     vm_inherit_t inheritance;
+     *     memory_object_offset_t offset;
+     *     unsigned int user_tag;
+     *     unsigned int ref_count;
+     *     unsigned short shadow_depth;
+     *     unsigned char external_pager;
+     *     unsigned char share_mode;
+     *     boolean_t is_submap;
+     *     vm_behavior_t behavior;
+     *     vm32_object_id_t object_id;
+     *     unsigned short user_wired_count;
+     * } *vm_region_submap_short_info_64_t
+     * }
+     */
+    public static final AddressLayout vm_region_submap_short_info_64_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef int *vm_page_info_t
+     * }
+     */
+    public static final AddressLayout vm_page_info_t = ObjCRuntime.C_POINTER;
+    /**
+     * {@snippet lang=c :
+     * typedef int vm_page_info_flavor_t
+     * }
+     */
+    public static final OfInt vm_page_info_flavor_t = ObjCRuntime.C_INT;
+    /**
+     * {@snippet lang=c :
+     * typedef struct vm_page_info_basic {
+     *     int disposition;
+     *     int ref_count;
+     *     vm_object_id_t object_id;
+     *     memory_object_offset_t offset;
+     *     int depth;
+     *     int __pad;
+     * } *vm_page_info_basic_t
+     * }
+     */
+    public static final AddressLayout vm_page_info_basic_t = ObjCRuntime.C_POINTER;
+    private static final int MALLOC_TYPE_CALLSITE_FLAGS_V0_NONE = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.MALLOC_TYPE_CALLSITE_FLAGS_V0_NONE = 0
+     * }
+     */
+    public static int MALLOC_TYPE_CALLSITE_FLAGS_V0_NONE() {
+        return MALLOC_TYPE_CALLSITE_FLAGS_V0_NONE;
+    }
+    private static final int MALLOC_TYPE_CALLSITE_FLAGS_V0_FIXED_SIZE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.MALLOC_TYPE_CALLSITE_FLAGS_V0_FIXED_SIZE = 1
+     * }
+     */
+    public static int MALLOC_TYPE_CALLSITE_FLAGS_V0_FIXED_SIZE() {
+        return MALLOC_TYPE_CALLSITE_FLAGS_V0_FIXED_SIZE;
+    }
+    private static final int MALLOC_TYPE_CALLSITE_FLAGS_V0_ARRAY = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.MALLOC_TYPE_CALLSITE_FLAGS_V0_ARRAY = 2
+     * }
+     */
+    public static int MALLOC_TYPE_CALLSITE_FLAGS_V0_ARRAY() {
+        return MALLOC_TYPE_CALLSITE_FLAGS_V0_ARRAY;
+    }
+    private static final int MALLOC_TYPE_KIND_V0_OTHER = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.MALLOC_TYPE_KIND_V0_OTHER = 0
+     * }
+     */
+    public static int MALLOC_TYPE_KIND_V0_OTHER() {
+        return MALLOC_TYPE_KIND_V0_OTHER;
+    }
+    private static final int MALLOC_TYPE_KIND_V0_OBJC = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.MALLOC_TYPE_KIND_V0_OBJC = 1
+     * }
+     */
+    public static int MALLOC_TYPE_KIND_V0_OBJC() {
+        return MALLOC_TYPE_KIND_V0_OBJC;
+    }
+    private static final int MALLOC_TYPE_KIND_V0_SWIFT = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.MALLOC_TYPE_KIND_V0_SWIFT = 2
+     * }
+     */
+    public static int MALLOC_TYPE_KIND_V0_SWIFT() {
+        return MALLOC_TYPE_KIND_V0_SWIFT;
+    }
+    private static final int MALLOC_TYPE_KIND_V0_CXX = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.MALLOC_TYPE_KIND_V0_CXX = 3
+     * }
+     */
+    public static int MALLOC_TYPE_KIND_V0_CXX() {
+        return MALLOC_TYPE_KIND_V0_CXX;
+    }
+
+    private static class malloc_default_zone {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_default_zone");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_default_zone()
+     * }
+     */
+    public static FunctionDescriptor malloc_default_zone$descriptor() {
+        return malloc_default_zone.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_default_zone()
+     * }
+     */
+    public static MethodHandle malloc_default_zone$handle() {
+        return malloc_default_zone.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_default_zone()
+     * }
+     */
+    public static MemorySegment malloc_default_zone$address() {
+        return malloc_default_zone.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_default_zone()
+     * }
+     */
+    public static MemorySegment malloc_default_zone() {
+        var mh$ = malloc_default_zone.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_default_zone");
+            }
+            return (MemorySegment)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_create_zone {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_create_zone");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned int flags)
+     * }
+     */
+    public static FunctionDescriptor malloc_create_zone$descriptor() {
+        return malloc_create_zone.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned int flags)
+     * }
+     */
+    public static MethodHandle malloc_create_zone$handle() {
+        return malloc_create_zone.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned int flags)
+     * }
+     */
+    public static MemorySegment malloc_create_zone$address() {
+        return malloc_create_zone.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned int flags)
+     * }
+     */
+    public static MemorySegment malloc_create_zone(long start_size, int flags) {
+        var mh$ = malloc_create_zone.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_create_zone", start_size, flags);
+            }
+            return (MemorySegment)mh$.invokeExact(start_size, flags);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_destroy_zone {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_destroy_zone");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_destroy_zone(malloc_zone_t *zone)
+     * }
+     */
+    public static FunctionDescriptor malloc_destroy_zone$descriptor() {
+        return malloc_destroy_zone.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_destroy_zone(malloc_zone_t *zone)
+     * }
+     */
+    public static MethodHandle malloc_destroy_zone$handle() {
+        return malloc_destroy_zone.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_destroy_zone(malloc_zone_t *zone)
+     * }
+     */
+    public static MemorySegment malloc_destroy_zone$address() {
+        return malloc_destroy_zone.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_destroy_zone(malloc_zone_t *zone)
+     * }
+     */
+    public static void malloc_destroy_zone(MemorySegment zone) {
+        var mh$ = malloc_destroy_zone.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_destroy_zone", zone);
+            }
+            mh$.invokeExact(zone);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_malloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_malloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_malloc$descriptor() {
+        return malloc_zone_malloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size)
+     * }
+     */
+    public static MethodHandle malloc_zone_malloc$handle() {
+        return malloc_zone_malloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_malloc$address() {
+        return malloc_zone_malloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_malloc(MemorySegment zone, long size) {
+        var mh$ = malloc_zone_malloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_malloc", zone, size);
+            }
+            return (MemorySegment)mh$.invokeExact(zone, size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_calloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_calloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_calloc$descriptor() {
+        return malloc_zone_calloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
+     * }
+     */
+    public static MethodHandle malloc_zone_calloc$handle() {
+        return malloc_zone_calloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_calloc$address() {
+        return malloc_zone_calloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_calloc(MemorySegment zone, long num_items, long size) {
+        var mh$ = malloc_zone_calloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_calloc", zone, num_items, size);
+            }
+            return (MemorySegment)mh$.invokeExact(zone, num_items, size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_valloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_valloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_valloc$descriptor() {
+        return malloc_zone_valloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size)
+     * }
+     */
+    public static MethodHandle malloc_zone_valloc$handle() {
+        return malloc_zone_valloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_valloc$address() {
+        return malloc_zone_valloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_valloc(MemorySegment zone, long size) {
+        var mh$ = malloc_zone_valloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_valloc", zone, size);
+            }
+            return (MemorySegment)mh$.invokeExact(zone, size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_free {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_free");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_free(malloc_zone_t *zone, void *ptr)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_free$descriptor() {
+        return malloc_zone_free.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_free(malloc_zone_t *zone, void *ptr)
+     * }
+     */
+    public static MethodHandle malloc_zone_free$handle() {
+        return malloc_zone_free.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_free(malloc_zone_t *zone, void *ptr)
+     * }
+     */
+    public static MemorySegment malloc_zone_free$address() {
+        return malloc_zone_free.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_free(malloc_zone_t *zone, void *ptr)
+     * }
+     */
+    public static void malloc_zone_free(MemorySegment zone, MemorySegment ptr) {
+        var mh$ = malloc_zone_free.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_free", zone, ptr);
+            }
+            mh$.invokeExact(zone, ptr);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_realloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_realloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_realloc$descriptor() {
+        return malloc_zone_realloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size)
+     * }
+     */
+    public static MethodHandle malloc_zone_realloc$handle() {
+        return malloc_zone_realloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_realloc$address() {
+        return malloc_zone_realloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_realloc(MemorySegment zone, MemorySegment ptr, long size) {
+        var mh$ = malloc_zone_realloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_realloc", zone, ptr, size);
+            }
+            return (MemorySegment)mh$.invokeExact(zone, ptr, size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_from_ptr {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_from_ptr");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_from_ptr$descriptor() {
+        return malloc_zone_from_ptr.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr)
+     * }
+     */
+    public static MethodHandle malloc_zone_from_ptr$handle() {
+        return malloc_zone_from_ptr.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr)
+     * }
+     */
+    public static MemorySegment malloc_zone_from_ptr$address() {
+        return malloc_zone_from_ptr.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr)
+     * }
+     */
+    public static MemorySegment malloc_zone_from_ptr(MemorySegment ptr) {
+        var mh$ = malloc_zone_from_ptr.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_from_ptr", ptr);
+            }
+            return (MemorySegment)mh$.invokeExact(ptr);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_size {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_size");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern size_t malloc_size(const void *ptr)
+     * }
+     */
+    public static FunctionDescriptor malloc_size$descriptor() {
+        return malloc_size.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern size_t malloc_size(const void *ptr)
+     * }
+     */
+    public static MethodHandle malloc_size$handle() {
+        return malloc_size.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern size_t malloc_size(const void *ptr)
+     * }
+     */
+    public static MemorySegment malloc_size$address() {
+        return malloc_size.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern size_t malloc_size(const void *ptr)
+     * }
+     */
+    public static long malloc_size(MemorySegment ptr) {
+        var mh$ = malloc_size.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_size", ptr);
+            }
+            return (long)mh$.invokeExact(ptr);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_good_size {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_good_size");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern size_t malloc_good_size(size_t size)
+     * }
+     */
+    public static FunctionDescriptor malloc_good_size$descriptor() {
+        return malloc_good_size.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern size_t malloc_good_size(size_t size)
+     * }
+     */
+    public static MethodHandle malloc_good_size$handle() {
+        return malloc_good_size.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern size_t malloc_good_size(size_t size)
+     * }
+     */
+    public static MemorySegment malloc_good_size$address() {
+        return malloc_good_size.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern size_t malloc_good_size(size_t size)
+     * }
+     */
+    public static long malloc_good_size(long size) {
+        var mh$ = malloc_good_size.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_good_size", size);
+            }
+            return (long)mh$.invokeExact(size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_memalign {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_memalign");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_memalign$descriptor() {
+        return malloc_zone_memalign.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size)
+     * }
+     */
+    public static MethodHandle malloc_zone_memalign$handle() {
+        return malloc_zone_memalign.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_memalign$address() {
+        return malloc_zone_memalign.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size)
+     * }
+     */
+    public static MemorySegment malloc_zone_memalign(MemorySegment zone, long alignment, long size) {
+        var mh$ = malloc_zone_memalign.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_memalign", zone, alignment, size);
+            }
+            return (MemorySegment)mh$.invokeExact(zone, alignment, size);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_batch_malloc {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_batch_malloc");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern unsigned int malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned int num_requested)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_batch_malloc$descriptor() {
+        return malloc_zone_batch_malloc.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern unsigned int malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned int num_requested)
+     * }
+     */
+    public static MethodHandle malloc_zone_batch_malloc$handle() {
+        return malloc_zone_batch_malloc.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern unsigned int malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned int num_requested)
+     * }
+     */
+    public static MemorySegment malloc_zone_batch_malloc$address() {
+        return malloc_zone_batch_malloc.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern unsigned int malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned int num_requested)
+     * }
+     */
+    public static int malloc_zone_batch_malloc(MemorySegment zone, long size, MemorySegment results, int num_requested) {
+        var mh$ = malloc_zone_batch_malloc.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_batch_malloc", zone, size, results, num_requested);
+            }
+            return (int)mh$.invokeExact(zone, size, results, num_requested);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_batch_free {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_batch_free");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned int num)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_batch_free$descriptor() {
+        return malloc_zone_batch_free.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned int num)
+     * }
+     */
+    public static MethodHandle malloc_zone_batch_free$handle() {
+        return malloc_zone_batch_free.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned int num)
+     * }
+     */
+    public static MemorySegment malloc_zone_batch_free$address() {
+        return malloc_zone_batch_free.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned int num)
+     * }
+     */
+    public static void malloc_zone_batch_free(MemorySegment zone, MemorySegment to_be_freed, int num) {
+        var mh$ = malloc_zone_batch_free.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_batch_free", zone, to_be_freed, num);
+            }
+            mh$.invokeExact(zone, to_be_freed, num);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_default_purgeable_zone {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER    );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_default_purgeable_zone");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_default_purgeable_zone()
+     * }
+     */
+    public static FunctionDescriptor malloc_default_purgeable_zone$descriptor() {
+        return malloc_default_purgeable_zone.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_default_purgeable_zone()
+     * }
+     */
+    public static MethodHandle malloc_default_purgeable_zone$handle() {
+        return malloc_default_purgeable_zone.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_default_purgeable_zone()
+     * }
+     */
+    public static MemorySegment malloc_default_purgeable_zone$address() {
+        return malloc_default_purgeable_zone.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern malloc_zone_t *malloc_default_purgeable_zone()
+     * }
+     */
+    public static MemorySegment malloc_default_purgeable_zone() {
+        var mh$ = malloc_default_purgeable_zone.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_default_purgeable_zone");
+            }
+            return (MemorySegment)mh$.invokeExact();
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_make_purgeable {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_make_purgeable");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_make_purgeable(void *ptr)
+     * }
+     */
+    public static FunctionDescriptor malloc_make_purgeable$descriptor() {
+        return malloc_make_purgeable.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_make_purgeable(void *ptr)
+     * }
+     */
+    public static MethodHandle malloc_make_purgeable$handle() {
+        return malloc_make_purgeable.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_make_purgeable(void *ptr)
+     * }
+     */
+    public static MemorySegment malloc_make_purgeable$address() {
+        return malloc_make_purgeable.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_make_purgeable(void *ptr)
+     * }
+     */
+    public static void malloc_make_purgeable(MemorySegment ptr) {
+        var mh$ = malloc_make_purgeable.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_make_purgeable", ptr);
+            }
+            mh$.invokeExact(ptr);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_make_nonpurgeable {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_make_nonpurgeable");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern int malloc_make_nonpurgeable(void *ptr)
+     * }
+     */
+    public static FunctionDescriptor malloc_make_nonpurgeable$descriptor() {
+        return malloc_make_nonpurgeable.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern int malloc_make_nonpurgeable(void *ptr)
+     * }
+     */
+    public static MethodHandle malloc_make_nonpurgeable$handle() {
+        return malloc_make_nonpurgeable.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern int malloc_make_nonpurgeable(void *ptr)
+     * }
+     */
+    public static MemorySegment malloc_make_nonpurgeable$address() {
+        return malloc_make_nonpurgeable.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern int malloc_make_nonpurgeable(void *ptr)
+     * }
+     */
+    public static int malloc_make_nonpurgeable(MemorySegment ptr) {
+        var mh$ = malloc_make_nonpurgeable.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_make_nonpurgeable", ptr);
+            }
+            return (int)mh$.invokeExact(ptr);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_register {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_register");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_register(malloc_zone_t *zone)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_register$descriptor() {
+        return malloc_zone_register.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_register(malloc_zone_t *zone)
+     * }
+     */
+    public static MethodHandle malloc_zone_register$handle() {
+        return malloc_zone_register.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_register(malloc_zone_t *zone)
+     * }
+     */
+    public static MemorySegment malloc_zone_register$address() {
+        return malloc_zone_register.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_register(malloc_zone_t *zone)
+     * }
+     */
+    public static void malloc_zone_register(MemorySegment zone) {
+        var mh$ = malloc_zone_register.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_register", zone);
+            }
+            mh$.invokeExact(zone);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_unregister {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_unregister");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_unregister(malloc_zone_t *zone)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_unregister$descriptor() {
+        return malloc_zone_unregister.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_unregister(malloc_zone_t *zone)
+     * }
+     */
+    public static MethodHandle malloc_zone_unregister$handle() {
+        return malloc_zone_unregister.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_unregister(malloc_zone_t *zone)
+     * }
+     */
+    public static MemorySegment malloc_zone_unregister$address() {
+        return malloc_zone_unregister.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_unregister(malloc_zone_t *zone)
+     * }
+     */
+    public static void malloc_zone_unregister(MemorySegment zone) {
+        var mh$ = malloc_zone_unregister.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_unregister", zone);
+            }
+            mh$.invokeExact(zone);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_set_zone_name {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_set_zone_name");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name)
+     * }
+     */
+    public static FunctionDescriptor malloc_set_zone_name$descriptor() {
+        return malloc_set_zone_name.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name)
+     * }
+     */
+    public static MethodHandle malloc_set_zone_name$handle() {
+        return malloc_set_zone_name.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name)
+     * }
+     */
+    public static MemorySegment malloc_set_zone_name$address() {
+        return malloc_set_zone_name.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name)
+     * }
+     */
+    public static void malloc_set_zone_name(MemorySegment zone, MemorySegment name) {
+        var mh$ = malloc_set_zone_name.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_set_zone_name", zone, name);
+            }
+            mh$.invokeExact(zone, name);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_get_zone_name {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_get_zone_name");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern const char *malloc_get_zone_name(malloc_zone_t *zone)
+     * }
+     */
+    public static FunctionDescriptor malloc_get_zone_name$descriptor() {
+        return malloc_get_zone_name.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern const char *malloc_get_zone_name(malloc_zone_t *zone)
+     * }
+     */
+    public static MethodHandle malloc_get_zone_name$handle() {
+        return malloc_get_zone_name.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern const char *malloc_get_zone_name(malloc_zone_t *zone)
+     * }
+     */
+    public static MemorySegment malloc_get_zone_name$address() {
+        return malloc_get_zone_name.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern const char *malloc_get_zone_name(malloc_zone_t *zone)
+     * }
+     */
+    public static MemorySegment malloc_get_zone_name(MemorySegment zone) {
+        var mh$ = malloc_get_zone_name.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_get_zone_name", zone);
+            }
+            return (MemorySegment)mh$.invokeExact(zone);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_pressure_relief {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_LONG,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_LONG
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_pressure_relief");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_pressure_relief$descriptor() {
+        return malloc_zone_pressure_relief.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal)
+     * }
+     */
+    public static MethodHandle malloc_zone_pressure_relief$handle() {
+        return malloc_zone_pressure_relief.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal)
+     * }
+     */
+    public static MemorySegment malloc_zone_pressure_relief$address() {
+        return malloc_zone_pressure_relief.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal)
+     * }
+     */
+    public static long malloc_zone_pressure_relief(MemorySegment zone, long goal) {
+        var mh$ = malloc_zone_pressure_relief.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_pressure_relief", zone, goal);
+            }
+            return (long)mh$.invokeExact(zone, goal);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    /**
+     * Variadic invoker class for:
+     * {@snippet lang=c :
+     * extern void malloc_printf(const char *format, ...)
+     * }
+     */
+    public static class malloc_printf {
+        private static final FunctionDescriptor BASE_DESC = FunctionDescriptor.ofVoid(
+                ObjCRuntime.C_POINTER
+            );
+        private static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_printf");
+
+        private final MethodHandle handle;
+        private final FunctionDescriptor descriptor;
+        private final MethodHandle spreader;
+
+        private malloc_printf(MethodHandle handle, FunctionDescriptor descriptor, MethodHandle spreader) {
+            this.handle = handle;
+            this.descriptor = descriptor;
+            this.spreader = spreader;
+        }
+
+        /**
+         * Variadic invoker factory for:
+         * {@snippet lang=c :
+         * extern void malloc_printf(const char *format, ...)
+         * }
+         */
+        public static malloc_printf makeInvoker(MemoryLayout... layouts) {
+            FunctionDescriptor desc$ = BASE_DESC.appendArgumentLayouts(layouts);
+            Linker.Option fva$ = Linker.Option.firstVariadicArg(BASE_DESC.argumentLayouts().size());
+            var mh$ = Linker.nativeLinker().downcallHandle(ADDR, desc$, fva$);
+            var spreader$ = mh$.asSpreader(Object[].class, layouts.length);
+            return new malloc_printf(mh$, desc$, spreader$);
+        }
+
+        /**
+         * {@return the address}
+         */
+        public static MemorySegment address() {
+            return ADDR;
+        }
+
+        /**
+         * {@return the specialized method handle}
+         */
+        public MethodHandle handle() {
+            return handle;
+        }
+
+        /**
+         * {@return the specialized descriptor}
+         */
+        public FunctionDescriptor descriptor() {
+            return descriptor;
+        }
+
+        public void apply(MemorySegment format, Object... x1) {
+            try {
+                if (TRACE_DOWNCALLS) {
+                    traceDowncall("malloc_printf", format, x1);
+                }
+                 spreader.invokeExact(format, x1);
+            } catch(IllegalArgumentException | ClassCastException ex$)  {
+                throw ex$; // rethrow IAE from passing wrong number/type of args
+            } catch (Throwable ex$) {
+               throw new AssertionError("should not reach here", ex$);
+            }
+        }
+    }
+
+    private static class malloc_get_all_zones {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_get_all_zones");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned int *count)
+     * }
+     */
+    public static FunctionDescriptor malloc_get_all_zones$descriptor() {
+        return malloc_get_all_zones.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned int *count)
+     * }
+     */
+    public static MethodHandle malloc_get_all_zones$handle() {
+        return malloc_get_all_zones.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned int *count)
+     * }
+     */
+    public static MemorySegment malloc_get_all_zones$address() {
+        return malloc_get_all_zones.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned int *count)
+     * }
+     */
+    public static int malloc_get_all_zones(int task, MemorySegment reader, MemorySegment addresses, MemorySegment count) {
+        var mh$ = malloc_get_all_zones.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_get_all_zones", task, reader, addresses, count);
+            }
+            return (int)mh$.invokeExact(task, reader, addresses, count);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_print_ptr_info {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_print_ptr_info");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_print_ptr_info(void *ptr)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_print_ptr_info$descriptor() {
+        return malloc_zone_print_ptr_info.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_print_ptr_info(void *ptr)
+     * }
+     */
+    public static MethodHandle malloc_zone_print_ptr_info$handle() {
+        return malloc_zone_print_ptr_info.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_print_ptr_info(void *ptr)
+     * }
+     */
+    public static MemorySegment malloc_zone_print_ptr_info$address() {
+        return malloc_zone_print_ptr_info.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_print_ptr_info(void *ptr)
+     * }
+     */
+    public static void malloc_zone_print_ptr_info(MemorySegment ptr) {
+        var mh$ = malloc_zone_print_ptr_info.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_print_ptr_info", ptr);
+            }
+            mh$.invokeExact(ptr);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_check {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_check");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern boolean_t malloc_zone_check(malloc_zone_t *zone)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_check$descriptor() {
+        return malloc_zone_check.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern boolean_t malloc_zone_check(malloc_zone_t *zone)
+     * }
+     */
+    public static MethodHandle malloc_zone_check$handle() {
+        return malloc_zone_check.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern boolean_t malloc_zone_check(malloc_zone_t *zone)
+     * }
+     */
+    public static MemorySegment malloc_zone_check$address() {
+        return malloc_zone_check.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern boolean_t malloc_zone_check(malloc_zone_t *zone)
+     * }
+     */
+    public static int malloc_zone_check(MemorySegment zone) {
+        var mh$ = malloc_zone_check.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_check", zone);
+            }
+            return (int)mh$.invokeExact(zone);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_print {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_INT
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_print");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_print$descriptor() {
+        return malloc_zone_print.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose)
+     * }
+     */
+    public static MethodHandle malloc_zone_print$handle() {
+        return malloc_zone_print.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose)
+     * }
+     */
+    public static MemorySegment malloc_zone_print$address() {
+        return malloc_zone_print.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose)
+     * }
+     */
+    public static void malloc_zone_print(MemorySegment zone, int verbose) {
+        var mh$ = malloc_zone_print.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_print", zone, verbose);
+            }
+            mh$.invokeExact(zone, verbose);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_statistics {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_statistics");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_statistics$descriptor() {
+        return malloc_zone_statistics.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats)
+     * }
+     */
+    public static MethodHandle malloc_zone_statistics$handle() {
+        return malloc_zone_statistics.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats)
+     * }
+     */
+    public static MemorySegment malloc_zone_statistics$address() {
+        return malloc_zone_statistics.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats)
+     * }
+     */
+    public static void malloc_zone_statistics(MemorySegment zone, MemorySegment stats) {
+        var mh$ = malloc_zone_statistics.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_statistics", zone, stats);
+            }
+            mh$.invokeExact(zone, stats);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_log {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_log");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_log(malloc_zone_t *zone, void *address)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_log$descriptor() {
+        return malloc_zone_log.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_log(malloc_zone_t *zone, void *address)
+     * }
+     */
+    public static MethodHandle malloc_zone_log$handle() {
+        return malloc_zone_log.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_log(malloc_zone_t *zone, void *address)
+     * }
+     */
+    public static MemorySegment malloc_zone_log$address() {
+        return malloc_zone_log.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_log(malloc_zone_t *zone, void *address)
+     * }
+     */
+    public static void malloc_zone_log(MemorySegment zone, MemorySegment address) {
+        var mh$ = malloc_zone_log.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_log", zone, address);
+            }
+            mh$.invokeExact(zone, address);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_enable_discharge_checking {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_enable_discharge_checking");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_enable_discharge_checking$descriptor() {
+        return malloc_zone_enable_discharge_checking.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone)
+     * }
+     */
+    public static MethodHandle malloc_zone_enable_discharge_checking$handle() {
+        return malloc_zone_enable_discharge_checking.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone)
+     * }
+     */
+    public static MemorySegment malloc_zone_enable_discharge_checking$address() {
+        return malloc_zone_enable_discharge_checking.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone)
+     * }
+     */
+    public static int malloc_zone_enable_discharge_checking(MemorySegment zone) {
+        var mh$ = malloc_zone_enable_discharge_checking.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_enable_discharge_checking", zone);
+            }
+            return (int)mh$.invokeExact(zone);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_disable_discharge_checking {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_disable_discharge_checking");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_disable_discharge_checking$descriptor() {
+        return malloc_zone_disable_discharge_checking.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone)
+     * }
+     */
+    public static MethodHandle malloc_zone_disable_discharge_checking$handle() {
+        return malloc_zone_disable_discharge_checking.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone)
+     * }
+     */
+    public static MemorySegment malloc_zone_disable_discharge_checking$address() {
+        return malloc_zone_disable_discharge_checking.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone)
+     * }
+     */
+    public static void malloc_zone_disable_discharge_checking(MemorySegment zone) {
+        var mh$ = malloc_zone_disable_discharge_checking.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_disable_discharge_checking", zone);
+            }
+            mh$.invokeExact(zone);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_discharge {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_discharge");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory)
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_discharge$descriptor() {
+        return malloc_zone_discharge.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory)
+     * }
+     */
+    public static MethodHandle malloc_zone_discharge$handle() {
+        return malloc_zone_discharge.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory)
+     * }
+     */
+    public static MemorySegment malloc_zone_discharge$address() {
+        return malloc_zone_discharge.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory)
+     * }
+     */
+    public static void malloc_zone_discharge(MemorySegment zone, MemorySegment memory) {
+        var mh$ = malloc_zone_discharge.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_discharge", zone, memory);
+            }
+            mh$.invokeExact(zone, memory);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class malloc_zone_enumerate_discharged_pointers {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(
+            ObjCRuntime.C_POINTER,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("malloc_zone_enumerate_discharged_pointers");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (^report_discharged)(void *, void *))
+     * }
+     */
+    public static FunctionDescriptor malloc_zone_enumerate_discharged_pointers$descriptor() {
+        return malloc_zone_enumerate_discharged_pointers.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (^report_discharged)(void *, void *))
+     * }
+     */
+    public static MethodHandle malloc_zone_enumerate_discharged_pointers$handle() {
+        return malloc_zone_enumerate_discharged_pointers.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (^report_discharged)(void *, void *))
+     * }
+     */
+    public static MemorySegment malloc_zone_enumerate_discharged_pointers$address() {
+        return malloc_zone_enumerate_discharged_pointers.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (^report_discharged)(void *, void *))
+     * }
+     */
+    public static void malloc_zone_enumerate_discharged_pointers(MemorySegment zone, MemorySegment report_discharged) {
+        var mh$ = malloc_zone_enumerate_discharged_pointers.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("malloc_zone_enumerate_discharged_pointers", zone, report_discharged);
+            }
+            mh$.invokeExact(zone, report_discharged);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+    private static final int OBJC_RATIO_COLLECTION = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.OBJC_RATIO_COLLECTION = 0
+     * }
+     */
+    public static int OBJC_RATIO_COLLECTION() {
+        return OBJC_RATIO_COLLECTION;
+    }
+    private static final int OBJC_GENERATIONAL_COLLECTION = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.OBJC_GENERATIONAL_COLLECTION = 1
+     * }
+     */
+    public static int OBJC_GENERATIONAL_COLLECTION() {
+        return OBJC_GENERATIONAL_COLLECTION;
+    }
+    private static final int OBJC_FULL_COLLECTION = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.OBJC_FULL_COLLECTION = 2
+     * }
+     */
+    public static int OBJC_FULL_COLLECTION() {
+        return OBJC_FULL_COLLECTION;
+    }
+    private static final int OBJC_EXHAUSTIVE_COLLECTION = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.OBJC_EXHAUSTIVE_COLLECTION = 3
+     * }
+     */
+    public static int OBJC_EXHAUSTIVE_COLLECTION() {
+        return OBJC_EXHAUSTIVE_COLLECTION;
+    }
+    private static final int OBJC_COLLECT_IF_NEEDED = (int)8L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.OBJC_COLLECT_IF_NEEDED = 8
+     * }
+     */
+    public static int OBJC_COLLECT_IF_NEEDED() {
+        return OBJC_COLLECT_IF_NEEDED;
+    }
+    private static final int OBJC_WAIT_UNTIL_DONE = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.OBJC_WAIT_UNTIL_DONE = 16
+     * }
+     */
+    public static int OBJC_WAIT_UNTIL_DONE() {
+        return OBJC_WAIT_UNTIL_DONE;
+    }
+    private static final int OBJC_CLEAR_RESIDENT_STACK = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.OBJC_CLEAR_RESIDENT_STACK = 1
+     * }
+     */
+    public static int OBJC_CLEAR_RESIDENT_STACK() {
+        return OBJC_CLEAR_RESIDENT_STACK;
+    }
+
+    private static class objc_sync_enter {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("objc_sync_enter");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern int objc_sync_enter(id  _Nonnull obj)
+     * }
+     */
+    public static FunctionDescriptor objc_sync_enter$descriptor() {
+        return objc_sync_enter.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern int objc_sync_enter(id  _Nonnull obj)
+     * }
+     */
+    public static MethodHandle objc_sync_enter$handle() {
+        return objc_sync_enter.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern int objc_sync_enter(id  _Nonnull obj)
+     * }
+     */
+    public static MemorySegment objc_sync_enter$address() {
+        return objc_sync_enter.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern int objc_sync_enter(id  _Nonnull obj)
+     * }
+     */
+    public static int objc_sync_enter(MemorySegment obj) {
+        var mh$ = objc_sync_enter.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("objc_sync_enter", obj);
+            }
+            return (int)mh$.invokeExact(obj);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
+    private static class objc_sync_exit {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            ObjCRuntime.C_INT,
+            ObjCRuntime.C_POINTER
+        );
+
+        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("objc_sync_exit");
+
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
+
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern int objc_sync_exit(id  _Nonnull obj)
+     * }
+     */
+    public static FunctionDescriptor objc_sync_exit$descriptor() {
+        return objc_sync_exit.DESC;
+    }
+
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern int objc_sync_exit(id  _Nonnull obj)
+     * }
+     */
+    public static MethodHandle objc_sync_exit$handle() {
+        return objc_sync_exit.HANDLE;
+    }
+
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern int objc_sync_exit(id  _Nonnull obj)
+     * }
+     */
+    public static MemorySegment objc_sync_exit$address() {
+        return objc_sync_exit.ADDR;
+    }
+
+    /**
+     * {@snippet lang=c :
+     * extern int objc_sync_exit(id  _Nonnull obj)
+     * }
+     */
+    public static int objc_sync_exit(MemorySegment obj) {
+        var mh$ = objc_sync_exit.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("objc_sync_exit", obj);
+            }
+            return (int)mh$.invokeExact(obj);
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+    private static final int OBJC_SYNC_SUCCESS = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.OBJC_SYNC_SUCCESS = 0
+     * }
+     */
+    public static int OBJC_SYNC_SUCCESS() {
+        return OBJC_SYNC_SUCCESS;
+    }
+    private static final int OBJC_SYNC_NOT_OWNING_THREAD_ERROR = (int)-1L;
+    /**
+     * {@snippet lang=c :
+     * enum <anonymous>.OBJC_SYNC_NOT_OWNING_THREAD_ERROR = -1
+     * }
+     */
+    public static int OBJC_SYNC_NOT_OWNING_THREAD_ERROR() {
+        return OBJC_SYNC_NOT_OWNING_THREAD_ERROR;
+    }
+    private static final int MAC_OS_X_VERSION_10_0 = (int)1000L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_0 1000
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_0() {
+        return MAC_OS_X_VERSION_10_0;
+    }
+    private static final int MAC_OS_X_VERSION_10_1 = (int)1010L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_1 1010
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_1() {
+        return MAC_OS_X_VERSION_10_1;
+    }
+    private static final int MAC_OS_X_VERSION_10_2 = (int)1020L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_2 1020
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_2() {
+        return MAC_OS_X_VERSION_10_2;
+    }
+    private static final int MAC_OS_X_VERSION_10_3 = (int)1030L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_3 1030
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_3() {
+        return MAC_OS_X_VERSION_10_3;
+    }
+    private static final int MAC_OS_X_VERSION_10_4 = (int)1040L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_4 1040
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_4() {
+        return MAC_OS_X_VERSION_10_4;
+    }
+    private static final int MAC_OS_X_VERSION_10_5 = (int)1050L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_5 1050
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_5() {
+        return MAC_OS_X_VERSION_10_5;
+    }
+    private static final int MAC_OS_X_VERSION_10_6 = (int)1060L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_6 1060
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_6() {
+        return MAC_OS_X_VERSION_10_6;
+    }
+    private static final int MAC_OS_X_VERSION_10_7 = (int)1070L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_7 1070
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_7() {
+        return MAC_OS_X_VERSION_10_7;
+    }
+    private static final int MAC_OS_X_VERSION_10_8 = (int)1080L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_8 1080
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_8() {
+        return MAC_OS_X_VERSION_10_8;
+    }
+    private static final int MAC_OS_X_VERSION_10_9 = (int)1090L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_9 1090
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_9() {
+        return MAC_OS_X_VERSION_10_9;
+    }
+    private static final int MAC_OS_X_VERSION_10_10 = (int)101000L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_10 101000
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_10() {
+        return MAC_OS_X_VERSION_10_10;
+    }
+    private static final int MAC_OS_X_VERSION_10_10_2 = (int)101002L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_10_2 101002
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_10_2() {
+        return MAC_OS_X_VERSION_10_10_2;
+    }
+    private static final int MAC_OS_X_VERSION_10_10_3 = (int)101003L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_10_3 101003
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_10_3() {
+        return MAC_OS_X_VERSION_10_10_3;
+    }
+    private static final int MAC_OS_X_VERSION_10_11 = (int)101100L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_11 101100
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_11() {
+        return MAC_OS_X_VERSION_10_11;
+    }
+    private static final int MAC_OS_X_VERSION_10_11_2 = (int)101102L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_11_2 101102
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_11_2() {
+        return MAC_OS_X_VERSION_10_11_2;
+    }
+    private static final int MAC_OS_X_VERSION_10_11_3 = (int)101103L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_11_3 101103
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_11_3() {
+        return MAC_OS_X_VERSION_10_11_3;
+    }
+    private static final int MAC_OS_X_VERSION_10_11_4 = (int)101104L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_11_4 101104
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_11_4() {
+        return MAC_OS_X_VERSION_10_11_4;
+    }
+    private static final int MAC_OS_X_VERSION_10_12 = (int)101200L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_12 101200
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_12() {
+        return MAC_OS_X_VERSION_10_12;
+    }
+    private static final int MAC_OS_X_VERSION_10_12_1 = (int)101201L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_12_1 101201
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_12_1() {
+        return MAC_OS_X_VERSION_10_12_1;
+    }
+    private static final int MAC_OS_X_VERSION_10_12_2 = (int)101202L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_12_2 101202
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_12_2() {
+        return MAC_OS_X_VERSION_10_12_2;
+    }
+    private static final int MAC_OS_X_VERSION_10_12_4 = (int)101204L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_12_4 101204
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_12_4() {
+        return MAC_OS_X_VERSION_10_12_4;
+    }
+    private static final int MAC_OS_X_VERSION_10_13 = (int)101300L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_13 101300
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_13() {
+        return MAC_OS_X_VERSION_10_13;
+    }
+    private static final int MAC_OS_X_VERSION_10_13_1 = (int)101301L;
+    /**
+     * {@snippet lang=c :
+     * #define MAC_OS_X_VERSION_10_13_1 101301
+     * }
+     */
+    public static int MAC_OS_X_VERSION_10_13_1() {
+        return MAC_OS_X_VERSION_10_13_1;
+    }
 }
 

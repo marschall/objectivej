@@ -7998,240 +7998,6 @@ public class ObjCRuntime_2 {
     public static int VM_MEMORY_COUNT() {
         return VM_MEMORY_COUNT;
     }
-    private static final int HOST_BASIC_INFO = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_BASIC_INFO 1
-     * }
-     */
-    public static int HOST_BASIC_INFO() {
-        return HOST_BASIC_INFO;
-    }
-    private static final int HOST_SCHED_INFO = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_SCHED_INFO 3
-     * }
-     */
-    public static int HOST_SCHED_INFO() {
-        return HOST_SCHED_INFO;
-    }
-    private static final int HOST_RESOURCE_SIZES = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_RESOURCE_SIZES 4
-     * }
-     */
-    public static int HOST_RESOURCE_SIZES() {
-        return HOST_RESOURCE_SIZES;
-    }
-    private static final int HOST_PRIORITY_INFO = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_PRIORITY_INFO 5
-     * }
-     */
-    public static int HOST_PRIORITY_INFO() {
-        return HOST_PRIORITY_INFO;
-    }
-    private static final int HOST_SEMAPHORE_TRAPS = (int)7L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_SEMAPHORE_TRAPS 7
-     * }
-     */
-    public static int HOST_SEMAPHORE_TRAPS() {
-        return HOST_SEMAPHORE_TRAPS;
-    }
-    private static final int HOST_MACH_MSG_TRAP = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_MACH_MSG_TRAP 8
-     * }
-     */
-    public static int HOST_MACH_MSG_TRAP() {
-        return HOST_MACH_MSG_TRAP;
-    }
-    private static final int HOST_VM_PURGABLE = (int)9L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_VM_PURGABLE 9
-     * }
-     */
-    public static int HOST_VM_PURGABLE() {
-        return HOST_VM_PURGABLE;
-    }
-    private static final int HOST_DEBUG_INFO_INTERNAL = (int)10L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_DEBUG_INFO_INTERNAL 10
-     * }
-     */
-    public static int HOST_DEBUG_INFO_INTERNAL() {
-        return HOST_DEBUG_INFO_INTERNAL;
-    }
-    private static final int HOST_CAN_HAS_DEBUGGER = (int)11L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_CAN_HAS_DEBUGGER 11
-     * }
-     */
-    public static int HOST_CAN_HAS_DEBUGGER() {
-        return HOST_CAN_HAS_DEBUGGER;
-    }
-    private static final int HOST_PREFERRED_USER_ARCH = (int)12L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_PREFERRED_USER_ARCH 12
-     * }
-     */
-    public static int HOST_PREFERRED_USER_ARCH() {
-        return HOST_PREFERRED_USER_ARCH;
-    }
-    private static final int HOST_LOAD_INFO = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_LOAD_INFO 1
-     * }
-     */
-    public static int HOST_LOAD_INFO() {
-        return HOST_LOAD_INFO;
-    }
-    private static final int HOST_VM_INFO = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_VM_INFO 2
-     * }
-     */
-    public static int HOST_VM_INFO() {
-        return HOST_VM_INFO;
-    }
-    private static final int HOST_CPU_LOAD_INFO = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_CPU_LOAD_INFO 3
-     * }
-     */
-    public static int HOST_CPU_LOAD_INFO() {
-        return HOST_CPU_LOAD_INFO;
-    }
-    private static final int HOST_VM_INFO64 = (int)4L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_VM_INFO64 4
-     * }
-     */
-    public static int HOST_VM_INFO64() {
-        return HOST_VM_INFO64;
-    }
-    private static final int HOST_EXTMOD_INFO64 = (int)5L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_EXTMOD_INFO64 5
-     * }
-     */
-    public static int HOST_EXTMOD_INFO64() {
-        return HOST_EXTMOD_INFO64;
-    }
-    private static final int HOST_EXPIRED_TASK_INFO = (int)6L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_EXPIRED_TASK_INFO 6
-     * }
-     */
-    public static int HOST_EXPIRED_TASK_INFO() {
-        return HOST_EXPIRED_TASK_INFO;
-    }
-    private static final int HOST_NOTIFY_CALENDAR_CHANGE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_NOTIFY_CALENDAR_CHANGE 0
-     * }
-     */
-    public static int HOST_NOTIFY_CALENDAR_CHANGE() {
-        return HOST_NOTIFY_CALENDAR_CHANGE;
-    }
-    private static final int HOST_NOTIFY_CALENDAR_SET = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_NOTIFY_CALENDAR_SET 1
-     * }
-     */
-    public static int HOST_NOTIFY_CALENDAR_SET() {
-        return HOST_NOTIFY_CALENDAR_SET;
-    }
-    private static final int HOST_NOTIFY_TYPE_MAX = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_NOTIFY_TYPE_MAX 1
-     * }
-     */
-    public static int HOST_NOTIFY_TYPE_MAX() {
-        return HOST_NOTIFY_TYPE_MAX;
-    }
-    private static final int HOST_CALENDAR_CHANGED_REPLYID = (int)950L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_CALENDAR_CHANGED_REPLYID 950
-     * }
-     */
-    public static int HOST_CALENDAR_CHANGED_REPLYID() {
-        return HOST_CALENDAR_CHANGED_REPLYID;
-    }
-    private static final int HOST_CALENDAR_SET_REPLYID = (int)951L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_CALENDAR_SET_REPLYID 951
-     * }
-     */
-    public static int HOST_CALENDAR_SET_REPLYID() {
-        return HOST_CALENDAR_SET_REPLYID;
-    }
-    private static final int HOST_SECURITY_PORT = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_SECURITY_PORT 0
-     * }
-     */
-    public static int HOST_SECURITY_PORT() {
-        return HOST_SECURITY_PORT;
-    }
-    private static final int HOST_PORT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_PORT 1
-     * }
-     */
-    public static int HOST_PORT() {
-        return HOST_PORT;
-    }
-    private static final int HOST_PRIV_PORT = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_PRIV_PORT 2
-     * }
-     */
-    public static int HOST_PRIV_PORT() {
-        return HOST_PRIV_PORT;
-    }
-    private static final int HOST_IO_MAIN_PORT = (int)3L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_IO_MAIN_PORT 3
-     * }
-     */
-    public static int HOST_IO_MAIN_PORT() {
-        return HOST_IO_MAIN_PORT;
-    }
-    private static final int HOST_MAX_SPECIAL_KERNEL_PORT = (int)7L;
-    /**
-     * {@snippet lang=c :
-     * #define HOST_MAX_SPECIAL_KERNEL_PORT 7
-     * }
-     */
-    public static int HOST_MAX_SPECIAL_KERNEL_PORT() {
-        return HOST_MAX_SPECIAL_KERNEL_PORT;
-    }
     private static final int MEMORY_OBJECT_COPY_NONE = (int)0L;
     /**
      * {@snippet lang=c :
@@ -9033,41 +8799,275 @@ public class ObjCRuntime_2 {
     public static int EXC_MACF_MAX() {
         return EXC_MACF_MAX;
     }
-    private static final int ARM_THREAD_STATE = (int)1L;
+    private static final int THREAD_STATE_FLAVOR_LIST = (int)0L;
     /**
      * {@snippet lang=c :
-     * #define ARM_THREAD_STATE 1
+     * #define THREAD_STATE_FLAVOR_LIST 0
      * }
      */
-    public static int ARM_THREAD_STATE() {
-        return ARM_THREAD_STATE;
+    public static int THREAD_STATE_FLAVOR_LIST() {
+        return THREAD_STATE_FLAVOR_LIST;
     }
-    private static final int ARM_VFP_STATE = (int)2L;
+    private static final int THREAD_STATE_FLAVOR_LIST_NEW = (int)128L;
     /**
      * {@snippet lang=c :
-     * #define ARM_VFP_STATE 2
+     * #define THREAD_STATE_FLAVOR_LIST_NEW 128
      * }
      */
-    public static int ARM_VFP_STATE() {
-        return ARM_VFP_STATE;
+    public static int THREAD_STATE_FLAVOR_LIST_NEW() {
+        return THREAD_STATE_FLAVOR_LIST_NEW;
     }
-    private static final int ARM_EXCEPTION_STATE = (int)3L;
+    private static final int THREAD_STATE_FLAVOR_LIST_10_9 = (int)129L;
     /**
      * {@snippet lang=c :
-     * #define ARM_EXCEPTION_STATE 3
+     * #define THREAD_STATE_FLAVOR_LIST_10_9 129
      * }
      */
-    public static int ARM_EXCEPTION_STATE() {
-        return ARM_EXCEPTION_STATE;
+    public static int THREAD_STATE_FLAVOR_LIST_10_9() {
+        return THREAD_STATE_FLAVOR_LIST_10_9;
     }
-    private static final int ARM_DEBUG_STATE = (int)4L;
+    private static final int THREAD_STATE_FLAVOR_LIST_10_13 = (int)130L;
     /**
      * {@snippet lang=c :
-     * #define ARM_DEBUG_STATE 4
+     * #define THREAD_STATE_FLAVOR_LIST_10_13 130
      * }
      */
-    public static int ARM_DEBUG_STATE() {
-        return ARM_DEBUG_STATE;
+    public static int THREAD_STATE_FLAVOR_LIST_10_13() {
+        return THREAD_STATE_FLAVOR_LIST_10_13;
+    }
+    private static final int THREAD_STATE_FLAVOR_LIST_10_15 = (int)131L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_STATE_FLAVOR_LIST_10_15 131
+     * }
+     */
+    public static int THREAD_STATE_FLAVOR_LIST_10_15() {
+        return THREAD_STATE_FLAVOR_LIST_10_15;
+    }
+    private static final int THREAD_CONVERT_THREAD_STATE_TO_SELF = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_CONVERT_THREAD_STATE_TO_SELF 1
+     * }
+     */
+    public static int THREAD_CONVERT_THREAD_STATE_TO_SELF() {
+        return THREAD_CONVERT_THREAD_STATE_TO_SELF;
+    }
+    private static final int THREAD_CONVERT_THREAD_STATE_FROM_SELF = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define THREAD_CONVERT_THREAD_STATE_FROM_SELF 2
+     * }
+     */
+    public static int THREAD_CONVERT_THREAD_STATE_FROM_SELF() {
+        return THREAD_CONVERT_THREAD_STATE_FROM_SELF;
+    }
+    private static final int PROCESSOR_CPU_STAT = (int)268435459L;
+    /**
+     * {@snippet lang=c :
+     * #define PROCESSOR_CPU_STAT 268435459
+     * }
+     */
+    public static int PROCESSOR_CPU_STAT() {
+        return PROCESSOR_CPU_STAT;
+    }
+    private static final int PROCESSOR_CPU_STAT64 = (int)268435460L;
+    /**
+     * {@snippet lang=c :
+     * #define PROCESSOR_CPU_STAT64 268435460
+     * }
+     */
+    public static int PROCESSOR_CPU_STAT64() {
+        return PROCESSOR_CPU_STAT64;
+    }
+    private static final int PROCESSOR_BASIC_INFO = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define PROCESSOR_BASIC_INFO 1
+     * }
+     */
+    public static int PROCESSOR_BASIC_INFO() {
+        return PROCESSOR_BASIC_INFO;
+    }
+    private static final int PROCESSOR_CPU_LOAD_INFO = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define PROCESSOR_CPU_LOAD_INFO 2
+     * }
+     */
+    public static int PROCESSOR_CPU_LOAD_INFO() {
+        return PROCESSOR_CPU_LOAD_INFO;
+    }
+    private static final int PROCESSOR_PM_REGS_INFO = (int)268435457L;
+    /**
+     * {@snippet lang=c :
+     * #define PROCESSOR_PM_REGS_INFO 268435457
+     * }
+     */
+    public static int PROCESSOR_PM_REGS_INFO() {
+        return PROCESSOR_PM_REGS_INFO;
+    }
+    private static final int PROCESSOR_TEMPERATURE = (int)268435458L;
+    /**
+     * {@snippet lang=c :
+     * #define PROCESSOR_TEMPERATURE 268435458
+     * }
+     */
+    public static int PROCESSOR_TEMPERATURE() {
+        return PROCESSOR_TEMPERATURE;
+    }
+    private static final int LOAD_SCALE = (int)1000L;
+    /**
+     * {@snippet lang=c :
+     * #define LOAD_SCALE 1000
+     * }
+     */
+    public static int LOAD_SCALE() {
+        return LOAD_SCALE;
+    }
+    private static final int PROCESSOR_SET_BASIC_INFO = (int)5L;
+    /**
+     * {@snippet lang=c :
+     * #define PROCESSOR_SET_BASIC_INFO 5
+     * }
+     */
+    public static int PROCESSOR_SET_BASIC_INFO() {
+        return PROCESSOR_SET_BASIC_INFO;
+    }
+    private static final int PROCESSOR_SET_LOAD_INFO = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define PROCESSOR_SET_LOAD_INFO 4
+     * }
+     */
+    public static int PROCESSOR_SET_LOAD_INFO() {
+        return PROCESSOR_SET_LOAD_INFO;
+    }
+    private static final int POLICY_NULL = (int)0L;
+    /**
+     * {@snippet lang=c :
+     * #define POLICY_NULL 0
+     * }
+     */
+    public static int POLICY_NULL() {
+        return POLICY_NULL;
+    }
+    private static final int POLICY_TIMESHARE = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define POLICY_TIMESHARE 1
+     * }
+     */
+    public static int POLICY_TIMESHARE() {
+        return POLICY_TIMESHARE;
+    }
+    private static final int POLICY_RR = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define POLICY_RR 2
+     * }
+     */
+    public static int POLICY_RR() {
+        return POLICY_RR;
+    }
+    private static final int POLICY_FIFO = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define POLICY_FIFO 4
+     * }
+     */
+    public static int POLICY_FIFO() {
+        return POLICY_FIFO;
+    }
+    private static final int TASK_BASIC_INFO_32 = (int)4L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_BASIC_INFO_32 4
+     * }
+     */
+    public static int TASK_BASIC_INFO_32() {
+        return TASK_BASIC_INFO_32;
+    }
+    private static final int TASK_BASIC2_INFO_32 = (int)6L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_BASIC2_INFO_32 6
+     * }
+     */
+    public static int TASK_BASIC2_INFO_32() {
+        return TASK_BASIC2_INFO_32;
+    }
+    private static final int TASK_EVENTS_INFO = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_EVENTS_INFO 2
+     * }
+     */
+    public static int TASK_EVENTS_INFO() {
+        return TASK_EVENTS_INFO;
+    }
+    private static final int TASK_THREAD_TIMES_INFO = (int)3L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_THREAD_TIMES_INFO 3
+     * }
+     */
+    public static int TASK_THREAD_TIMES_INFO() {
+        return TASK_THREAD_TIMES_INFO;
+    }
+    private static final int TASK_ABSOLUTETIME_INFO = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_ABSOLUTETIME_INFO 1
+     * }
+     */
+    public static int TASK_ABSOLUTETIME_INFO() {
+        return TASK_ABSOLUTETIME_INFO;
+    }
+    private static final int TASK_KERNELMEMORY_INFO = (int)7L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_KERNELMEMORY_INFO 7
+     * }
+     */
+    public static int TASK_KERNELMEMORY_INFO() {
+        return TASK_KERNELMEMORY_INFO;
+    }
+    private static final int TASK_SECURITY_TOKEN = (int)13L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_SECURITY_TOKEN 13
+     * }
+     */
+    public static int TASK_SECURITY_TOKEN() {
+        return TASK_SECURITY_TOKEN;
+    }
+    private static final int TASK_AUDIT_TOKEN = (int)15L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_AUDIT_TOKEN 15
+     * }
+     */
+    public static int TASK_AUDIT_TOKEN() {
+        return TASK_AUDIT_TOKEN;
+    }
+    private static final int TASK_AFFINITY_TAG_INFO = (int)16L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_AFFINITY_TAG_INFO 16
+     * }
+     */
+    public static int TASK_AFFINITY_TAG_INFO() {
+        return TASK_AFFINITY_TAG_INFO;
+    }
+    private static final int TASK_DYLD_INFO = (int)17L;
+    /**
+     * {@snippet lang=c :
+     * #define TASK_DYLD_INFO 17
+     * }
+     */
+    public static int TASK_DYLD_INFO() {
+        return TASK_DYLD_INFO;
     }
 }
 
