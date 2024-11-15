@@ -15,4 +15,4 @@ ${JEXTRACT_HOME}/bin/jextract \
   -l objc \
   -I /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include \
   @src/include/includes_filtered.txt \
-  /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/objc/runtime.h
+  src/include/objc-all.h
