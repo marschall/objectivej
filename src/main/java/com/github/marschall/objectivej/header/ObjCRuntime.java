@@ -78,15 +78,6 @@ public class ObjCRuntime {
     public static int __has_ptrcheck() {
         return __has_ptrcheck;
     }
-    private static final int USE_CLANG_STDDEF = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define USE_CLANG_STDDEF 0
-     * }
-     */
-    public static int USE_CLANG_STDDEF() {
-        return USE_CLANG_STDDEF;
-    }
     private static final int __WORDSIZE = (int)64L;
     /**
      * {@snippet lang=c :
@@ -571,24 +562,6 @@ public class ObjCRuntime {
            throw new AssertionError("should not reach here", ex$);
         }
     }
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_ct_rune_t ct_rune_t
-     * }
-     */
-    public static final OfInt ct_rune_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_rune_t rune_t
-     * }
-     */
-    public static final OfInt rune_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_wchar_t wchar_t
-     * }
-     */
-    public static final OfInt wchar_t = ObjCRuntime.C_INT;
 
     private static class __mb_cur_max$constants {
         public static final OfInt LAYOUT = ObjCRuntime.C_INT;
@@ -5626,12 +5599,6 @@ public class ObjCRuntime {
            throw new AssertionError("should not reach here", ex$);
         }
     }
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_dev_t dev_t
-     * }
-     */
-    public static final OfInt dev_t = ObjCRuntime.C_INT;
 
     private static class arc4random {
         public static final FunctionDescriptor DESC = FunctionDescriptor.of(
@@ -8102,18 +8069,6 @@ public class ObjCRuntime {
     }
     /**
      * {@snippet lang=c :
-     * typedef __darwin_size_t rsize_t
-     * }
-     */
-    public static final OfLong rsize_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_wint_t wint_t
-     * }
-     */
-    public static final OfInt wint_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
      * typedef unsigned char u_char
      * }
      */
@@ -8168,12 +8123,6 @@ public class ObjCRuntime {
     public static final AddressLayout qaddr_t = ObjCRuntime.C_POINTER;
     /**
      * {@snippet lang=c :
-     * typedef char *caddr_t
-     * }
-     */
-    public static final AddressLayout caddr_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
      * typedef int32_t daddr_t
      * }
      */
@@ -8184,24 +8133,6 @@ public class ObjCRuntime {
      * }
      */
     public static final OfInt fixpt_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_blkcnt_t blkcnt_t
-     * }
-     */
-    public static final OfLong blkcnt_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_blksize_t blksize_t
-     * }
-     */
-    public static final OfInt blksize_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_off_t off_t
-     * }
-     */
-    public static final OfLong off_t = ObjCRuntime.C_LONG_LONG;
     /**
      * {@snippet lang=c :
      * typedef int32_t segsz_t
@@ -8216,12 +8147,6 @@ public class ObjCRuntime {
     public static final OfInt swblk_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
-     * typedef __darwin_clock_t clock_t
-     * }
-     */
-    public static final OfLong clock_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
      * typedef __darwin_ssize_t ssize_t
      * }
      */
@@ -8232,12 +8157,6 @@ public class ObjCRuntime {
      * }
      */
     public static final OfLong time_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_useconds_t useconds_t
-     * }
-     */
-    public static final OfInt useconds_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
      * typedef __darwin_suseconds_t suseconds_t
