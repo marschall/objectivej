@@ -303,15 +303,6 @@ public class ObjCRuntime {
     public static int __PTHREAD_RWLOCKATTR_SIZE__() {
         return __PTHREAD_RWLOCKATTR_SIZE__;
     }
-    private static final int _FORTIFY_SOURCE = (int)2L;
-    /**
-     * {@snippet lang=c :
-     * #define _FORTIFY_SOURCE 2
-     * }
-     */
-    public static int _FORTIFY_SOURCE() {
-        return _FORTIFY_SOURCE;
-    }
     private static final int __DARWIN_NSIG = (int)32L;
     /**
      * {@snippet lang=c :
@@ -320,15 +311,6 @@ public class ObjCRuntime {
      */
     public static int __DARWIN_NSIG() {
         return __DARWIN_NSIG;
-    }
-    private static final int _ARM_SIGNAL_ = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define _ARM_SIGNAL_ 1
-     * }
-     */
-    public static int _ARM_SIGNAL_() {
-        return _ARM_SIGNAL_;
     }
     private static final int SIGHUP = (int)1L;
     /**
@@ -2049,24 +2031,6 @@ public class ObjCRuntime {
     public static int WAIT_MYPGRP() {
         return WAIT_MYPGRP;
     }
-    private static final int _QUAD_HIGHWORD = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define _QUAD_HIGHWORD 1
-     * }
-     */
-    public static int _QUAD_HIGHWORD() {
-        return _QUAD_HIGHWORD;
-    }
-    private static final int _QUAD_LOWWORD = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define _QUAD_LOWWORD 0
-     * }
-     */
-    public static int _QUAD_LOWWORD() {
-        return _QUAD_LOWWORD;
-    }
     private static final int __DARWIN_LITTLE_ENDIAN = (int)1234L;
     /**
      * {@snippet lang=c :
@@ -2120,303 +2084,6 @@ public class ObjCRuntime {
      */
     public static int RAND_MAX() {
         return RAND_MAX;
-    }
-    private static final int TARGET_OS_UNIX = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_UNIX 0
-     * }
-     */
-    public static int TARGET_OS_UNIX() {
-        return TARGET_OS_UNIX;
-    }
-    private static final int DYNAMIC_TARGETS_ENABLED = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define DYNAMIC_TARGETS_ENABLED 1
-     * }
-     */
-    public static int DYNAMIC_TARGETS_ENABLED() {
-        return DYNAMIC_TARGETS_ENABLED;
-    }
-    private static final int TARGET_OS_MAC = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_MAC 1
-     * }
-     */
-    public static int TARGET_OS_MAC() {
-        return TARGET_OS_MAC;
-    }
-    private static final int TARGET_OS_RTKIT = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_RTKIT 0
-     * }
-     */
-    public static int TARGET_OS_RTKIT() {
-        return TARGET_OS_RTKIT;
-    }
-    private static final int TARGET_RT_LITTLE_ENDIAN = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_RT_LITTLE_ENDIAN 1
-     * }
-     */
-    public static int TARGET_RT_LITTLE_ENDIAN() {
-        return TARGET_RT_LITTLE_ENDIAN;
-    }
-    private static final int TARGET_RT_BIG_ENDIAN = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_RT_BIG_ENDIAN 0
-     * }
-     */
-    public static int TARGET_RT_BIG_ENDIAN() {
-        return TARGET_RT_BIG_ENDIAN;
-    }
-    private static final int TARGET_RT_64_BIT = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_RT_64_BIT 1
-     * }
-     */
-    public static int TARGET_RT_64_BIT() {
-        return TARGET_RT_64_BIT;
-    }
-    private static final int TARGET_RT_MAC_CFM = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_RT_MAC_CFM 0
-     * }
-     */
-    public static int TARGET_RT_MAC_CFM() {
-        return TARGET_RT_MAC_CFM;
-    }
-    private static final int TARGET_RT_MAC_MACHO = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_RT_MAC_MACHO 1
-     * }
-     */
-    public static int TARGET_RT_MAC_MACHO() {
-        return TARGET_RT_MAC_MACHO;
-    }
-    private static final int TARGET_CPU_ARM64 = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_ARM64 1
-     * }
-     */
-    public static int TARGET_CPU_ARM64() {
-        return TARGET_CPU_ARM64;
-    }
-    private static final int TARGET_OS_OSX = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_OSX 0
-     * }
-     */
-    public static int TARGET_OS_OSX() {
-        return TARGET_OS_OSX;
-    }
-    private static final int TARGET_OS_IPHONE = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_IPHONE 0
-     * }
-     */
-    public static int TARGET_OS_IPHONE() {
-        return TARGET_OS_IPHONE;
-    }
-    private static final int TARGET_OS_IOS = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_IOS 0
-     * }
-     */
-    public static int TARGET_OS_IOS() {
-        return TARGET_OS_IOS;
-    }
-    private static final int TARGET_OS_WATCH = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_WATCH 0
-     * }
-     */
-    public static int TARGET_OS_WATCH() {
-        return TARGET_OS_WATCH;
-    }
-    private static final int TARGET_OS_TV = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_TV 0
-     * }
-     */
-    public static int TARGET_OS_TV() {
-        return TARGET_OS_TV;
-    }
-    private static final int TARGET_OS_SIMULATOR = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_SIMULATOR 0
-     * }
-     */
-    public static int TARGET_OS_SIMULATOR() {
-        return TARGET_OS_SIMULATOR;
-    }
-    private static final int TARGET_OS_EMBEDDED = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_EMBEDDED 0
-     * }
-     */
-    public static int TARGET_OS_EMBEDDED() {
-        return TARGET_OS_EMBEDDED;
-    }
-    private static final int TARGET_OS_MACCATALYST = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_MACCATALYST 0
-     * }
-     */
-    public static int TARGET_OS_MACCATALYST() {
-        return TARGET_OS_MACCATALYST;
-    }
-    private static final int TARGET_OS_VISION = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_VISION 0
-     * }
-     */
-    public static int TARGET_OS_VISION() {
-        return TARGET_OS_VISION;
-    }
-    private static final int TARGET_OS_UIKITFORMAC = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_UIKITFORMAC 0
-     * }
-     */
-    public static int TARGET_OS_UIKITFORMAC() {
-        return TARGET_OS_UIKITFORMAC;
-    }
-    private static final int TARGET_OS_DRIVERKIT = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_DRIVERKIT 0
-     * }
-     */
-    public static int TARGET_OS_DRIVERKIT() {
-        return TARGET_OS_DRIVERKIT;
-    }
-    private static final int TARGET_OS_WIN32 = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_WIN32 0
-     * }
-     */
-    public static int TARGET_OS_WIN32() {
-        return TARGET_OS_WIN32;
-    }
-    private static final int TARGET_OS_WINDOWS = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_WINDOWS 0
-     * }
-     */
-    public static int TARGET_OS_WINDOWS() {
-        return TARGET_OS_WINDOWS;
-    }
-    private static final int TARGET_OS_LINUX = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_LINUX 0
-     * }
-     */
-    public static int TARGET_OS_LINUX() {
-        return TARGET_OS_LINUX;
-    }
-    private static final int TARGET_CPU_PPC = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_PPC 0
-     * }
-     */
-    public static int TARGET_CPU_PPC() {
-        return TARGET_CPU_PPC;
-    }
-    private static final int TARGET_CPU_PPC64 = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_PPC64 0
-     * }
-     */
-    public static int TARGET_CPU_PPC64() {
-        return TARGET_CPU_PPC64;
-    }
-    private static final int TARGET_CPU_68K = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_68K 0
-     * }
-     */
-    public static int TARGET_CPU_68K() {
-        return TARGET_CPU_68K;
-    }
-    private static final int TARGET_CPU_X86 = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_X86 0
-     * }
-     */
-    public static int TARGET_CPU_X86() {
-        return TARGET_CPU_X86;
-    }
-    private static final int TARGET_CPU_X86_64 = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_X86_64 0
-     * }
-     */
-    public static int TARGET_CPU_X86_64() {
-        return TARGET_CPU_X86_64;
-    }
-    private static final int TARGET_CPU_ARM = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_ARM 0
-     * }
-     */
-    public static int TARGET_CPU_ARM() {
-        return TARGET_CPU_ARM;
-    }
-    private static final int TARGET_CPU_MIPS = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_MIPS 0
-     * }
-     */
-    public static int TARGET_CPU_MIPS() {
-        return TARGET_CPU_MIPS;
-    }
-    private static final int TARGET_CPU_SPARC = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_SPARC 0
-     * }
-     */
-    public static int TARGET_CPU_SPARC() {
-        return TARGET_CPU_SPARC;
-    }
-    private static final int TARGET_CPU_ALPHA = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_CPU_ALPHA 0
-     * }
-     */
-    public static int TARGET_CPU_ALPHA() {
-        return TARGET_CPU_ALPHA;
     }
     private static final int __DARWIN_FD_SETSIZE = (int)1024L;
     /**
@@ -2564,132 +2231,6 @@ public class ObjCRuntime {
     }
     /**
      * {@snippet lang=c :
-     * typedef signed char __int8_t
-     * }
-     */
-    public static final OfByte __int8_t = ObjCRuntime.C_CHAR;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned char __uint8_t
-     * }
-     */
-    public static final OfByte __uint8_t = ObjCRuntime.C_CHAR;
-    /**
-     * {@snippet lang=c :
-     * typedef short __int16_t
-     * }
-     */
-    public static final OfShort __int16_t = ObjCRuntime.C_SHORT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned short __uint16_t
-     * }
-     */
-    public static final OfShort __uint16_t = ObjCRuntime.C_SHORT;
-    /**
-     * {@snippet lang=c :
-     * typedef int __int32_t
-     * }
-     */
-    public static final OfInt __int32_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int __uint32_t
-     * }
-     */
-    public static final OfInt __uint32_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef long long __int64_t
-     * }
-     */
-    public static final OfLong __int64_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned long long __uint64_t
-     * }
-     */
-    public static final OfLong __uint64_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef long __darwin_intptr_t
-     * }
-     */
-    public static final OfLong __darwin_intptr_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int __darwin_natural_t
-     * }
-     */
-    public static final OfInt __darwin_natural_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int __darwin_ct_rune_t
-     * }
-     */
-    public static final OfInt __darwin_ct_rune_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef long __darwin_ptrdiff_t
-     * }
-     */
-    public static final OfLong __darwin_ptrdiff_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned long __darwin_size_t
-     * }
-     */
-    public static final OfLong __darwin_size_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __builtin_va_list __darwin_va_list
-     * }
-     */
-    public static final AddressLayout __darwin_va_list = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int __darwin_wchar_t
-     * }
-     */
-    public static final OfInt __darwin_wchar_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_wchar_t __darwin_rune_t
-     * }
-     */
-    public static final OfInt __darwin_rune_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int __darwin_wint_t
-     * }
-     */
-    public static final OfInt __darwin_wint_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned long __darwin_clock_t
-     * }
-     */
-    public static final OfLong __darwin_clock_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_socklen_t
-     * }
-     */
-    public static final OfInt __darwin_socklen_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef long __darwin_ssize_t
-     * }
-     */
-    public static final OfLong __darwin_ssize_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef long __darwin_time_t
-     * }
-     */
-    public static final OfLong __darwin_time_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
      * typedef __int64_t __darwin_blkcnt_t
      * }
      */
@@ -2812,24 +2353,6 @@ public class ObjCRuntime {
      * }
      */
     public static final AddressLayout __darwin_pthread_t = ObjCRuntime.C_POINTER;
-    /**
-     * {@snippet lang=c :
-     * typedef int __darwin_nl_item
-     * }
-     */
-    public static final OfInt __darwin_nl_item = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int __darwin_wctrans_t
-     * }
-     */
-    public static final OfInt __darwin_wctrans_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_wctype_t
-     * }
-     */
-    public static final OfInt __darwin_wctype_t = ObjCRuntime.C_INT;
     private static final int P_ALL = (int)0L;
     /**
      * {@snippet lang=c :
@@ -2869,12 +2392,6 @@ public class ObjCRuntime {
      * }
      */
     public static final OfInt id_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef int sig_atomic_t
-     * }
-     */
-    public static final OfInt sig_atomic_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
      * typedef signed char int8_t
@@ -5248,61 +4765,6 @@ public class ObjCRuntime {
                 traceDowncall("posix_memalign", __memptr, __alignment, __size);
             }
             return (int)mh$.invokeExact(__memptr, __alignment, __size);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
-
-    private static class abort {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.ofVoid(    );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("abort");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * void abort()
-     * }
-     */
-    public static FunctionDescriptor abort$descriptor() {
-        return abort.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * void abort()
-     * }
-     */
-    public static MethodHandle abort$handle() {
-        return abort.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * void abort()
-     * }
-     */
-    public static MemorySegment abort$address() {
-        return abort.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * void abort()
-     * }
-     */
-    public static void abort() {
-        var mh$ = abort.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("abort");
-            }
-            mh$.invokeExact();
         } catch (Throwable ex$) {
            throw new AssertionError("should not reach here", ex$);
         }
@@ -19264,33 +18726,6 @@ public class ObjCRuntime {
     public static MemorySegment __DARWIN_NULL() {
         return __DARWIN_NULL;
     }
-    private static final int __DARWIN_WCHAR_MAX = (int)2147483647L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_WCHAR_MAX 2147483647
-     * }
-     */
-    public static int __DARWIN_WCHAR_MAX() {
-        return __DARWIN_WCHAR_MAX;
-    }
-    private static final int __DARWIN_WCHAR_MIN = (int)-2147483648L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_WCHAR_MIN -2147483648
-     * }
-     */
-    public static int __DARWIN_WCHAR_MIN() {
-        return __DARWIN_WCHAR_MIN;
-    }
-    private static final int __DARWIN_WEOF = (int)-1L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_WEOF -1
-     * }
-     */
-    public static int __DARWIN_WEOF() {
-        return __DARWIN_WEOF;
-    }
     private static final int NSIG = (int)32L;
     /**
      * {@snippet lang=c :
@@ -19992,33 +19427,6 @@ public class ObjCRuntime {
      */
     public static MemorySegment NULL() {
         return NULL;
-    }
-    private static final int TARGET_ABI_USES_IOS_VALUES = (int)1L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_ABI_USES_IOS_VALUES 1
-     * }
-     */
-    public static int TARGET_ABI_USES_IOS_VALUES() {
-        return TARGET_ABI_USES_IOS_VALUES;
-    }
-    private static final int TARGET_IPHONE_SIMULATOR = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_IPHONE_SIMULATOR 0
-     * }
-     */
-    public static int TARGET_IPHONE_SIMULATOR() {
-        return TARGET_IPHONE_SIMULATOR;
-    }
-    private static final int TARGET_OS_NANO = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define TARGET_OS_NANO 0
-     * }
-     */
-    public static int TARGET_OS_NANO() {
-        return TARGET_OS_NANO;
     }
     private static final long __DARWIN_NFDBITS = 32L;
     /**

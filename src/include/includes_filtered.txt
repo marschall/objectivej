@@ -1,46 +1,3 @@
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
-
---include-constant DYNAMIC_TARGETS_ENABLED    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_ABI_USES_IOS_VALUES # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_68K             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_ALPHA           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_ARM             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_ARM64           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_MIPS            # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_PPC             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_PPC64           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_SPARC           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_X86             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_CPU_X86_64          # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_IPHONE_SIMULATOR    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_DRIVERKIT        # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_EMBEDDED         # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_IOS              # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_IPHONE           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_LINUX            # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_MAC              # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_MACCATALYST      # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_NANO             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_OSX              # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_RTKIT            # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_SIMULATOR        # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_TV               # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_UIKITFORMAC      # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_UNIX             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_VISION           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_WATCH            # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_WIN32            # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_OS_WINDOWS          # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_RT_64_BIT           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_RT_BIG_ENDIAN       # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_RT_LITTLE_ENDIAN    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_RT_MAC_CFM          # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
---include-constant TARGET_RT_MAC_MACHO        # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h
-
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_abort.h
-
---include-function abort # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_abort.h
-
 #### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdlib.h
 
 --include-typedef div_t                 # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdlib.h
@@ -158,16 +115,6 @@
 --include-constant EXIT_SUCCESS         # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdlib.h
 --include-constant RAND_MAX             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdlib.h
 
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h
-
---include-typedef __darwin_nl_item    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h
---include-typedef __darwin_wctrans_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h
---include-typedef __darwin_wctype_t   # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h
---include-constant _FORTIFY_SOURCE    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h
---include-constant __DARWIN_WCHAR_MAX # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h
---include-constant __DARWIN_WCHAR_MIN # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h
---include-constant __DARWIN_WEOF      # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h
-
 #### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_intmax_t.h
 
 --include-typedef intmax_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_intmax_t.h
@@ -206,43 +153,6 @@
 --include-typedef mcontext_t           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_mcontext.h
 --include-struct __darwin_mcontext32   # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_mcontext.h
 --include-struct __darwin_mcontext64   # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_mcontext.h
-
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
-
---include-typedef __darwin_clock_t    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_ct_rune_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_intptr_t   # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_mbstate_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_natural_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_ptrdiff_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_rune_t     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_size_t     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_socklen_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_ssize_t    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_time_t     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_va_list    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_wchar_t    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __darwin_wint_t     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __int16_t           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __int32_t           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __int64_t           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __int8_t            # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __mbstate_t         # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __uint16_t          # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __uint32_t          # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __uint64_t          # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-typedef __uint8_t           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
---include-constant USE_CLANG_TYPES    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h
-
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/endian.h
-
---include-constant _QUAD_HIGHWORD # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/endian.h
---include-constant _QUAD_LOWWORD  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/endian.h
-
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/signal.h
-
---include-typedef sig_atomic_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/signal.h
---include-constant _ARM_SIGNAL_ # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/signal.h
 
 #### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
 
