@@ -191,20 +191,6 @@
 
 --include-function alloca # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/alloca.h
 
-#### Extracted from: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_endian.h
-
---include-constant BYTE_ORDER          # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_endian.h
---include-constant __DARWIN_BYTE_ORDER # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_endian.h
-
-#### Extracted from: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_limits.h
-
---include-constant __DARWIN_CLK_TCK # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_limits.h
-
-#### Extracted from: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/endian.h
-
---include-constant _QUAD_HIGHWORD # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/endian.h
---include-constant _QUAD_LOWWORD  # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/endian.h
-
 #### Extracted from: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/mach/arm/boolean.h
 
 --include-typedef boolean_t  # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/mach/arm/boolean.h
@@ -223,7 +209,6 @@
 --include-function realloc        # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/malloc/_malloc.h
 --include-function reallocf       # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/malloc/_malloc.h
 --include-function valloc         # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/malloc/_malloc.h
-
 
 #### Extracted from: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/malloc/_ptrcheck.h
 
@@ -721,32 +706,6 @@
 #### Extracted from: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_useconds_t.h
 
 --include-typedef useconds_t  # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_useconds_t.h
-
-#### Extracted from: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
-
---include-function wait3       # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-function wait4       # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-function waitid      # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-function waitpid     # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-union wait           # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-typedef idtype_t     # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant P_ALL       # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant P_PGID      # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant P_PID       # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant WAIT_ANY    # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant WAIT_MYPGRP # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant WCONTINUED  # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant WCOREFLAG   # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant WEXITED     # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant WNOHANG     # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant WNOWAIT     # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant WSTOPPED    # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant WUNTRACED   # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
---include-constant _WSTOPPED   # header: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/wait.h
-
-#### Extracted from: /Users/marschall/Hacking/jextract/jextract-22/runtime/conf/jextract/__stddef_max_align_t.h
-
---include-typedef max_align_t  # header: /Users/marschall/Hacking/jextract/jextract-22/runtime/conf/jextract/__stddef_max_align_t.h
 
 #### Extracted from: /Users/marschall/Hacking/jextract/jextract-22/runtime/conf/jextract/stdarg.h
 
