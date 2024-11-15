@@ -138,7 +138,7 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <forkCount>0</forkCount>
+          <argLine>--enable-native-access=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
       <plugin>
