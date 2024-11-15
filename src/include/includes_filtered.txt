@@ -148,20 +148,6 @@
 --include-constant BYTE_ORDER          # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_endian.h
 --include-constant __DARWIN_BYTE_ORDER # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_endian.h
 
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
-
---include-typedef register_t      # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
---include-typedef syscall_arg_t   # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
---include-typedef user_addr_t     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
---include-typedef user_long_t     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
---include-typedef user_off_t      # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
---include-typedef user_size_t     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
---include-typedef user_ssize_t    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
---include-typedef user_time_t     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
---include-typedef user_ulong_t    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
---include-constant USER_ADDR_NULL # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/types.h
-
-
 #### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/malloc/_malloc.h
 
 --include-function aligned_alloc  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/malloc/_malloc.h
@@ -504,33 +490,6 @@
 --include-constant __DARWIN_BIG_ENDIAN    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/__endian.h
 --include-constant __DARWIN_LITTLE_ENDIAN # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/__endian.h
 --include-constant __DARWIN_PDP_ENDIAN    # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/__endian.h
-
-
-
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
-
---include-typedef __darwin_blkcnt_t          # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_blksize_t         # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_dev_t             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_fsblkcnt_t        # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_fsfilcnt_t        # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_gid_t             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_id_t              # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_ino64_t           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_ino_t             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_mach_port_name_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_mach_port_t       # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_mode_t            # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_off_t             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_pid_t             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_sigset_t          # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_suseconds_t       # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_uid_t             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_useconds_t        # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_uuid_string_t     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-typedef __darwin_uuid_t            # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-constant USE_CLANG_TYPES           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
---include-constant __DARWIN_NULL             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h
 
 #### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_blkcnt_t.h
 

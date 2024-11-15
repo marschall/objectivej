@@ -78,15 +78,6 @@ public class ObjCRuntime {
     public static int __has_ptrcheck() {
         return __has_ptrcheck;
     }
-    private static final int USE_CLANG_TYPES = (int)0L;
-    /**
-     * {@snippet lang=c :
-     * #define USE_CLANG_TYPES 0
-     * }
-     */
-    public static int USE_CLANG_TYPES() {
-        return USE_CLANG_TYPES;
-    }
     private static final int USE_CLANG_STDDEF = (int)0L;
     /**
      * {@snippet lang=c :
@@ -350,114 +341,6 @@ public class ObjCRuntime {
     }
     /**
      * {@snippet lang=c :
-     * typedef __int64_t __darwin_blkcnt_t
-     * }
-     */
-    public static final OfLong __darwin_blkcnt_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __int32_t __darwin_blksize_t
-     * }
-     */
-    public static final OfInt __darwin_blksize_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __int32_t __darwin_dev_t
-     * }
-     */
-    public static final OfInt __darwin_dev_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int __darwin_fsblkcnt_t
-     * }
-     */
-    public static final OfInt __darwin_fsblkcnt_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef unsigned int __darwin_fsfilcnt_t
-     * }
-     */
-    public static final OfInt __darwin_fsfilcnt_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_gid_t
-     * }
-     */
-    public static final OfInt __darwin_gid_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_id_t
-     * }
-     */
-    public static final OfInt __darwin_id_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint64_t __darwin_ino64_t
-     * }
-     */
-    public static final OfLong __darwin_ino64_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_ino64_t __darwin_ino_t
-     * }
-     */
-    public static final OfLong __darwin_ino_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_natural_t __darwin_mach_port_name_t
-     * }
-     */
-    public static final OfInt __darwin_mach_port_name_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_mach_port_name_t __darwin_mach_port_t
-     * }
-     */
-    public static final OfInt __darwin_mach_port_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint16_t __darwin_mode_t
-     * }
-     */
-    public static final OfShort __darwin_mode_t = ObjCRuntime.C_SHORT;
-    /**
-     * {@snippet lang=c :
-     * typedef __int64_t __darwin_off_t
-     * }
-     */
-    public static final OfLong __darwin_off_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __int32_t __darwin_pid_t
-     * }
-     */
-    public static final OfInt __darwin_pid_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_sigset_t
-     * }
-     */
-    public static final OfInt __darwin_sigset_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __int32_t __darwin_suseconds_t
-     * }
-     */
-    public static final OfInt __darwin_suseconds_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_uid_t
-     * }
-     */
-    public static final OfInt __darwin_uid_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
-     * typedef __uint32_t __darwin_useconds_t
-     * }
-     */
-    public static final OfInt __darwin_useconds_t = ObjCRuntime.C_INT;
-    /**
-     * {@snippet lang=c :
      * typedef unsigned char u_int8_t
      * }
      */
@@ -482,64 +365,10 @@ public class ObjCRuntime {
     public static final OfLong u_int64_t = ObjCRuntime.C_LONG_LONG;
     /**
      * {@snippet lang=c :
-     * typedef int64_t register_t
-     * }
-     */
-    public static final OfLong register_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
      * typedef unsigned long uintptr_t
      * }
      */
     public static final OfLong uintptr_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef u_int64_t user_addr_t
-     * }
-     */
-    public static final OfLong user_addr_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef u_int64_t user_size_t
-     * }
-     */
-    public static final OfLong user_size_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef int64_t user_ssize_t
-     * }
-     */
-    public static final OfLong user_ssize_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef int64_t user_long_t
-     * }
-     */
-    public static final OfLong user_long_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef u_int64_t user_ulong_t
-     * }
-     */
-    public static final OfLong user_ulong_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef int64_t user_time_t
-     * }
-     */
-    public static final OfLong user_time_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef int64_t user_off_t
-     * }
-     */
-    public static final OfLong user_off_t = ObjCRuntime.C_LONG_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef u_int64_t syscall_arg_t
-     * }
-     */
-    public static final OfLong syscall_arg_t = ObjCRuntime.C_LONG_LONG;
     /**
      * {@snippet lang=c :
      * typedef __darwin_size_t size_t
@@ -15889,24 +15718,6 @@ public class ObjCRuntime {
         } catch (Throwable ex$) {
            throw new AssertionError("should not reach here", ex$);
         }
-    }
-    private static final MemorySegment __DARWIN_NULL = MemorySegment.ofAddress(0L);
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_NULL (void*) 0
-     * }
-     */
-    public static MemorySegment __DARWIN_NULL() {
-        return __DARWIN_NULL;
-    }
-    private static final long USER_ADDR_NULL = 0L;
-    /**
-     * {@snippet lang=c :
-     * #define USER_ADDR_NULL 0
-     * }
-     */
-    public static long USER_ADDR_NULL() {
-        return USER_ADDR_NULL;
     }
     private static final long INT64_MAX = 9223372036854775807L;
     /**
