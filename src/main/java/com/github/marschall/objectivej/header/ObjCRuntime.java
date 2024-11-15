@@ -186,24 +186,6 @@ public class ObjCRuntime {
     public static int RAND_MAX() {
         return RAND_MAX;
     }
-    private static final int __DARWIN_FD_SETSIZE = (int)1024L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_FD_SETSIZE 1024
-     * }
-     */
-    public static int __DARWIN_FD_SETSIZE() {
-        return __DARWIN_FD_SETSIZE;
-    }
-    private static final int __DARWIN_NBBY = (int)8L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_NBBY 8
-     * }
-     */
-    public static int __DARWIN_NBBY() {
-        return __DARWIN_NBBY;
-    }
     private static final int OBJC_API_VERSION = (int)0L;
     /**
      * {@snippet lang=c :
@@ -366,12 +348,6 @@ public class ObjCRuntime {
      * }
      */
     public static final OfLong size_t = ObjCRuntime.C_LONG;
-    /**
-     * {@snippet lang=c :
-     * typedef __darwin_uid_t uid_t
-     * }
-     */
-    public static final OfInt uid_t = ObjCRuntime.C_INT;
     /**
      * {@snippet lang=c :
      * typedef unsigned char uint8_t
@@ -8169,66 +8145,6 @@ public class ObjCRuntime {
      * }
      */
     public static final OfInt errno_t = ObjCRuntime.C_INT;
-
-    private static class __darwin_check_fd_set_overflow {
-        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_INT,
-            ObjCRuntime.C_POINTER,
-            ObjCRuntime.C_INT
-        );
-
-        public static final MemorySegment ADDR = ObjCRuntime.findOrThrow("__darwin_check_fd_set_overflow");
-
-        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-    }
-
-    /**
-     * Function descriptor for:
-     * {@snippet lang=c :
-     * int __darwin_check_fd_set_overflow(int, const void *, int)
-     * }
-     */
-    public static FunctionDescriptor __darwin_check_fd_set_overflow$descriptor() {
-        return __darwin_check_fd_set_overflow.DESC;
-    }
-
-    /**
-     * Downcall method handle for:
-     * {@snippet lang=c :
-     * int __darwin_check_fd_set_overflow(int, const void *, int)
-     * }
-     */
-    public static MethodHandle __darwin_check_fd_set_overflow$handle() {
-        return __darwin_check_fd_set_overflow.HANDLE;
-    }
-
-    /**
-     * Address for:
-     * {@snippet lang=c :
-     * int __darwin_check_fd_set_overflow(int, const void *, int)
-     * }
-     */
-    public static MemorySegment __darwin_check_fd_set_overflow$address() {
-        return __darwin_check_fd_set_overflow.ADDR;
-    }
-
-    /**
-     * {@snippet lang=c :
-     * int __darwin_check_fd_set_overflow(int, const void *, int)
-     * }
-     */
-    public static int __darwin_check_fd_set_overflow(int x0, MemorySegment x1, int x2) {
-        var mh$ = __darwin_check_fd_set_overflow.HANDLE;
-        try {
-            if (TRACE_DOWNCALLS) {
-                traceDowncall("__darwin_check_fd_set_overflow", x0, x1, x2);
-            }
-            return (int)mh$.invokeExact(x0, x1, x2);
-        } catch (Throwable ex$) {
-           throw new AssertionError("should not reach here", ex$);
-        }
-    }
     /**
      * {@snippet lang=c :
      * typedef __int32_t fd_mask
@@ -16114,15 +16030,6 @@ public class ObjCRuntime {
      */
     public static MemorySegment NULL() {
         return NULL;
-    }
-    private static final long __DARWIN_NFDBITS = 32L;
-    /**
-     * {@snippet lang=c :
-     * #define __DARWIN_NFDBITS 32
-     * }
-     */
-    public static long __DARWIN_NFDBITS() {
-        return __DARWIN_NFDBITS;
     }
     private static final int NBBY = (int)8L;
     /**

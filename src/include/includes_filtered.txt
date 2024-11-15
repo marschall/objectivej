@@ -406,10 +406,6 @@
 --include-constant _C_VECTOR                                   # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/objc/runtime.h
 --include-constant _C_VOID                                     # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/objc/runtime.h
 
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stddef.h
-
---include-typedef max_align_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stddef.h
-
 #### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdint.h
 
 --include-typedef int_fast16_t      # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdint.h
@@ -495,14 +491,6 @@
 
 --include-typedef errno_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_errno_t.h
 
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fd_def.h
-
---include-function __darwin_check_fd_set_overflow # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fd_def.h
---include-struct fd_set                           # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fd_def.h
---include-constant __DARWIN_FD_SETSIZE            # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fd_def.h
---include-constant __DARWIN_NBBY                  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fd_def.h
---include-constant __DARWIN_NFDBITS               # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fd_def.h
-
 #### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_null.h
 
 --include-constant NULL             # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_null.h
@@ -554,10 +542,6 @@
 #### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_short.h
 
 --include-typedef u_short  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_short.h
-
-#### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_uid_t.h
-
---include-typedef uid_t  # header: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_uid_t.h
 
 #### Extracted from: /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_uintptr_t.h
 
