@@ -27,15 +27,21 @@ class ObjCRuntimeTests {
   @Test
   void abstracted() {
     try (Arena arena = Arena.ofConfined()) {
-      StringLookup stringLookup = new StringLookup(arena);
-      MethodHandleLookup methodHandleLookup = new MethodHandleLookup(stringLookup);
-      ObjectiveCRuntime runtime = new FfaObjectiveCRuntime(stringLookup, methodHandleLookup);
+      ObjectiveCRuntime runtime = setupRuntime(arena);
       Optional<ObjectiveCObject> maybeNSObjectClass = runtime.lookupClass("NSObject");
       assertTrue(maybeNSObjectClass.isPresent(), "NSObject can be looked up");
       ObjectiveCObject nsObjectClass = maybeNSObjectClass.get();
       ObjectiveCObject nsObject = nsObjectClass.msgSend("alloc").msgSend("init");
       assertNotNull(nsObject);
     }
+  }
+
+  private ObjectiveCRuntime setupRuntime(Arena arena) {
+    StringLookup stringLookup = new StringLookup(arena);
+    SelectorLookup selectorLookup = new SelectorLookup(stringLookup);
+    MethodHandleLookup methodHandleLookup = new MethodHandleLookup(stringLookup, selectorLookup);
+    ObjectiveCRuntime runtime = new FfaObjectiveCRuntime(stringLookup, methodHandleLookup);
+    return runtime;
   }
 
 }

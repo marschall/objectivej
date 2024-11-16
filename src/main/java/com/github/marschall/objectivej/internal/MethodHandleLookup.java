@@ -14,14 +14,16 @@ class MethodHandleLookup {
   
   private final StringLookup stringLookup;
   private final List<MethodHandle> invokers;
+  private final SelectorLookup selectorLookup;
 
-  MethodHandleLookup(StringLookup stringLookup) {
+  MethodHandleLookup(StringLookup stringLookup, SelectorLookup selectorLookup) {
     this.stringLookup = stringLookup;
+    this.selectorLookup = selectorLookup;
     this.invokers = new ArrayList<>();
   }
 
   public MemorySegment lookupSelector(String selector) {
-    return this.stringLookup.lookupString(selector);
+    return this.selectorLookup.lookupString(selector);
   }
 
   public MethodHandle lookupInvoker(int varargCount) {
