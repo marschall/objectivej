@@ -18,12 +18,14 @@ class ObjectiveCObjectImpl implements ObjectiveCObject {
   @Override
   public ObjectiveCObject msgSend(String selector, Object... arguments) {
     MemorySegment op = this.methodHandleLookup.lookupSelector(selector);
-    Object[] callArguments = makeCallArguments(op, arguments);
-    MethodHandle invoker = this.methodHandleLookup.lookupInvoker(arguments == null ? 0 : arguments.length);
     // TODO could be null
     MemorySegment result;
     try {
-      result = (MemorySegment) invoker.invoke(callArguments);
+      if (arguments.length == 0) {
+        result = invokeWithoutArguments(op);
+      } else {
+        result = invokeWithArguments(op, arguments);
+      }
     } catch(IllegalArgumentException | ClassCastException e)  {
         throw e; // rethrow IAE from passing wrong number/type of args
     } catch (Throwable e) {
@@ -36,25 +38,34 @@ class ObjectiveCObjectImpl implements ObjectiveCObject {
       return new ObjectiveCObjectImpl(result, this.methodHandleLookup);
     }
   }
-  
-  private Object[] makeCallArguments(MemorySegment op, Object... arguments) {
-    Object[] callArguments = new Object[arguments.length + 2];
-    callArguments[0] = this.self;
-    callArguments[1] = op;
+
+  private MemorySegment invokeWithoutArguments(MemorySegment op) throws Throwable {
+    MethodHandle invoker = this.methodHandleLookup.lookupInvoker(0);
+    return (MemorySegment) invoker.invoke(this.self, op);
+  }
+
+  private MemorySegment invokeWithArguments(MemorySegment op, Object[] arguments) throws Throwable {
+    MemorySegment[] callArguments = makeCallArguments(arguments);
+    MethodHandle invoker = this.methodHandleLookup.lookupInvoker(arguments.length);
+    return (MemorySegment) invoker.invoke(this.self, op, callArguments);
+  }
+
+  private MemorySegment[] makeCallArguments(Object... arguments) {
+    MemorySegment[] callArguments = new MemorySegment[arguments.length];
     for (int i = 0; i < arguments.length; i++) {
-      callArguments[i + 2] = makeCallArgument(arguments[i]);
-      
+      callArguments[i] = makeCallArgument(arguments[i]);
+
     }
     return callArguments;
   }
 
-  private Object makeCallArgument(Object object) {
+  private MemorySegment makeCallArgument(Object object) {
     if (object instanceof ObjectiveCObjectImpl other) {
       return other.self;
     } else if (object instanceof String s) {
         return this.methodHandleLookup.lookupString(s);
     } else {
-      return object;
+      throw new AssertionError("should not reach here");
     }
   }
 

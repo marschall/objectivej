@@ -25,6 +25,7 @@ class MethodHandleLookup {
   }
 
   public MethodHandle lookupInvoker(int varargCount) {
+    // TODO shortcut 0
     while (this.invokers.size() <= varargCount) {
       this.invokers.add(null);
     }
