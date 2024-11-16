@@ -1,4 +1,18 @@
+Objective-J
+===========
 
+A prototype Java interface for Objective-C using [Foreign Function and Memory (FFM) API](https://docs.oracle.com/en/java/javase/23/core/foreign-function-and-memory-api.html).
+
+Far from complete or production ready.
+
+Usage
+-----
+
+```java
+ObjectiveCRuntime runtime = ..;
+ObjectiveCObject nsObjectClass = runtime.lookupClass("NSObject").get();
+ObjectiveCObject nsObject = nsObjectClass.msgSend("alloc").msgSend("init");
+```
 
 
 Resources
@@ -17,3 +31,7 @@ https://gcc.gnu.org/onlinedocs/gcc/Modern-GNU-Objective-C-runtime-API.html
 OBJC_EXTERN extern
 
 https://stackoverflow.com/questions/21843500/obj-msgsend-function-pointer-crash-when-build-with-64bit-arm64
+
+/System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework/Versions/Current/Headers
+
+clang -cc1 -ast-dump -fblocks -x objective-c /System/Volumes/Data/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework/Versions/Current/Headers/NSObject.h
