@@ -7,13 +7,13 @@
   
   <name>Objective-J</name>
   <inceptionYear>2024</inceptionYear>
-  <description>A Jakarta JsonParser that operates on a Jackson JsonNode.</description>
+  <description>A prototype Java interface for Objective-C.</description>
 
-  <url>https://github.com/marschall/json-node-reader</url>
+  <url>https://github.com/marschall/objectivej</url>
 
   <scm>
-    <connection>scm:git:git@github.com:marschall/json-node-reader.git</connection>
-    <developerConnection>scm:git:git@github.com:marschall/json-node-reader.git</developerConnection>
+    <connection>scm:git:git@github.com:marschall/objectivej.git</connection>
+    <developerConnection>scm:git:git@github.com:marschall/objectivej.git</developerConnection>
     <url>${project.url}</url>
     <tag>HEAD</tag>
   </scm>
@@ -62,7 +62,7 @@
   </dependencies>
 
   <issueManagement>
-    <url>https://github.com/marschall/json-node-reader/issues</url>
+    <url>https://github.com/marschall/objectivej/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
 
