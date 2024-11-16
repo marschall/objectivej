@@ -29,7 +29,12 @@ class ObjectiveCObjectImpl implements ObjectiveCObject {
     } catch (Throwable e) {
        throw new AssertionError("should not reach here", e);
     }
-    return new ObjectiveCObjectImpl(result, this.methodHandleLookup);
+    // TODO null
+    if (result.equals(this.self)) {
+      return this;
+    } else {
+      return new ObjectiveCObjectImpl(result, this.methodHandleLookup);
+    }
   }
   
   private Object[] makeCallArguments(MemorySegment op, Object... arguments) {
