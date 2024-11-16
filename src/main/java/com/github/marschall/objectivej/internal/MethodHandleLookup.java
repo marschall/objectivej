@@ -30,6 +30,7 @@ class MethodHandleLookup {
     }
     MethodHandle invoker = this.invokers.get(varargCount);
     if (invoker == null) {
+      // FIXME not for numbers, string, boolean
       MemoryLayout[] layouts = new MemoryLayout[varargCount];
       Arrays.fill(layouts, ObjCRuntime.C_POINTER);
       invoker = MsgSend.objc_msgSend.makeInvoker(layouts).handle();
