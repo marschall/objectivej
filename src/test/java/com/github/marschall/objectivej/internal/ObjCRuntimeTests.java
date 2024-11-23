@@ -5,22 +5,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.lang.invoke.MethodHandle;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
 import com.github.marschall.objectivej.api.ObjectiveCObject;
 import com.github.marschall.objectivej.api.ObjectiveCRuntime;
+import com.github.marschall.objectivej.header.MsgSend;
 import com.github.marschall.objectivej.header.ObjCRuntime;
 
 class ObjCRuntimeTests {
   
   @Test
-  void lowLevel() {
+  void lowLevel() throws Throwable {
     try (Arena arena = Arena.ofConfined()) {
       MemorySegment nsObjectString = arena.allocateFrom("NSObject");
       MemorySegment nsObjectClass = ObjCRuntime.objc_getClass(nsObjectString);
-      assertNotNull(nsObjectClass);
+      MemorySegment allocString = arena.allocateFrom("alloc");
+      MemorySegment allocSelector = ObjCRuntime.sel_registerName(allocString);
+      MethodHandle invoker = MsgSend.objc_msgSend.makeInvoker().handle();
+
+      MemorySegment result = (MemorySegment) invoker.invokeExact(nsObjectClass, allocSelector);
     }
   }
 
